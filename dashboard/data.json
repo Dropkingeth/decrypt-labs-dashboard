@@ -1,0 +1,250 @@
+{
+  "lastUpdated": "2026-01-28T13:52:00Z",
+  "aum": {
+    "total": 303427.82,
+    "milestone": 300000,
+    "milestoneLabel": "2x Buyback Power"
+  },
+  "bots": {
+    "fvg-ifvg-1": {
+      "name": "FVG+IFVG #1",
+      "subtitle": "Determining Order Flow",
+      "status": "online",
+      "accountId": "APEX2519120000018",
+      "accountSize": 150000,
+      "currentBalance": 150424.06,
+      "stats": {
+        "power": 75,
+        "fuel": 100,
+        "condition": 88,
+        "heat": 25
+      },
+      "performance": {
+        "totalTrades": 5142,
+        "winRate": 76.8,
+        "netPnl": 424.06,
+        "todayPnl": 0
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": 424.06,
+        "profitTargetGoal": 9000,
+        "profitTargetPercent": 4.7,
+        "drawdownUsed": 0,
+        "drawdownMax": 6000,
+        "drawdownPercent": 0,
+        "daysRemaining": 30,
+        "daysTotal": 30
+      },
+      "lastTrade": {
+        "id": 5156,
+        "bot": "fvg-ifvg-1",
+        "timestamp": "2026-01-26T10:55:00Z",
+        "symbol": "MNQ",
+        "side": "long",
+        "entry": 25888.0,
+        "exit": 25899.75,
+        "size": 1,
+        "pnl": 23.5,
+        "signal": "SL Exit"
+      }
+    },
+    "ote-silver-bullet": {
+      "name": "OTE Silver Bullet",
+      "subtitle": "Optimal Trade Entry",
+      "status": "online",
+      "accountId": "APEX2519120000014",
+      "accountSize": 150000,
+      "currentBalance": 153003.76,
+      "stats": {
+        "power": 88,
+        "fuel": 102,
+        "condition": 92,
+        "heat": 20
+      },
+      "performance": {
+        "totalTrades": 4765,
+        "winRate": 63.2,
+        "netPnl": 3003.76,
+        "todayPnl": 0
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": 3003.76,
+        "profitTargetGoal": 9000,
+        "profitTargetPercent": 33.4,
+        "drawdownUsed": 0,
+        "drawdownMax": 6000,
+        "drawdownPercent": 0,
+        "daysRemaining": 30,
+        "daysTotal": 30
+      },
+      "lastTrade": {
+        "id": 4809,
+        "bot": "ote-silver-bullet",
+        "timestamp": "2026-01-26T10:10:00Z",
+        "symbol": "MNQ",
+        "side": "long",
+        "entry": 25818.0,
+        "exit": 25844.5,
+        "size": 4,
+        "pnl": 212.0,
+        "signal": "EOD Flatten"
+      }
+    }
+  },
+  "trades": [
+    {
+      "id": 5156,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-26T10:55:00Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25888.0,
+      "exit": 25899.75,
+      "size": 1,
+      "pnl": 23.5,
+      "signal": "SL Exit"
+    },
+    {
+      "id": 5155,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-26T10:55:00Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25888.0,
+      "exit": 25893.5,
+      "size": 1,
+      "pnl": 11.0,
+      "signal": "TP3_BT"
+    },
+    {
+      "id": 4809,
+      "bot": "ote-silver-bullet",
+      "timestamp": "2026-01-26T10:10:00Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25818.0,
+      "exit": 25844.5,
+      "size": 4,
+      "pnl": 212.0,
+      "signal": "EOD Flatten"
+    },
+    {
+      "id": 4808,
+      "bot": "ote-silver-bullet",
+      "timestamp": "2026-01-26T10:10:00Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25818.0,
+      "exit": 25856.25,
+      "size": 2,
+      "pnl": 153.0,
+      "signal": "TP2 Active"
+    },
+    {
+      "id": 5152,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-26T10:00:00Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25837.5,
+      "exit": 25836.0,
+      "size": 2,
+      "pnl": -6.0,
+      "signal": "SL Exit"
+    },
+    {
+      "id": 5149,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-26T09:52:00Z",
+      "symbol": "MNQ",
+      "side": "short",
+      "entry": 25813.75,
+      "exit": 25839.75,
+      "size": 3,
+      "pnl": -156.0,
+      "signal": "Bias Flip Exit"
+    },
+    {
+      "id": 5147,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-26T08:53:00Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25699.0,
+      "exit": 25707.0,
+      "size": 2,
+      "pnl": 32.0,
+      "signal": "SL Exit"
+    },
+    {
+      "id": 4806,
+      "bot": "ote-silver-bullet",
+      "timestamp": "2026-01-23T15:59:30Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25733.75,
+      "exit": 25731.0,
+      "size": 10,
+      "pnl": -55.0,
+      "signal": "EOD Flatten"
+    },
+    {
+      "id": 5144,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-23T11:10:00Z",
+      "symbol": "MNQ",
+      "side": "short",
+      "entry": 25826.25,
+      "exit": 25829.0,
+      "size": 3,
+      "pnl": -16.5,
+      "signal": "SL Exit"
+    },
+    {
+      "id": 4804,
+      "bot": "ote-silver-bullet",
+      "timestamp": "2026-01-23T11:05:30Z",
+      "symbol": "MNQ",
+      "side": "long",
+      "entry": 25823.25,
+      "exit": 25795.75,
+      "size": 10,
+      "pnl": -550.0,
+      "signal": "Stop Loss Active"
+    }
+  ],
+  "buybacks": [],
+  "racing": {
+    "daily": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 0,
+        "ote-silver-bullet": 0
+      }
+    },
+    "weekly": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 0,
+        "ote-silver-bullet": 0
+      }
+    },
+    "monthly": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 424.06,
+        "ote-silver-bullet": 3003.76
+      }
+    },
+    "allTime": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 424.06,
+        "ote-silver-bullet": 3003.76
+      }
+    }
+  },
+  "hallOfFame": []
+}
