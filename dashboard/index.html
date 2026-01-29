@@ -3596,18 +3596,87 @@
         }, 3000);
         */
         
-        // ====== DATA LOADING FROM data.json ======
+        // ====== LIVE API CONNECTION ======
+        // 🔧 UPDATE THIS URL when ngrok restarts (or use static subdomain)
+        const LIVE_API_URL = 'https://noncategorical-dagmar-screwy.ngrok-free.dev';
+        
         let dashboardData = null;
         
         async function loadDashboardData() {
             try {
-                const response = await fetch('data.json?' + Date.now());
-                dashboardData = await response.json();
+                // Try live API first, fallback to local data.json
+                let response;
+                try {
+                    response = await fetch(LIVE_API_URL + '/api/trades?limit=20', {
+                        headers: { 'ngrok-skip-browser-warning': 'true' }
+                    });
+                    const trades = await response.json();
+                    
+                    // Also get stats
+                    const statsRes = await fetch(LIVE_API_URL + '/api/stats', {
+                        headers: { 'ngrok-skip-browser-warning': 'true' }
+                    });
+                    const stats = await statsRes.json();
+                    
+                    // Build dashboardData from live API
+                    dashboardData = buildDashboardFromAPI(trades, stats);
+                    console.log('%c🔴 LIVE DATA from webhook server', 'color: #ff0088; font-weight: bold;', stats);
+                } catch (apiError) {
+                    console.warn('Live API unavailable, falling back to data.json:', apiError.message);
+                    response = await fetch('data.json?' + Date.now());
+                    dashboardData = await response.json();
+                    console.log('%c📊 Dashboard data loaded (fallback)', 'color: #00ff88;', dashboardData.lastUpdated);
+                }
+                
                 updateDashboardFromData();
-                console.log('%c📊 Dashboard data loaded', 'color: #00ff88;', dashboardData.lastUpdated);
             } catch (error) {
                 console.error('Failed to load dashboard data:', error);
             }
+        }
+        
+        function buildDashboardFromAPI(trades, stats) {
+            // Convert API data to dashboard format
+            const botStats = stats.bots || {};
+            
+            return {
+                lastUpdated: stats.lastUpdated || new Date().toISOString(),
+                aum: { total: 300000 }, // Static for now
+                bots: {
+                    'fvg-ifvg-1': {
+                        performance: {
+                            netPnl: botStats['fvg-ifvg']?.totalPnl || 0,
+                            todayPnl: botStats['fvg-ifvg']?.todayPnl || 0,
+                            winRate: botStats['fvg-ifvg']?.winRate || 0,
+                            totalTrades: botStats['fvg-ifvg']?.trades || 0
+                        },
+                        status: 'active'
+                    },
+                    'ote-silver-bullet': {
+                        performance: {
+                            netPnl: botStats['ote-silver-bullet']?.totalPnl || 0,
+                            todayPnl: botStats['ote-silver-bullet']?.todayPnl || 0,
+                            winRate: botStats['ote-silver-bullet']?.winRate || 0,
+                            totalTrades: botStats['ote-silver-bullet']?.trades || 0
+                        },
+                        status: 'active'
+                    }
+                },
+                trades: trades.filter(t => t.bot && t.action !== 'entry').map(t => ({
+                    bot: t.bot === 'fvg-ifvg' ? 'fvg-ifvg-1' : t.bot,
+                    timestamp: t.time || t.receivedAt,
+                    symbol: t.symbol || 'MNQ',
+                    side: t.side || 'long',
+                    entry: parseFloat(t.entryPrice) || 0,
+                    exit: parseFloat(t.exitPrice) || parseFloat(t.price) || 0,
+                    size: parseInt(t.size) || 1,
+                    pnl: parseFloat(t.pnl) || 0
+                })),
+                racing: {
+                    daily: { leader: 'fvg-ifvg-1', scores: {} },
+                    monthly: { leader: 'fvg-ifvg-1', scores: {} },
+                    allTime: { leader: 'fvg-ifvg-1', scores: {} }
+                }
+            };
         }
         
         function formatCurrency(amount) {
@@ -3894,8 +3963,8 @@
             loadDashboardData();
         });
         
-        // Auto-refresh every 60 seconds
-        setInterval(loadDashboardData, 60000);
+        // Auto-refresh every 30 seconds for live updates
+        setInterval(loadDashboardData, 30000);
         
         // ====== BUYBACK BATTERY VISUALIZATION ======
         const batteryConfig = {
