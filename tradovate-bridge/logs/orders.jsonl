@@ -1,0 +1,2 @@
+{"type":"webhook","bot":"ote-refined","alert":{"ticker":"MNQ","action":"buy","sentiment":"bullish","quantity":5,"orderType":"limit","limitPrice":21432.5},"timestamp":"2026-01-29T18:36:20.352Z"}
+{"type":"result","bot":"ote-refined","result":{"success":false,"error":"Account not configured"},"timestamp":"2026-01-29T18:36:20.353Z"}

@@ -1,0 +1,1298 @@
+//@version=5
+strategy("Determining Order Flow [FVG+IFVG] - Webhook", overlay=true, max_labels_count=500, max_lines_count=500, max_boxes_count=500, initial_capital=100000, default_qty_type=strategy.fixed, default_qty_value=1)
+
+// =============================================================================
+// 🌐 DECRYPT LABS WEBHOOK INTEGRATION
+// =============================================================================
+group_webhook = "🌐 Decrypt Labs Webhook"
+use_webhook = input.bool(true, "📡 Enable Webhook Alerts", tooltip="Send trade data to Decrypt Labs dashboard", group=group_webhook)
+webhook_url_display = input.string("https://YOUR-NGROK-URL/webhook/fvg-ifvg", "Webhook URL (for reference)", tooltip="Set this URL in your TradingView alert webhook field", group=group_webhook)
+
+// =============================================================================
+// 📊 WEBHOOK ALERT FUNCTIONS
+// =============================================================================
+
+// Entry Alert - sends when position is opened
+getWebhookEntry(string side, float entryPrice, int size) =>
+    '{"bot":"fvg-ifvg","action":"entry","side":"' + side + '","symbol":"' + syminfo.ticker + '","price":' + str.tostring(entryPrice) + ',"entryPrice":' + str.tostring(entryPrice) + ',"size":' + str.tostring(size) + ',"timeframe":"' + timeframe.period + '","time":"' + str.format_time(time, "yyyy-MM-dd\'T\'HH:mm:ssZ", "America/New_York") + '"}'
+
+// Exit Alert - sends when position is closed (partial or full)
+getWebhookExit(string side, string exitType, float exitPrice, float entryPrice, int size, float pnl, float totalPnl) =>
+    '{"bot":"fvg-ifvg","action":"' + exitType + '","side":"' + side + '","symbol":"' + syminfo.ticker + '","price":' + str.tostring(exitPrice) + ',"exitPrice":' + str.tostring(exitPrice) + ',"entryPrice":' + str.tostring(entryPrice) + ',"size":' + str.tostring(size) + ',"pnl":' + str.tostring(pnl) + ',"totalPnl":' + str.tostring(totalPnl) + ',"timeframe":"' + timeframe.period + '","time":"' + str.format_time(time, "yyyy-MM-dd\'T\'HH:mm:ssZ", "America/New_York") + '"}'
+
+// Position Update Alert - sends current state
+getWebhookUpdate(string updateType, float currentPrice) =>
+    '{"bot":"fvg-ifvg","action":"update","updateType":"' + updateType + '","symbol":"' + syminfo.ticker + '","price":' + str.tostring(currentPrice) + ',"positionSize":' + str.tostring(strategy.position_size) + ',"unrealizedPnl":' + str.tostring(strategy.openprofit) + ',"realizedPnl":' + str.tostring(strategy.netprofit) + ',"time":"' + str.format_time(time, "yyyy-MM-dd\'T\'HH:mm:ssZ", "America/New_York") + '"}'
+
+// =============================================================================
+// 🎯 CORE STRATEGY SETTINGS
+// =============================================================================
+group_strat = "🎯 Core Strategy Settings"
+use_dynamic_sl = input.bool(true, "📍 Dynamic Stop Loss", tooltip="✅ Uses previous trend extreme as stop loss ❌ Fixed stop loss", group=group_strat)
+one_trade_per_bias = input.bool(true, "🎯 One Trade Per Bias Shift", tooltip="✅ Only one entry attempt per bias shift ❌ Allow multiple entry attempts if first is skipped", group=group_strat)
+use_candle_trig = input.bool(true, "🕯️ Pullback Entry Trigger", tooltip="✅ Longs on RED candles, Shorts on GREEN candles ❌ Disable pullback requirement", group=group_strat)
+entry_bars_qty = input.int(1, " └─ Pullback Candle Count", minval=1, tooltip="📊 Number of consecutive pullback candles required (e.g., 2 red candles to buy)", group=group_strat)
+use_pullback_ltf = input.bool(false, " └─ Use LTF for Pullback", tooltip="✅ Check pullback candles on Lower Timeframe ❌ Use current chart timeframe", group=group_strat)
+pullback_ltf = input.timeframe("15S", " └─ Pullback LTF", tooltip="⏱️ Lower timeframe for pullback candle detection", group=group_strat)
+use_confirm_candle = input.bool(false, "🎯 Confirmation Entry Trigger", tooltip="✅ Longs on GREEN candles, Shorts on RED candles ❌ Disable confirmation requirement", group=group_strat)
+confirm_bars_qty = input.int(3, " └─ Confirmation Candle Count", minval=1, tooltip="📊 Number of consecutive confirmation candles required (GREEN for longs, RED for shorts)", group=group_strat)
+use_confirm_ltf = input.bool(false, " └─ Use LTF for Confirmation", tooltip="✅ Check confirmation candles on Lower Timeframe ❌ Use current chart timeframe", group=group_strat)
+confirm_ltf = input.timeframe("15S", " └─ Confirmation LTF", tooltip="⏱️ Lower timeframe for confirmation candle detection", group=group_strat)
+max_bias_age_m = input.int(18, "⏰ Max Bias Age (Minutes)", minval=1, tooltip="🔄 Only enter if bias shifted within this timeframe ⚠️ Prevents entering stale trends", group=group_strat)
+
+// =============================================================================
+// 💰 TRADE MANAGEMENT & EXITS - HYBRID MODE
+// =============================================================================
+group_mgt = "💰 Trade Management & Exits"
+
+// MODE SELECTION
+use_tradovate_mode = input.bool(true, "🔷 Tradovate Hybrid Mode", tooltip="✅ RECOMMENDED FOR TRADOVATE • TP1: Hard limit order at broker • TP2-3: Soft exits managed by TradingView • Runner: Exits on bias shift • SL: Soft stop managed by TradingView • Safety: Uses 'exit' command when uncertain ❌ When disabled: • All TPs managed by TradingView only", group=group_mgt)
+
+// TP1 - Hard Limit Order (placed at broker immediately)
+tp1_r = input.float(0.3, "🎯 TP1: Risk Multiple (R)", step=0.1, tooltip="📊 HARD LIMIT ORDER at broker Placed immediately after entry", group=group_mgt)
+tp1_qty = input.int(1, " └─ TP1 Contracts", minval=1, tooltip="📦 Contracts to close at TP1 This is a LIMIT order at the broker", group=group_mgt)
+
+// TP2-3 - Soft TPs (managed by TradingView)
+tp2_r = input.float(0.3, "🎯 TP2: Risk Multiple (R)", step=0.1, tooltip="📊 SOFT EXIT - TradingView sends market order when hit", group=group_mgt, inline="tp2")
+tp2_qty = input.int(1, "Contracts", minval=0, group=group_mgt, inline="tp2")
+tp3_r = input.float(1.8, "🎯 TP3: Risk Multiple (R)", step=0.1, tooltip="📊 SOFT EXIT - TradingView sends market order when hit", group=group_mgt, inline="tp3")
+tp3_qty = input.int(1, "Contracts", minval=0, group=group_mgt, inline="tp3")
+
+// Runner - Exits on Bias Shift (no TP4)
+tp4_runner_qty = input.int(1, "🏃 Runner (TP4) Contracts", minval=1, tooltip="📊 Remaining contract(s) exit on BIAS SHIFT This quantity is added to your total entry size.", group=group_mgt)
+
+// Break-Even Settings
+use_be = input.bool(true, "🛡️ Break Even After TP1", tooltip="✅ Move SL to break-even after TP1 fills ❌ Keep original SL", group=group_mgt)
+be_offset = input.float(6.0, " └─ BE Offset (Points)", step=0.25, tooltip="💵 SL moves to Entry + this offset after TP1 Covers fees and locks small profit", group=group_mgt)
+
+// =============================================================================
+// 📈 SMART POSITION SIZING
+// =============================================================================
+group_smart = "📈 Smart Position Sizing"
+mult_week1 = input.float(1.5, "🚀 Week 1 Boost", step=0.5, tooltip="📊 Best performing week historically 💪 Increases position size", group=group_smart)
+mult_week3 = input.float(0.5, "⚠️ Week 3 De-Risk", step=0.5, tooltip="📉 Highest risk week historically 🛡️ Reduces position size (set 0.0 to avoid)", group=group_smart)
+mult_wed = input.float(0.5, "📉 Wednesday De-Risk", step=0.5, tooltip="⚠️ Frequent drawdowns on Wednesdays 🛡️ Reduces position size", group=group_smart)
+mult_fri = input.float(3, "💎 Friday Boost", step=0.5, tooltip="✨ Most consistent performance day 📈 Increases position size", group=group_smart)
+avoid_hol = input.bool(true, "🚫 Block Holiday Trading", tooltip="⛔ Completely avoids trading on market holidays", group=group_smart)
+mult_near_hol = input.float(4, "🎉 Pre/Post Holiday Boost", step=0.5, tooltip="💰 Day before and after holidays often show strong moves 📈 Increases position size", group=group_smart)
+
+// =============================================================================
+// 🔄 CONSOLIDATION BUFFER (Lower Timeframe)
+// =============================================================================
+group_consol = "🔄 Consolidation Buffer (LTF)"
+use_consol_buffer = input.bool(true, "🛡️ Enable Consolidation Buffer", tooltip="✅ Skip trades after large moves to avoid chop ❌ Trade all bias shifts", group=group_consol)
+consol_threshold = input.float(600.0, "📏 Move Size Threshold", step=5.0, tooltip="💰 Move size (in points) considered 'too large' Moves exceeding this trigger the buffer", group=group_consol)
+consol_lookback = input.int(6, "🔍 Lookback Period (Bias Shifts)", minval=1, maxval=10, tooltip="📊 Number of recent bias shifts to check for large moves", group=group_consol)
+consol_skip_count = input.int(6, "⏭️ Shifts to Skip After Trigger", minval=1, maxval=20, tooltip="🚫 Number of bias shifts to skip trading after a large move is detected", group=group_consol)
+
+// =============================================================================
+// 📐 SETUP SIZE LIMITS
+// =============================================================================
+group_minsetup = "📐 Setup Size Limits"
+use_min_setup = input.bool(true, "📏 Enable Minimum Setup Filter", tooltip="✅ Filter or adjust trades with small stop distances ❌ Take all setups regardless of size", group=group_minsetup)
+min_setup_ticks = input.int(79, "🎯 Minimum Setup Size (Ticks)", minval=1, tooltip="📊 Minimum distance to stop loss in ticks Setups smaller than this are filtered", group=group_minsetup)
+min_setup_action = input.string("Use Fixed Stop", "⚡ Small Setup Action", options=["Skip Trade", "Use Fixed Stop"], tooltip="Skip Trade: Don't enter if setup is too small Use Fixed Stop: Enter with a fixed stop loss instead", group=group_minsetup)
+fixed_sl_ticks = input.int(200, "🛑 Fixed Stop Loss - Min (Ticks)", minval=1, tooltip="📍 Fixed stop loss distance in ticks Used when setup is smaller than minimum", group=group_minsetup)
+use_max_sl = input.bool(false, "📏 Enable Maximum Stop Limit", tooltip="✅ Cap stop loss size to prevent oversized risk ❌ Use calculated stop regardless of size", group=group_minsetup)
+max_sl_ticks = input.int(340, "🛑 Maximum Stop Loss (Ticks)", minval=1, tooltip="📍 Maximum allowed stop loss distance in ticks If calculated SL exceeds this, use this value instead", group=group_minsetup)
+
+// =============================================================================
+// 📊 HIGHER TIMEFRAME FILTER
+// =============================================================================
+group_htf = "📊 Higher Timeframe Confirmation"
+use_htf_filter = input.bool(true, "🔍 HTF Candle Color Filter", tooltip="✅ Shorts after Green HTF candle, Longs after Red HTF candle ❌ Ignore HTF confirmation", group=group_htf)
+htf_tf = input.timeframe("1", " └─ Higher Timeframe", tooltip="⏰ Timeframe for trend confirmation", group=group_htf)
+
+// =============================================================================
+// 🎨 SWING & TIMEFRAME SETTINGS
+// =============================================================================
+group_set = "🎨 Swing Detection Settings"
+lb_l = input.int(3, "👈 Left Bars", minval=1, tooltip="📊 Bars to the left of swing point", group=group_set)
+lb_r = input.int(3, "👉 Right Bars", minval=1, tooltip="📊 Bars to the right of swing point", group=group_set)
+max_hist = input.int(200, "📚 Max History (Swings)", minval=50, maxval=450, tooltip="💾 Maximum swing points to store", group=group_set)
+tf_pend = input.timeframe("15S", "⏱️ Pending Timeframe", tooltip="🔄 Fast timeframe for initial signals", group=group_set)
+tf_conf = input.timeframe("1", "✅ Confirmed Timeframe", tooltip="🎯 Medium timeframe for confirmation", group=group_set)
+tf_perm = input.timeframe("3", "🔒 Permanent Timeframe", tooltip="💎 Slow timeframe for structure", group=group_set)
+
+// =============================================================================
+// 📦 FVG (FAIR VALUE GAP) SETTINGS
+// =============================================================================
+group_fvg = "📦 Fair Value Gap (FVG) Settings"
+use_wicks = true
+fvg_min_size = input.float(0.03, "📏 Minimum Gap Size (%)", minval=0.0, step=0.01, tooltip="🎯 Min height as % of price to be significant", group=group_fvg)
+show_fvg = true
+show_ifvg = true
+use_mitigation = true
+max_days_active = input.int(3, "🗓️ Max Active Days", minval=1, tooltip="⏰ Delete FVG if not touched within this many days", group=group_fvg)
+
+// =============================================================================
+// 🐢 TURTLE SOUP SETTINGS
+// =============================================================================
+group_soup = "🐢 Turtle Soup (Liquidity Sweep) Settings"
+show_ts_p = false
+show_ts_c = true
+show_ts_pm = true
+soup_timeout_min = input.int(4, "⏰ Soup Activation Delay (min)", minval=1, tooltip="🕐 Minutes without FVG before Turtle Soups affect bias", group=group_soup)
+soup_thresh = input.int(2, "🎯 Soup Bias Threshold", minval=1, tooltip="📊 Consecutive soups needed to flip bias in Soup Mode", group=group_soup)
+
+// =============================================================================
+// 🎨 COLOR SCHEME
+// =============================================================================
+group_col = "🎨 Color Scheme"
+col_bg_high = input.color(color.new(#4caf4f, 33), "📈 Bullish Bias", group=group_col)
+col_bg_low = input.color(color.new(#ff5252, 33), "📉 Bearish Bias", group=group_col)
+col_ts_bear = color.red
+col_ts_bull = color.green
+col_fvg_bear = color.new(color.red, 80)
+col_fvg_bull = color.new(color.green, 80)
+col_ifvg_bear = color.new(color.orange, 70)
+col_ifvg_bull = color.new(color.teal, 70)
+
+// =============================================================================
+// ⏰ ICT TRADING SESSIONS (New York Time)
+// =============================================================================
+group_time = "⏰ ICT Trading Sessions (NY Time)"
+use_time_filter = input.bool(true, "🕐 Enable Time Filters", tooltip="✅ Only trade during selected sessions ❌ Trade all hours", group=group_time)
+sb_london = input.bool(false, "🇬🇧 London Silver Bullet (03:00-04:00)", tooltip="⚡ High probability London session setup", group=group_time)
+sb_am = input.bool(false, "🇺🇸 NY AM Silver Bullet (10:00-11:00)", tooltip="📈 Morning NY reversal window", group=group_time)
+sb_pm = input.bool(false, "🇺🇸 NY PM Silver Bullet (14:00-15:00)", tooltip="📊 Afternoon NY reversal window", group=group_time)
+pre_news = input.bool(false, "📰 Pre-News Session (07:00-08:30)", tooltip="⚠️ Volatile period before major news", group=group_time)
+ny_lunch = input.bool(false, "🍽️ NY Lunch Session (12:00-13:00)", tooltip="💤 Lower volume consolidation period", group=group_time)
+macro_0050 = input.bool(true, "🌙 Accumulation Macro (00:50-01:10)", tooltip="🔄 Early accumulation phase", group=group_time)
+macro_0150 = input.bool(false, "🌅 Pre-London Macro (01:50-02:10)", tooltip="🇬🇧 Before London open", group=group_time)
+macro_0233 = input.bool(false, "🔔 London Open Macro (02:33-03:00)", tooltip="🇬🇧 London market open", group=group_time)
+macro_0350 = input.bool(false, "🎭 London Manip Macro (03:50-04:10)", tooltip="🇬🇧 London manipulation window", group=group_time)
+macro_0403 = input.bool(false, "📈 London Expansion (04:03-04:30)", tooltip="🇬🇧 Post-manipulation expansion", group=group_time)
+macro_0550 = input.bool(true, "🌄 Pre-NY Macro (05:50-06:10)", tooltip="🇺🇸 Before NY session", group=group_time)
+macro_0750 = input.bool(false, "📊 NY Protraction (07:50-08:10)", tooltip="🇺🇸 Pre-news positioning", group=group_time)
+macro_0850 = input.bool(true, "🔔 NY Open Macro (08:50-09:10)", tooltip="🇺🇸 NY market open", group=group_time)
+macro_0950 = input.bool(true, "⚡ Silver Bullet/IB (09:50-10:10)", tooltip="🎯 Initial balance reversal", group=group_time)
+macro_1050 = input.bool(true, "🇬🇧 London Close (10:50-11:10)", tooltip="🔄 London session closing", group=group_time)
+macro_1150 = input.bool(false, "🍽️ Lunch Macro (11:50-12:10)", tooltip="💤 Pre-lunch positioning", group=group_time)
+macro_1310 = input.bool(false, "📈 PM Trend Macro (13:10-13:40)", tooltip="🔄 Afternoon trend initiation", group=group_time)
+macro_1450 = input.bool(false, "⏰ 2:50 Macro (14:50-15:10)", tooltip="📊 Late afternoon setup", group=group_time)
+macro_1515 = input.bool(false, "🔚 Close Macro (15:15-15:45)", tooltip="📉 Market closing period", group=group_time)
+close_eod = input.bool(true, "🌙 Close All at EOD", tooltip="✅ Automatically close all positions before market close", group=group_time)
+eod_hour = input.int(15, " ├─ EOD Hour", minval=0, maxval=23, group=group_time)
+eod_min = input.int(55, " └─ EOD Minute", minval=0, maxval=59, group=group_time)
+
+// =============================================================================
+// HIDDEN SETTINGS
+// =============================================================================
+show_visuals = false
+show_inv_circles = true
+col_inv_circle = color.white
+size_inv_circle = size.tiny
+fvg_border_width = 1
+col_inv = color.new(color.white, 100)
+col_trans = color.new(color.white, 100)
+final_col_ts_bear = show_visuals ? col_ts_bear : col_trans
+final_col_ts_bull = show_visuals ? col_ts_bull : col_trans
+final_col_fvg_bear = show_visuals ? col_fvg_bear : col_trans
+final_col_fvg_bull = show_visuals ? col_fvg_bull : col_trans
+final_col_ifvg_bear = show_visuals ? col_ifvg_bear : col_trans
+final_col_ifvg_bull = show_visuals ? col_ifvg_bull : col_trans
+final_col_inv_circle = show_visuals ? col_inv_circle : col_trans
+final_text_col = show_visuals ? color.white : col_trans
+
+// -----------------------------------------------------------------------------
+// --- TYPES ---
+// -----------------------------------------------------------------------------
+type SwingPoint
+    float price
+    int   time
+    int   index
+    int   type
+    int   status
+    label id
+    line  ln
+    bool  mitigated
+
+type SwingSettings
+    color  col_ts_bear
+    color  col_ts_bull
+    color  col_inv
+    color  col_text
+    string tf_pend_name
+    string tf_conf_name
+    string tf_perm_name
+    int    lb_r
+    int    max_hist
+    bool   show_ts_p
+    bool   show_ts_c
+    bool   show_ts_pm
+
+type SwingManager
+    SwingPoint[] highs
+    SwingPoint[] lows
+    SwingSettings settings
+
+// -----------------------------------------------------------------------------
+// --- HOLIDAY & SIZING LOGIC ---
+// -----------------------------------------------------------------------------
+get_holiday_status(t) =>
+    int d  = dayofmonth(t, "America/New_York")
+    int m  = month(t, "America/New_York")
+    int y  = year(t, "America/New_York")
+    int wd = dayofweek(t, "America/New_York")
+    bool is_hol = false
+
+    if m == 1 and d == 1
+        is_hol := true
+    if m == 6 and d == 19
+        is_hol := true
+    if m == 7 and d == 4
+        is_hol := true
+    if m == 11 and d == 11
+        is_hol := true
+    if m == 12 and d == 25
+        is_hol := true
+    if m == 1 and wd == 2
+        if d >= 15 and d <= 21
+            is_hol := true
+    if m == 2 and wd == 2
+        if d >= 15 and d <= 21
+            is_hol := true
+    if m == 5 and wd == 2
+        if d >= 25
+            is_hol := true
+    if m == 9 and wd == 2
+        if d <= 7
+            is_hol := true
+    if m == 11 and wd == 5
+        if d >= 22 and d <= 28
+            is_hol := true
+    if (y == 2023 and m == 4 and d == 7) or (y == 2024 and m == 3 and d == 29) or (y == 2025 and m == 4 and d == 18) or (y == 2026 and m == 4 and d == 3)
+        is_hol := true
+    is_hol
+
+bool today_is_hol = get_holiday_status(time)
+bool tmrw_is_hol  = get_holiday_status(time + 86400000)
+bool yest_is_hol  = get_holiday_status(time - 86400000)
+
+float current_mult = 1.0
+int wom = math.ceil(dayofmonth(time, "America/New_York") / 7.0)
+int dow = dayofweek(time, "America/New_York")
+bool is_pre_post = tmrw_is_hol or yest_is_hol
+
+if is_pre_post
+    current_mult := mult_near_hol
+else
+    float boost_mult = 1.0
+    if wom == 1
+        boost_mult := math.max(boost_mult, mult_week1)
+    if dow == dayofweek.friday
+        boost_mult := math.max(boost_mult, mult_fri)
+    current_mult := boost_mult
+    if wom == 3
+        current_mult := current_mult * mult_week3
+    if dow == dayofweek.wednesday
+        current_mult := current_mult * mult_wed
+
+bool trade_allowed_hol = true
+if avoid_hol and today_is_hol
+    trade_allowed_hol := false
+    current_mult := 0.0
+
+// =============================================================================
+// 🧠 SMART SIZING CALCULATION (Prioritized)
+// =============================================================================
+int base_position_size = tp1_qty + tp2_qty + tp3_qty + tp4_runner_qty
+
+int final_entry_qty = 0
+if current_mult > 0
+    final_entry_qty := int(math.ceil(base_position_size * current_mult))
+    if final_entry_qty < 1
+        final_entry_qty := 1
+else
+    final_entry_qty := 0
+
+int final_tp1_qty = 0
+int final_tp2_qty = 0
+int final_tp3_qty = 0
+int final_runner_qty = 0
+
+if final_entry_qty > 0 and base_position_size > 0
+    float ratio = float(final_entry_qty) / float(base_position_size)
+    final_tp1_qty := int(math.round(tp1_qty * ratio))
+    final_tp2_qty := int(math.round(tp2_qty * ratio))
+    final_tp3_qty := int(math.round(tp3_qty * ratio))
+    int assigned_tps = final_tp1_qty + final_tp2_qty + final_tp3_qty
+    final_runner_qty := final_entry_qty - assigned_tps
+    
+    if final_runner_qty < 1
+        if final_tp3_qty > 0
+            final_tp3_qty := final_tp3_qty - 1
+            final_runner_qty := final_runner_qty + 1
+        else if final_tp2_qty > 0
+            final_tp2_qty := final_tp2_qty - 1
+            final_runner_qty := final_runner_qty + 1
+        else if final_tp1_qty > 0
+            final_tp1_qty := final_tp1_qty - 1
+            final_runner_qty := final_runner_qty + 1
+
+// -----------------------------------------------------------------------------
+// --- DATA FETCHING ---
+// -----------------------------------------------------------------------------
+[h_p, t_p]   = request.security(syminfo.tickerid, tf_pend, [ta.pivothigh(high, lb_l, lb_r), time[lb_r]], lookahead=barmerge.lookahead_off)
+[l_p, tl_p]  = request.security(syminfo.tickerid, tf_pend, [ta.pivotlow(low, lb_l, lb_r), time[lb_r]], lookahead=barmerge.lookahead_off)
+[h_c, t_c]   = request.security(syminfo.tickerid, tf_conf, [ta.pivothigh(high, lb_l, lb_r), time[lb_r]], lookahead=barmerge.lookahead_off)
+[l_c, tl_c]  = request.security(syminfo.tickerid, tf_conf, [ta.pivotlow(low, lb_l, lb_r), time[lb_r]], lookahead=barmerge.lookahead_off)
+[h_pm, t_pm] = request.security(syminfo.tickerid, tf_perm, [ta.pivothigh(high, lb_l, lb_r), time[lb_r]], lookahead=barmerge.lookahead_off)
+[l_pm, tl_pm]= request.security(syminfo.tickerid, tf_perm, [ta.pivotlow(low, lb_l, lb_r), time[lb_r]], lookahead=barmerge.lookahead_off)
+[htf_o, htf_c] = request.security(syminfo.tickerid, htf_tf, [open[1], close[1]], lookahead=barmerge.lookahead_off)
+
+// LTF candle data for Pullback detection
+[pb_ltf_o0, pb_ltf_c0, pb_ltf_o1, pb_ltf_c1, pb_ltf_o2, pb_ltf_c2, pb_ltf_o3, pb_ltf_c3, pb_ltf_o4, pb_ltf_c4, pb_ltf_o5, pb_ltf_c5, pb_ltf_o6, pb_ltf_c6, pb_ltf_o7, pb_ltf_c7, pb_ltf_o8, pb_ltf_c8, pb_ltf_o9, pb_ltf_c9] = request.security(syminfo.tickerid, pullback_ltf, [open, close, open[1], close[1], open[2], close[2], open[3], close[3], open[4], close[4], open[5], close[5], open[6], close[6], open[7], close[7], open[8], close[8], open[9], close[9]], lookahead=barmerge.lookahead_off)
+
+// LTF candle data for Confirmation detection
+[cf_ltf_o0, cf_ltf_c0, cf_ltf_o1, cf_ltf_c1, cf_ltf_o2, cf_ltf_c2, cf_ltf_o3, cf_ltf_c3, cf_ltf_o4, cf_ltf_c4, cf_ltf_o5, cf_ltf_c5, cf_ltf_o6, cf_ltf_c6, cf_ltf_o7, cf_ltf_c7, cf_ltf_o8, cf_ltf_c8, cf_ltf_o9, cf_ltf_c9] = request.security(syminfo.tickerid, confirm_ltf, [open, close, open[1], close[1], open[2], close[2], open[3], close[3], open[4], close[4], open[5], close[5], open[6], close[6], open[7], close[7], open[8], close[8], open[9], close[9]], lookahead=barmerge.lookahead_off)
+
+var array<float> pb_ltf_opens  = array.new<float>(10)
+var array<float> pb_ltf_closes = array.new<float>(10)
+var array<float> cf_ltf_opens  = array.new<float>(10)
+var array<float> cf_ltf_closes = array.new<float>(10)
+
+array.set(pb_ltf_opens, 0, pb_ltf_o0), array.set(pb_ltf_closes, 0, pb_ltf_c0)
+array.set(pb_ltf_opens, 1, pb_ltf_o1), array.set(pb_ltf_closes, 1, pb_ltf_c1)
+array.set(pb_ltf_opens, 2, pb_ltf_o2), array.set(pb_ltf_closes, 2, pb_ltf_c2)
+array.set(pb_ltf_opens, 3, pb_ltf_o3), array.set(pb_ltf_closes, 3, pb_ltf_c3)
+array.set(pb_ltf_opens, 4, pb_ltf_o4), array.set(pb_ltf_closes, 4, pb_ltf_c4)
+array.set(pb_ltf_opens, 5, pb_ltf_o5), array.set(pb_ltf_closes, 5, pb_ltf_c5)
+array.set(pb_ltf_opens, 6, pb_ltf_o6), array.set(pb_ltf_closes, 6, pb_ltf_c6)
+array.set(pb_ltf_opens, 7, pb_ltf_o7), array.set(pb_ltf_closes, 7, pb_ltf_c7)
+array.set(pb_ltf_opens, 8, pb_ltf_o8), array.set(pb_ltf_closes, 8, pb_ltf_c8)
+array.set(pb_ltf_opens, 9, pb_ltf_o9), array.set(pb_ltf_closes, 9, pb_ltf_c9)
+
+array.set(cf_ltf_opens, 0, cf_ltf_o0), array.set(cf_ltf_closes, 0, cf_ltf_c0)
+array.set(cf_ltf_opens, 1, cf_ltf_o1), array.set(cf_ltf_closes, 1, cf_ltf_c1)
+array.set(cf_ltf_opens, 2, cf_ltf_o2), array.set(cf_ltf_closes, 2, cf_ltf_c2)
+array.set(cf_ltf_opens, 3, cf_ltf_o3), array.set(cf_ltf_closes, 3, cf_ltf_c3)
+array.set(cf_ltf_opens, 4, cf_ltf_o4), array.set(cf_ltf_closes, 4, cf_ltf_c4)
+array.set(cf_ltf_opens, 5, cf_ltf_o5), array.set(cf_ltf_closes, 5, cf_ltf_c5)
+array.set(cf_ltf_opens, 6, cf_ltf_o6), array.set(cf_ltf_closes, 6, cf_ltf_c6)
+array.set(cf_ltf_opens, 7, cf_ltf_o7), array.set(cf_ltf_closes, 7, cf_ltf_c7)
+array.set(cf_ltf_opens, 8, cf_ltf_o8), array.set(cf_ltf_closes, 8, cf_ltf_c8)
+array.set(cf_ltf_opens, 9, cf_ltf_o9), array.set(cf_ltf_closes, 9, cf_ltf_c9)
+
+bool htf_green = htf_c > htf_o
+bool htf_red   = htf_c < htf_o
+
+// -----------------------------------------------------------------------------
+// --- ACTIVE BOX MANAGEMENT ---
+// -----------------------------------------------------------------------------
+var array<box>   active_boxes     = array.new<box>()
+var array<float> active_tops      = array.new<float>()
+var array<float> active_bots      = array.new<float>()
+var array<int>   active_times     = array.new<int>()
+var array<int>   active_start_idx = array.new<int>()
+var array<bool>  active_is_bear   = array.new<bool>()
+var array<bool>  active_is_inv    = array.new<bool>()
+var array<float> active_inv_lvl   = array.new<float>()
+
+manage_active_boxes() =>
+    bool sig_inv_bull  = false
+    bool sig_inv_bear  = false
+    bool sig_fail_bull = false
+    bool sig_fail_bear = false
+
+    if array.size(active_boxes) > 0
+        for i = array.size(active_boxes) - 1 to 0
+            b_id    = array.get(active_boxes, i)
+            b_top   = array.get(active_tops, i)
+            b_bot   = array.get(active_bots, i)
+            b_time  = array.get(active_times, i)
+            b_start = array.get(active_start_idx, i)
+            is_bear = array.get(active_is_bear, i)
+            is_inv  = array.get(active_is_inv, i)
+            inv_lvl = array.get(active_inv_lvl, i)
+            bool remove_box = false
+
+            if (time - b_time) > (max_days_active * 86400000)
+                box.delete(b_id)
+                remove_box := true
+            else
+                if not is_inv
+                    if is_bear
+                        if high > b_top
+                            if show_ifvg
+                                box.set_bgcolor(b_id, final_col_ifvg_bull)
+                                box.set_border_color(b_id, show_visuals ? final_col_ts_bull : col_trans)
+                                box.set_border_style(b_id, line.style_dashed)
+                                array.set(active_is_inv, i, true)
+                                array.set(active_is_bear, i, false)
+                                float lowest_in_range = low
+                                int   lowest_offset   = 0
+                                int   lookback        = math.min(bar_index - b_start, 4999)
+                                if lookback > 0
+                                    for k = 0 to lookback
+                                        if low[k] < lowest_in_range
+                                            lowest_in_range := low[k]
+                                            lowest_offset := k
+                                array.set(active_inv_lvl, i, lowest_in_range)
+                                if show_inv_circles
+                                    label.new(bar_index - lowest_offset, lowest_in_range, style=label.style_circle, color=final_col_inv_circle, size=size_inv_circle, tooltip="IFVG Invalidation Level")
+                                sig_inv_bull := true
+                            else
+                                box.delete(b_id)
+                                remove_box := true
+                    else
+                        if low < b_bot
+                            if show_ifvg
+                                box.set_bgcolor(b_id, final_col_ifvg_bear)
+                                box.set_border_color(b_id, show_visuals ? final_col_ts_bear : col_trans)
+                                box.set_border_style(b_id, line.style_dashed)
+                                array.set(active_is_inv, i, true)
+                                array.set(active_is_bear, i, true)
+                                float highest_in_range = high
+                                int   highest_offset   = 0
+                                int   lookback         = math.min(bar_index - b_start, 4999)
+                                if lookback > 0
+                                    for k = 0 to lookback
+                                        if high[k] > highest_in_range
+                                            highest_in_range := high[k]
+                                            highest_offset := k
+                                array.set(active_inv_lvl, i, highest_in_range)
+                                if show_inv_circles
+                                    label.new(bar_index - highest_offset, highest_in_range, style=label.style_circle, color=final_col_inv_circle, size=size_inv_circle, tooltip="IFVG Invalidation Level")
+                                sig_inv_bear := true
+                            else
+                                box.delete(b_id)
+                                remove_box := true
+                else
+                    bool invalidated = false
+                    if not na(inv_lvl)
+                        if is_bear
+                            if high > inv_lvl
+                                invalidated := true
+                                sig_fail_bear := true
+                        else
+                            if low < inv_lvl
+                                invalidated := true
+                                sig_fail_bull := true
+                    if invalidated
+                        box.delete(b_id)
+                        remove_box := true
+
+                if not remove_box and use_mitigation
+                    if is_bear
+                        if high >= b_bot
+                            box.set_extend(b_id, extend.none)
+                            box.set_right(b_id, bar_index)
+                            remove_box := true
+                    else
+                        if low <= b_top
+                            box.set_extend(b_id, extend.none)
+                            box.set_right(b_id, bar_index)
+                            remove_box := true
+
+            if remove_box
+                array.remove(active_boxes, i)
+                array.remove(active_tops, i)
+                array.remove(active_bots, i)
+                array.remove(active_times, i)
+                array.remove(active_start_idx, i)
+                array.remove(active_is_bear, i)
+                array.remove(active_is_inv, i)
+                array.remove(active_inv_lvl, i)
+    [sig_inv_bull, sig_inv_bear, sig_fail_bull, sig_fail_bear]
+
+// -----------------------------------------------------------------------------
+// --- FVG DRAWING & DETECTION ---
+// -----------------------------------------------------------------------------
+draw_new_box(int left, float top, int right, float bottom, bool is_bearish) =>
+    color bg     = is_bearish ? final_col_fvg_bear : final_col_fvg_bull
+    color border = show_visuals ? (is_bearish ? final_col_ts_bear : final_col_ts_bull) : col_trans
+    b_id = box.new(left, top, right, bottom, border_color=border, bgcolor=bg, border_width=fvg_border_width, border_style=line.style_solid, extend=extend.right)
+    array.push(active_boxes, b_id)
+    array.push(active_tops, top)
+    array.push(active_bots, bottom)
+    array.push(active_times, time)
+    array.push(active_start_idx, left)
+    array.push(active_is_bear, is_bearish)
+    array.push(active_is_inv, false)
+    array.push(active_inv_lvl, na)
+
+check_fvgs() =>
+    bool fvg_bear_found = false
+    bool fvg_bull_found = false
+    float min_size_abs = close * (fvg_min_size / 100)
+    float src_high = use_wicks ? high : math.max(open, close)
+    float src_low  = use_wicks ? low  : math.min(open, close)
+
+    if show_fvg and src_low[2] > src_high[0]
+        if math.abs(src_low[2] - src_high[0]) >= min_size_abs
+            draw_new_box(bar_index-2, src_low[2], bar_index, src_high[0], true)
+            fvg_bear_found := true
+
+    if show_fvg and src_high[2] < src_low[0]
+        if math.abs(src_low[0] - src_high[2]) >= min_size_abs
+            draw_new_box(bar_index-2, src_low[0], bar_index, src_high[2], false)
+            fvg_bull_found := true
+    [fvg_bear_found, fvg_bull_found]
+
+// -----------------------------------------------------------------------------
+// --- SWING LOGIC FUNCTIONS ---
+// -----------------------------------------------------------------------------
+init_manager(SwingSettings s) =>
+    SwingManager.new(highs = array.new<SwingPoint>(), lows = array.new<SwingPoint>(), settings = s)
+
+update_swings(SwingManager mgr, float h_p, int t_p, float l_p, int tl_p, float h_c, float l_c, float h_pm, float l_pm) =>
+    bool sig_high_swept = false
+    bool sig_low_swept  = false
+
+    if not na(h_p)
+        int est_index = bar_index - mgr.settings.lb_r
+        lbl = label.new(t_p, h_p, text="", xloc=xloc.bar_time, color=mgr.settings.col_inv, style=label.style_none, textcolor=mgr.settings.col_inv, size=size.tiny)
+        ln  = line.new(t_p, h_p, time, h_p, xloc=xloc.bar_time, color=mgr.settings.col_inv)
+        bool is_soup       = false
+        bool show_soup_label = false
+        if array.size(mgr.highs) > 0
+            for i = 0 to array.size(mgr.highs) - 1
+                s = array.get(mgr.highs, i)
+                if not s.mitigated and h_p > s.price
+                    s.mitigated := true
+                    is_soup := true
+                    if s.status == 0 and mgr.settings.show_ts_p
+                        show_soup_label := true
+                    if s.status == 1
+                        if mgr.settings.show_ts_c
+                            show_soup_label := true
+                        sig_high_swept := true
+                    if s.status == 2
+                        if mgr.settings.show_ts_pm
+                            show_soup_label := true
+                        sig_high_swept := true
+        if is_soup and show_soup_label
+            label.set_style(lbl, label.style_label_down)
+            label.set_text(lbl, "Turtle Soup")
+            label.set_color(lbl, mgr.settings.col_ts_bear)
+            label.set_textcolor(lbl, mgr.settings.col_text)
+        new_swing = SwingPoint.new(h_p, t_p, est_index, 1, 0, lbl, ln, false)
+        array.push(mgr.highs, new_swing)
+
+    if not na(l_p)
+        int est_index = bar_index - mgr.settings.lb_r
+        lbl = label.new(tl_p, l_p, text="", xloc=xloc.bar_time, color=mgr.settings.col_inv, style=label.style_none, textcolor=mgr.settings.col_inv, size=size.tiny)
+        ln  = line.new(tl_p, l_p, time, l_p, xloc=xloc.bar_time, color=mgr.settings.col_inv)
+        bool is_soup       = false
+        bool show_soup_label = false
+        if array.size(mgr.lows) > 0
+            for i = 0 to array.size(mgr.lows) - 1
+                s = array.get(mgr.lows, i)
+                if not s.mitigated and l_p < s.price
+                    s.mitigated := true
+                    is_soup := true
+                    if s.status == 0 and mgr.settings.show_ts_p
+                        show_soup_label := true
+                    if s.status == 1
+                        if mgr.settings.show_ts_c
+                            show_soup_label := true
+                        sig_low_swept := true
+                    if s.status == 2
+                        if mgr.settings.show_ts_pm
+                            show_soup_label := true
+                        sig_low_swept := true
+        if is_soup and show_soup_label
+            label.set_style(lbl, label.style_label_up)
+            label.set_text(lbl, "Turtle Soup")
+            label.set_color(lbl, mgr.settings.col_ts_bull)
+            label.set_textcolor(lbl, mgr.settings.col_text)
+        new_swing = SwingPoint.new(l_p, tl_p, est_index, -1, 0, lbl, ln, false)
+        array.push(mgr.lows, new_swing)
+
+    if not na(h_c) and array.size(mgr.highs) > 0
+        for i = array.size(mgr.highs) - 1 to 0
+            s = array.get(mgr.highs, i)
+            if math.abs(s.price - h_c) < syminfo.mintick and s.status < 1
+                s.status := 1
+                break
+
+    if not na(l_c) and array.size(mgr.lows) > 0
+        for i = array.size(mgr.lows) - 1 to 0
+            s = array.get(mgr.lows, i)
+            if math.abs(s.price - l_c) < syminfo.mintick and s.status < 1
+                s.status := 1
+                break
+
+    if not na(h_pm) and array.size(mgr.highs) > 0
+        for i = array.size(mgr.highs) - 1 to 0
+            s = array.get(mgr.highs, i)
+            if math.abs(s.price - h_pm) < syminfo.mintick and s.status < 2
+                s.status := 2
+                break
+
+    if not na(l_pm) and array.size(mgr.lows) > 0
+        for i = array.size(mgr.lows) - 1 to 0
+            s = array.get(mgr.lows, i)
+            if math.abs(s.price - l_pm) < syminfo.mintick and s.status < 2
+                s.status := 2
+                break
+
+    if array.size(mgr.highs) > mgr.settings.max_hist
+        old_item = array.get(mgr.highs, 0)
+        line.delete(old_item.ln)
+        label.delete(old_item.id)
+        array.remove(mgr.highs, 0)
+
+    if array.size(mgr.lows) > mgr.settings.max_hist
+        old_item = array.get(mgr.lows, 0)
+        line.delete(old_item.ln)
+        label.delete(old_item.id)
+        array.remove(mgr.lows, 0)
+    [sig_high_swept, sig_low_swept]
+
+// -----------------------------------------------------------------------------
+// --- TIME SESSION HELPERS ---
+// -----------------------------------------------------------------------------
+in_session(sess_str) =>
+    not na(time(timeframe.period, sess_str + ":1234567", "America/New_York"))
+
+is_trading_time = false
+if use_time_filter
+    if sb_london   and in_session("0300-0400")
+        is_trading_time := true
+    if pre_news    and in_session("0700-0830")
+        is_trading_time := true
+    if sb_am       and in_session("1000-1100")
+        is_trading_time := true
+    if sb_pm       and in_session("1400-1500")
+        is_trading_time := true
+    if ny_lunch    and in_session("1200-1300")
+        is_trading_time := true
+    if macro_0050  and in_session("0050-0110")
+        is_trading_time := true
+    if macro_0150  and in_session("0150-0210")
+        is_trading_time := true
+    if macro_0233  and in_session("0233-0300")
+        is_trading_time := true
+    if macro_0350  and in_session("0350-0410")
+        is_trading_time := true
+    if macro_0403  and in_session("0403-0430")
+        is_trading_time := true
+    if macro_0550  and in_session("0550-0610")
+        is_trading_time := true
+    if macro_0750  and in_session("0750-0810")
+        is_trading_time := true
+    if macro_0850  and in_session("0850-0910")
+        is_trading_time := true
+    if macro_0950  and in_session("0950-1010")
+        is_trading_time := true
+    if macro_1050  and in_session("1050-1110")
+        is_trading_time := true
+    if macro_1150  and in_session("1150-1210")
+        is_trading_time := true
+    if macro_1310  and in_session("1310-1340")
+        is_trading_time := true
+    if macro_1450  and in_session("1450-1510")
+        is_trading_time := true
+    if macro_1515  and in_session("1515-1545")
+        is_trading_time := true
+else
+    is_trading_time := true
+
+ny_hour = hour(time, "America/New_York")
+ny_min  = minute(time, "America/New_York")
+is_eod  = close_eod and (ny_hour > eod_hour or (ny_hour == eod_hour and ny_min >= eod_min))
+
+// -----------------------------------------------------------------------------
+// --- INIT & RUN ---
+// -----------------------------------------------------------------------------
+[new_inv_bull, new_inv_bear, fail_bull_ifvg, fail_bear_ifvg] = manage_active_boxes()
+[fvg_bear_found, fvg_bull_found] = check_fvgs()
+
+var settings = SwingSettings.new(final_col_ts_bear, final_col_ts_bull, col_inv, final_text_col, tf_pend, tf_conf, tf_perm, lb_r, max_hist, show_ts_p, show_ts_c, show_ts_pm)
+var mgr = init_manager(settings)
+
+[bias_high_swept, bias_low_swept] = update_swings(mgr, h_p, t_p, l_p, tl_p, h_c, l_c, h_pm, l_pm)
+
+// -----------------------------------------------------------------------------
+// --- BIAS BACKGROUND LOGIC ---
+// -----------------------------------------------------------------------------
+var int   bias_state            = 0
+var int   last_fvg_time         = 0
+var int   chain_bull            = 0
+var int   chain_bear            = 0
+var int   t_last_flip           = 0
+var array<float> recent_move_sizes = array.new<float>()
+var int   consol_skip_remaining = 0
+var float current_leg_high      = high
+var float current_leg_low       = low
+
+int fvg_signal = 0
+if fvg_bull_found or new_inv_bull or fail_bear_ifvg
+    fvg_signal := 1
+if fvg_bear_found or new_inv_bear or fail_bull_ifvg
+    fvg_signal := -1
+
+if fvg_signal != 0
+    if bias_state != fvg_signal
+        t_last_flip := time
+    bias_state   := fvg_signal
+    last_fvg_time:= time
+    chain_bull   := 0
+    chain_bear   := 0
+else
+    if (time - last_fvg_time) > (soup_timeout_min * 60 * 1000)
+        if bias_high_swept
+            chain_bull += 1
+            chain_bear := 0
+            if chain_bull >= soup_thresh
+                if bias_state != 1
+                    t_last_flip := time
+                bias_state := 1
+        else if bias_low_swept
+            chain_bear += 1
+            chain_bull := 0
+            if chain_bear >= soup_thresh
+                if bias_state != -1
+                    t_last_flip := time
+                bias_state := -1
+
+var float track_high = high
+var float track_low  = low
+
+// =============================================================================
+// 📊 TRADE STATE VARIABLES
+// =============================================================================
+var float trade_sl_price   = na
+var float trade_tp1_price  = na
+var float trade_tp2_price  = na
+var float trade_tp3_price  = na
+var float trade_be_price   = na
+var bool  trade_be_hit     = false
+var float swing_sl_level   = na
+var float bias_flip_price  = na
+
+var int   trade_entry_qty  = 0
+var int   trade_tp1_qty    = 0
+var int   trade_tp2_qty    = 0
+var int   trade_tp3_qty    = 0
+
+var bool  tp1_filled       = false
+var bool  tp2_filled       = false
+var bool  tp3_filled       = false
+var bool  tp1_alert_sent   = false
+
+var int   expected_position    = 0
+var float original_entry_price = na
+
+// Webhook tracking
+var string current_trade_side = ""
+
+float plot_entry_sl = na
+float plot_tp1      = na
+float plot_tp2      = na
+float plot_tp3      = na
+float plot_be_dot   = na
+
+if bias_state == 1
+    track_high := math.max(track_high, high)
+    current_leg_high := math.max(current_leg_high, high)
+    current_leg_low  := math.min(current_leg_low, low)
+else if bias_state == -1
+    track_low := math.min(track_low, low)
+    current_leg_high := math.max(current_leg_high, high)
+    current_leg_low  := math.min(current_leg_low, low)
+
+var bool leg_started_in_window = false
+var bool entry_taken_this_leg  = false
+
+if bias_state != bias_state[1]
+    bias_flip_price := close
+    leg_started_in_window := is_trading_time
+    entry_taken_this_leg  := false
+
+    if use_consol_buffer and bias_state[1] != 0
+        float completed_leg_size = math.abs(current_leg_high - current_leg_low)
+        array.push(recent_move_sizes, completed_leg_size)
+        while array.size(recent_move_sizes) > consol_lookback
+            array.shift(recent_move_sizes)
+        bool large_move_detected = false
+        if array.size(recent_move_sizes) > 0
+            for i = 0 to array.size(recent_move_sizes) - 1
+                if array.get(recent_move_sizes, i) >= consol_threshold
+                    large_move_detected := true
+                    break
+        if large_move_detected
+            consol_skip_remaining := consol_skip_count
+    else if consol_skip_remaining > 0
+        consol_skip_remaining := consol_skip_remaining - 1
+
+    current_leg_high := high
+    current_leg_low  := low
+    if bias_state == 1
+        swing_sl_level := track_low
+        track_high := high
+    if bias_state == -1
+        swing_sl_level := track_high
+        track_low := low
+
+bgcolor(bias_state == 1 ? col_bg_high : bias_state == -1 ? col_bg_low : na, title="Bias Background")
+
+debug_col_bull = show_visuals ? color.blue   : col_trans
+debug_col_bear = show_visuals ? color.orange : col_trans
+plotchar(ta.crossover(bias_state, 0.5),  "Bull Bias", "B", location.belowbar, debug_col_bull, size=size.tiny)
+plotchar(ta.crossunder(bias_state, -0.5),"Bear Bias", "S", location.abovebar, debug_col_bear, size=size.tiny)
+
+// =============================================================================
+// 🔔 TRADERSPOST JSON TEMPLATES - HYBRID MODE
+// =============================================================================
+futures_ticker() =>
+    str.upper(syminfo.root)
+
+get_entry_msg(string action, int qty) =>
+    string ticker_str    = futures_ticker()
+    string sentiment_str = action == "buy" ? "bullish" : "bearish"
+    '{"ticker": "' + ticker_str + '", "action": "' + action + '", "sentiment": "' + sentiment_str + '", "quantity": ' + str.tostring(qty) + ', "signalPrice": ' + str.tostring(close) + '}'
+
+get_tp1_limit_order(string position_side, int qty, float tp_price) =>
+    string ticker_str = futures_ticker()
+    string tp_action  = position_side == "long" ? "sell" : "buy"
+    '{"ticker": "' + ticker_str + '", "action": "' + tp_action + '", "quantity": ' + str.tostring(qty) + ', "orderType": "limit", "limitPrice": ' + str.tostring(tp_price) + ', "signalPrice": ' + str.tostring(close) + '}'
+
+get_partial_exit_msg(string exit_action, int qty) =>
+    string ticker_str = futures_ticker()
+    '{"ticker": "' + ticker_str + '", "action": "' + exit_action + '", "quantity": ' + str.tostring(qty) + ', "signalPrice": ' + str.tostring(close) + '}'
+
+get_exit_flatten_msg() =>
+    string ticker_str = futures_ticker()
+    '{"ticker": "' + ticker_str + '", "action": "exit", "signalPrice": ' + str.tostring(close) + '}'
+
+get_bt_tp_exit_msg(string position_side, int qty, float tp_price) =>
+    string ticker_str  = futures_ticker()
+    string exit_action = position_side == "long" ? "sell" : "buy"
+    '{"ticker": "' + ticker_str + '", "action": "' + exit_action + '", "quantity": ' + str.tostring(qty) + ', "orderType": "limit", "limitPrice": ' + str.tostring(tp_price) + ', "comment": "BT_SYNC"}'
+
+get_bt_sl_exit_msg() =>
+    string ticker_str = futures_ticker()
+    '{"ticker": "' + ticker_str + '", "action": "exit", "comment": "BT_SL_SYNC"}'
+
+// =============================================================================
+// 📍 STRATEGY EXECUTION
+// =============================================================================
+if strategy.position_size == 0
+    trade_sl_price      := na
+    trade_tp1_price     := na
+    trade_tp2_price     := na
+    trade_tp3_price     := na
+    trade_be_price      := na
+    trade_be_hit        := false
+    tp1_filled          := false
+    tp2_filled          := false
+    tp3_filled          := false
+    tp1_alert_sent      := false
+    expected_position   := 0
+    original_entry_price:= na
+    current_trade_side  := ""
+
+// EOD Exit
+if is_eod and strategy.position_size != 0
+    // 🌐 WEBHOOK: EOD Exit
+    if use_webhook
+        float eod_pnl = strategy.openprofit
+        alert(getWebhookExit(current_trade_side, "eod", close, original_entry_price, int(math.abs(strategy.position_size)), eod_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    strategy.close_all(comment="EOD Exit", alert_message=get_exit_flatten_msg())
+
+// Exit on bias flip
+if strategy.position_size > 0 and bias_state == -1
+    // 🌐 WEBHOOK: Bias Flip Exit (Long)
+    if use_webhook
+        float flip_pnl = strategy.openprofit
+        alert(getWebhookExit("long", "bias_flip", close, original_entry_price, int(math.abs(strategy.position_size)), flip_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    strategy.close("Long", comment="Bias Flip Exit", alert_message=get_exit_flatten_msg())
+
+if strategy.position_size < 0 and bias_state == 1
+    // 🌐 WEBHOOK: Bias Flip Exit (Short)
+    if use_webhook
+        float flip_pnl = strategy.openprofit
+        alert(getWebhookExit("short", "bias_flip", close, original_entry_price, int(math.abs(strategy.position_size)), flip_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    strategy.close("Short", comment="Bias Flip Exit", alert_message=get_exit_flatten_msg())
+
+// Entry conditions
+bool long_filter_ok  = not use_htf_filter or htf_red
+bool short_filter_ok = not use_htf_filter or htf_green
+bool bias_is_fresh   = (time - t_last_flip) <= (max_bias_age_m * 60 * 1000)
+bool consol_buffer_ok= not use_consol_buffer or consol_skip_remaining <= 0
+
+bool trigger_long  = false
+bool trigger_short = false
+
+if is_trading_time and bias_is_fresh and not entry_taken_this_leg and trade_allowed_hol and final_entry_qty > 0 and consol_buffer_ok and strategy.position_size == 0
+    if bias_state == 1 and long_filter_ok
+        bool pullback_ok = true
+        if use_candle_trig
+            int pb_count = math.min(entry_bars_qty, 10)
+            for i = 0 to pb_count - 1
+                float candle_open  = use_pullback_ltf ? array.get(pb_ltf_opens, i)  : open[i]
+                float candle_close = use_pullback_ltf ? array.get(pb_ltf_closes, i) : close[i]
+                if candle_close >= candle_open
+                    pullback_ok := false
+                    break
+        bool confirm_ok = true
+        if use_confirm_candle
+            int cf_count = math.min(confirm_bars_qty, 10)
+            for i = 0 to cf_count - 1
+                float candle_open  = use_confirm_ltf ? array.get(cf_ltf_opens, i)  : open[i]
+                float candle_close = use_confirm_ltf ? array.get(cf_ltf_closes, i) : close[i]
+                if candle_close <= candle_open
+                    confirm_ok := false
+                    break
+        if pullback_ok and confirm_ok
+            trigger_long := true
+
+    if bias_state == -1 and short_filter_ok
+        bool pullback_ok = true
+        if use_candle_trig
+            int pb_count = math.min(entry_bars_qty, 10)
+            for i = 0 to pb_count - 1
+                float candle_open  = use_pullback_ltf ? array.get(pb_ltf_opens, i)  : open[i]
+                float candle_close = use_pullback_ltf ? array.get(pb_ltf_closes, i) : close[i]
+                if candle_close <= candle_open
+                    pullback_ok := false
+                    break
+        bool confirm_ok = true
+        if use_confirm_candle
+            int cf_count = math.min(confirm_bars_qty, 10)
+            for i = 0 to cf_count - 1
+                float candle_open  = use_confirm_ltf ? array.get(cf_ltf_opens, i)  : open[i]
+                float candle_close = use_confirm_ltf ? array.get(cf_ltf_closes, i) : close[i]
+                if candle_close >= candle_open
+                    confirm_ok := false
+                    break
+        if pullback_ok and confirm_ok
+            trigger_short := true
+
+// =============================================================================
+// 📈 LONG ENTRY
+// =============================================================================
+if trigger_long
+    if one_trade_per_bias
+        entry_taken_this_leg := true
+    
+    float entry_price = close
+    float candidate_sl = not na(swing_sl_level) ? swing_sl_level : low
+    
+    if entry_price < candidate_sl
+        float dist     = math.abs(entry_price - bias_flip_price)
+        trade_sl_price := entry_price - dist
+    else
+        trade_sl_price := not na(swing_sl_level) ? math.min(swing_sl_level, low) : low
+
+    float risk          = math.abs(entry_price - trade_sl_price)
+    float risk_in_ticks = risk / syminfo.mintick
+    bool  setup_valid   = true
+
+    if use_min_setup and risk_in_ticks < min_setup_ticks
+        if min_setup_action == "Skip Trade"
+            setup_valid := false
+        else
+            trade_sl_price := entry_price - (fixed_sl_ticks * syminfo.mintick)
+            risk          := math.abs(entry_price - trade_sl_price)
+            risk_in_ticks := risk / syminfo.mintick
+
+    if setup_valid and use_max_sl and risk_in_ticks > max_sl_ticks
+        trade_sl_price := entry_price - (max_sl_ticks * syminfo.mintick)
+        risk          := math.abs(entry_price - trade_sl_price)
+
+    if setup_valid
+        trade_tp1_price := entry_price + (risk * tp1_r)
+        trade_tp2_price := entry_price + (risk * tp2_r)
+        trade_tp3_price := entry_price + (risk * tp3_r)
+        trade_be_price  := entry_price + be_offset
+        trade_be_hit    := false
+
+        trade_entry_qty := final_entry_qty
+        trade_tp1_qty   := final_tp1_qty
+        trade_tp2_qty   := final_tp2_qty
+        trade_tp3_qty   := final_tp3_qty
+
+        tp1_filled     := false
+        tp2_filled     := false
+        tp3_filled     := false
+        tp1_alert_sent := false
+
+        expected_position    := final_entry_qty
+        original_entry_price := entry_price
+        current_trade_side   := "long"
+
+        // 🌐 WEBHOOK: Long Entry
+        if use_webhook
+            alert(getWebhookEntry("long", entry_price, final_entry_qty), alert.freq_once_per_bar)
+
+        strategy.entry("Long", strategy.long, qty=final_entry_qty, comment="Bull Bias", alert_message=get_entry_msg("buy", final_entry_qty))
+        entry_taken_this_leg := true
+
+        plot_entry_sl := trade_sl_price
+        plot_tp1      := trade_tp1_price
+        plot_tp2      := trade_tp2_price
+        plot_tp3      := trade_tp3_price
+
+// =============================================================================
+// 📉 SHORT ENTRY
+// =============================================================================
+if trigger_short
+    if one_trade_per_bias
+        entry_taken_this_leg := true
+    
+    float entry_price  = close
+    float candidate_sl = not na(swing_sl_level) ? swing_sl_level : high
+    
+    if entry_price > candidate_sl
+        float dist     = math.abs(bias_flip_price - entry_price)
+        trade_sl_price := entry_price + dist
+    else
+        trade_sl_price := not na(swing_sl_level) ? math.max(swing_sl_level, high) : high
+
+    float risk          = math.abs(trade_sl_price - entry_price)
+    float risk_in_ticks = risk / syminfo.mintick
+    bool  setup_valid   = true
+
+    if use_min_setup and risk_in_ticks < min_setup_ticks
+        if min_setup_action == "Skip Trade"
+            setup_valid := false
+        else
+            trade_sl_price := entry_price + (fixed_sl_ticks * syminfo.mintick)
+            risk          := math.abs(trade_sl_price - entry_price)
+            risk_in_ticks := risk / syminfo.mintick
+
+    if setup_valid and use_max_sl and risk_in_ticks > max_sl_ticks
+        trade_sl_price := entry_price + (max_sl_ticks * syminfo.mintick)
+        risk          := math.abs(trade_sl_price - entry_price)
+
+    if setup_valid
+        trade_tp1_price := entry_price - (risk * tp1_r)
+        trade_tp2_price := entry_price - (risk * tp2_r)
+        trade_tp3_price := entry_price - (risk * tp3_r)
+        trade_be_price  := entry_price - be_offset
+        trade_be_hit    := false
+
+        trade_entry_qty := final_entry_qty
+        trade_tp1_qty   := final_tp1_qty
+        trade_tp2_qty   := final_tp2_qty
+        trade_tp3_qty   := final_tp3_qty
+
+        tp1_filled     := false
+        tp2_filled     := false
+        tp3_filled     := false
+        tp1_alert_sent := false
+
+        expected_position    := final_entry_qty
+        original_entry_price := entry_price
+        current_trade_side   := "short"
+
+        // 🌐 WEBHOOK: Short Entry
+        if use_webhook
+            alert(getWebhookEntry("short", entry_price, final_entry_qty), alert.freq_once_per_bar)
+
+        strategy.entry("Short", strategy.short, qty=final_entry_qty, comment="Bear Bias", alert_message=get_entry_msg("sell", final_entry_qty))
+        entry_taken_this_leg := true
+
+        plot_entry_sl := trade_sl_price
+        plot_tp1      := trade_tp1_price
+        plot_tp2      := trade_tp2_price
+        plot_tp3      := trade_tp3_price
+
+// =============================================================================
+// ⚡ IMMEDIATE TP1 LIMIT ORDER
+// =============================================================================
+if use_tradovate_mode and strategy.position_size != 0 and not tp1_alert_sent and not na(trade_tp1_price)
+    string limit_msg   = ""
+    bool   should_alert = false
+    
+    if strategy.position_size > 0
+        limit_msg    := get_tp1_limit_order("long", trade_tp1_qty, trade_tp1_price)
+        should_alert := true
+    else if strategy.position_size < 0
+        limit_msg    := get_tp1_limit_order("short", trade_tp1_qty, trade_tp1_price)
+        should_alert := true
+    
+    if should_alert
+        alert(limit_msg, alert.freq_all)
+        tp1_alert_sent := true
+        label.new(bar_index, high, text="TP1 Limit: " + str.tostring(trade_tp1_price), color=color.blue, textcolor=color.white, style=label.style_label_down, size=size.tiny)
+
+// =============================================================================
+// 📊 POSITION MANAGEMENT - HYBRID TP LOGIC
+// =============================================================================
+if strategy.position_size != 0 and not tp1_filled
+    int current_size = int(math.abs(strategy.position_size))
+    if current_size <= (expected_position - trade_tp1_qty)
+        tp1_filled       := true
+        expected_position:= current_size
+        
+        // 🌐 WEBHOOK: TP1 Hit
+        if use_webhook
+            float tp1_pnl = (trade_tp1_price - original_entry_price) * trade_tp1_qty * syminfo.pointvalue
+            if current_trade_side == "short"
+                tp1_pnl := (original_entry_price - trade_tp1_price) * trade_tp1_qty * syminfo.pointvalue
+            alert(getWebhookExit(current_trade_side, "tp1", trade_tp1_price, original_entry_price, trade_tp1_qty, tp1_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        
+        if use_be and not na(original_entry_price)
+            if strategy.position_size > 0
+                trade_sl_price := original_entry_price + be_offset
+            else
+                trade_sl_price := original_entry_price - be_offset
+            trade_be_hit := true
+            plot_be_dot  := trade_sl_price
+
+// =============================================================================
+// 🎯 SOFT TP2
+// =============================================================================
+if strategy.position_size != 0 and tp1_filled and not tp2_filled and not na(trade_tp2_price)
+    bool tp2_hit = false
+    if strategy.position_size > 0 and high >= trade_tp2_price
+        tp2_hit := true
+    if strategy.position_size < 0 and low <= trade_tp2_price
+        tp2_hit := true
+    
+    if tp2_hit
+        tp2_filled       := true
+        expected_position:= expected_position - trade_tp2_qty
+        
+        // 🌐 WEBHOOK: TP2 Hit
+        if use_webhook
+            float tp2_pnl = (trade_tp2_price - original_entry_price) * trade_tp2_qty * syminfo.pointvalue
+            if current_trade_side == "short"
+                tp2_pnl := (original_entry_price - trade_tp2_price) * trade_tp2_qty * syminfo.pointvalue
+            alert(getWebhookExit(current_trade_side, "tp2", trade_tp2_price, original_entry_price, trade_tp2_qty, tp2_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        
+        if expected_position <= 0
+            strategy.close_all(comment="TP2 Flatten", alert_message=get_exit_flatten_msg())
+        else
+            if strategy.position_size > 0
+                strategy.close("Long", qty=trade_tp2_qty, comment="TP2", alert_message=get_partial_exit_msg("sell", trade_tp2_qty))
+            else
+                strategy.close("Short", qty=trade_tp2_qty, comment="TP2", alert_message=get_partial_exit_msg("buy", trade_tp2_qty))
+
+// =============================================================================
+// 🎯 SOFT TP3
+// =============================================================================
+if strategy.position_size != 0 and tp2_filled and not tp3_filled and not na(trade_tp3_price)
+    bool tp3_hit = false
+    if strategy.position_size > 0 and high >= trade_tp3_price
+        tp3_hit := true
+    if strategy.position_size < 0 and low <= trade_tp3_price
+        tp3_hit := true
+    
+    if tp3_hit
+        tp3_filled       := true
+        expected_position:= expected_position - trade_tp3_qty
+        
+        // 🌐 WEBHOOK: TP3 Hit
+        if use_webhook
+            float tp3_pnl = (trade_tp3_price - original_entry_price) * trade_tp3_qty * syminfo.pointvalue
+            if current_trade_side == "short"
+                tp3_pnl := (original_entry_price - trade_tp3_price) * trade_tp3_qty * syminfo.pointvalue
+            alert(getWebhookExit(current_trade_side, "tp3", trade_tp3_price, original_entry_price, trade_tp3_qty, tp3_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        
+        if expected_position <= 0
+            strategy.close_all(comment="TP3 Flatten", alert_message=get_exit_flatten_msg())
+        else
+            if strategy.position_size > 0
+                strategy.close("Long", qty=trade_tp3_qty, comment="TP3", alert_message=get_partial_exit_msg("sell", trade_tp3_qty))
+            else
+                strategy.close("Short", qty=trade_tp3_qty, comment="TP3", alert_message=get_partial_exit_msg("buy", trade_tp3_qty))
+
+// =============================================================================
+// 🛑 SOFT STOP LOSS
+// =============================================================================
+if strategy.position_size != 0 and not na(trade_sl_price)
+    bool sl_hit = false
+    if strategy.position_size > 0 and low <= trade_sl_price
+        sl_hit := true
+    if strategy.position_size < 0 and high >= trade_sl_price
+        sl_hit := true
+    
+    if sl_hit
+        // 🌐 WEBHOOK: Stop Loss Hit
+        if use_webhook
+            float sl_pnl = strategy.openprofit
+            alert(getWebhookExit(current_trade_side, "sl", trade_sl_price, original_entry_price, int(math.abs(strategy.position_size)), sl_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        
+        strategy.close_all(comment="SL Exit", alert_message=get_exit_flatten_msg())
+
+// =============================================================================
+// 🔧 STRATEGY.EXIT FOR BACKTESTING
+// =============================================================================
+if strategy.position_size > 0
+    string pos_side = "long"
+    if not tp1_filled
+        string tp1_bt_msg = get_bt_tp_exit_msg(pos_side, trade_tp1_qty, trade_tp1_price)
+        string sl_bt_msg  = get_bt_sl_exit_msg()
+        strategy.exit("TP1_BT", "Long", qty=trade_tp1_qty, limit=trade_tp1_price, stop=trade_sl_price, alert_message=tp1_bt_msg)
+    else if not tp2_filled
+        string tp2_bt_msg = get_bt_tp_exit_msg(pos_side, trade_tp2_qty, trade_tp2_price)
+        string sl_bt_msg  = get_bt_sl_exit_msg()
+        strategy.exit("TP2_BT", "Long", qty=trade_tp2_qty, limit=trade_tp2_price, stop=trade_sl_price, alert_message=tp2_bt_msg)
+    else if not tp3_filled
+        string tp3_bt_msg = get_bt_tp_exit_msg(pos_side, trade_tp3_qty, trade_tp3_price)
+        string sl_bt_msg  = get_bt_sl_exit_msg()
+        strategy.exit("TP3_BT", "Long", qty=trade_tp3_qty, limit=trade_tp3_price, stop=trade_sl_price, alert_message=tp3_bt_msg)
+    else
+        string runner_sl_msg = get_bt_sl_exit_msg()
+        strategy.exit("Runner_SL", "Long", stop=trade_sl_price, alert_message=runner_sl_msg)
+
+if strategy.position_size < 0
+    string pos_side = "short"
+    if not tp1_filled
+        string tp1_bt_msg = get_bt_tp_exit_msg(pos_side, trade_tp1_qty, trade_tp1_price)
+        string sl_bt_msg  = get_bt_sl_exit_msg()
+        strategy.exit("TP1_BT", "Short", qty=trade_tp1_qty, limit=trade_tp1_price, stop=trade_sl_price, alert_message=tp1_bt_msg)
+    else if not tp2_filled
+        string tp2_bt_msg = get_bt_tp_exit_msg(pos_side, trade_tp2_qty, trade_tp2_price)
+        string sl_bt_msg  = get_bt_sl_exit_msg()
+        strategy.exit("TP2_BT", "Short", qty=trade_tp2_qty, limit=trade_tp2_price, stop=trade_sl_price, alert_message=tp2_bt_msg)
+    else if not tp3_filled
+        string tp3_bt_msg = get_bt_tp_exit_msg(pos_side, trade_tp3_qty, trade_tp3_price)
+        string sl_bt_msg  = get_bt_sl_exit_msg()
+        strategy.exit("TP3_BT", "Short", qty=trade_tp3_qty, limit=trade_tp3_price, stop=trade_sl_price, alert_message=tp3_bt_msg)
+    else
+        string runner_sl_msg = get_bt_sl_exit_msg()
+        strategy.exit("Runner_SL", "Short", stop=trade_sl_price, alert_message=runner_sl_msg)
+
+// -----------------------------------------------------------------------------
+// --- VISUAL PLOTS ---
+// -----------------------------------------------------------------------------
+plot(plot_entry_sl, "Entry SL", color=color.red,   style=plot.style_circles, linewidth=2, offset=0)
+plot(plot_tp1,      "TP 1",     color=color.green, style=plot.style_circles, linewidth=2, offset=0)
+plot(plot_tp2,      "TP 2",     color=color.lime,  style=plot.style_circles, linewidth=2, offset=0)
+plot(plot_tp3,      "TP 3",     color=color.teal,  style=plot.style_circles, linewidth=2, offset=0)
+plot(plot_be_dot,   "BE Level", color=color.yellow,style=plot.style_circles, linewidth=2, offset=0)
+
+bgcolor(use_consol_buffer and consol_skip_remaining > 0 ? color.new(color.yellow, 85) : na, title="Consolidation Buffer Active")
+plotchar(use_consol_buffer and consol_skip_remaining > 0 and bias_state != bias_state[1], "Buffer Skip", "⏸", location.top, color.yellow, size=size.tiny)
+
+// =============================================================================
+// 📋 INFO TABLE
+// =============================================================================
+var table info_tbl = table.new(position.top_right, 2, 9, bgcolor=color.new(color.black, 80), border_width=1)
+
+if barstate.islast
+    table.cell(info_tbl, 0, 0, "🌐 Webhook", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 0, use_webhook ? "ON" : "OFF", text_color=use_webhook ? color.green : color.red, text_size=size.small)
+    
+    table.cell(info_tbl, 0, 1, "🔷 Tradovate", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 1, use_tradovate_mode ? "ON" : "OFF", text_color=use_tradovate_mode ? color.green : color.red, text_size=size.small)
+    
+    table.cell(info_tbl, 0, 2, "Position", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 2, str.tostring(strategy.position_size), text_color=color.white, text_size=size.small)
+    
+    table.cell(info_tbl, 0, 3, "Expected", text_color=color.gray, text_size=size.small)
+    table.cell(info_tbl, 1, 3, str.tostring(expected_position), text_color=color.gray, text_size=size.small)
+    
+    table.cell(info_tbl, 0, 4, "TP1 (Limit)", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 4, tp1_filled ? "✓" : "—", text_color=tp1_filled ? color.green : color.gray, text_size=size.small)
+    
+    table.cell(info_tbl, 0, 5, "TP2 (Soft)", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 5, tp2_filled ? "✓" : "—", text_color=tp2_filled ? color.green : color.gray, text_size=size.small)
+    
+    table.cell(info_tbl, 0, 6, "TP3 (Soft)", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 6, tp3_filled ? "✓" : "—", text_color=tp3_filled ? color.green : color.gray, text_size=size.small)
+    
+    bool has_runner = tp3_filled and strategy.position_size != 0
+    table.cell(info_tbl, 0, 7, "🏃 Runner", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 7, has_runner ? "ACTIVE" : "—", text_color=has_runner ? color.aqua : color.gray, text_size=size.small)
+    
+    table.cell(info_tbl, 0, 8, "Bias", text_color=color.white, text_size=size.small)
+    table.cell(info_tbl, 1, 8, bias_state == 1 ? "BULL" : bias_state == -1 ? "BEAR" : "—", text_color=bias_state == 1 ? color.green : bias_state == -1 ? color.red : color.gray, text_size=size.small)

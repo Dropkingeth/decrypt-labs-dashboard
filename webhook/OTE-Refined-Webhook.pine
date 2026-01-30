@@ -1,0 +1,989 @@
+//@version=5
+strategy("Optimal Trade Entry [Refined] - Webhook", shorttitle="OTE [Refined] Webhook", overlay=true, pyramiding=0, initial_capital=50000, process_orders_on_close=false, max_lines_count=500, default_qty_type=strategy.fixed, default_qty_value=1)
+
+// =============================================================================
+// 📚 IMPORTS
+// =============================================================================
+import DropkingICT/OrderFlowBiasLibV1/2 as Lib
+import DropkingICT/BreakOfStructurelib/1 as BOS
+
+// =============================================================================
+// 🌐 DECRYPT LABS WEBHOOK INTEGRATION
+// =============================================================================
+group_webhook = "═══════════════ 🌐 0️⃣ WEBHOOK ═══════════════"
+use_webhook = input.bool(true, "📡 Enable Webhook Alerts", tooltip="Send trade data to Decrypt Labs dashboard", group=group_webhook)
+webhook_url_display = input.string("https://YOUR-NGROK-URL/webhook/ote-refined", "Webhook URL (reference)", tooltip="Set this URL in your TradingView alert webhook field", group=group_webhook)
+
+// =============================================================================
+// 📊 WEBHOOK ALERT FUNCTIONS (Single-line for Pine compatibility)
+// =============================================================================
+
+// Entry Alert
+getWebhookEntry(string side, float entryPrice, int size) =>
+    '{"bot":"ote-refined","action":"entry","side":"' + side + '","symbol":"' + syminfo.ticker + '","price":' + str.tostring(entryPrice) + ',"entryPrice":' + str.tostring(entryPrice) + ',"size":' + str.tostring(size) + ',"timeframe":"' + timeframe.period + '","time":"' + str.format_time(time, "yyyy-MM-dd\'T\'HH:mm:ssZ", "America/New_York") + '"}'
+
+// Exit Alert
+getWebhookExit(string side, string exitType, float exitPrice, float entryPrice, int size, float pnl, float totalPnl) =>
+    '{"bot":"ote-refined","action":"' + exitType + '","side":"' + side + '","symbol":"' + syminfo.ticker + '","price":' + str.tostring(exitPrice) + ',"exitPrice":' + str.tostring(exitPrice) + ',"entryPrice":' + str.tostring(entryPrice) + ',"size":' + str.tostring(size) + ',"pnl":' + str.tostring(pnl) + ',"totalPnl":' + str.tostring(totalPnl) + ',"timeframe":"' + timeframe.period + '","time":"' + str.format_time(time, "yyyy-MM-dd\'T\'HH:mm:ssZ", "America/New_York") + '"}'
+
+// =============================================================================
+// ⚙️ STRATEGY SETTINGS
+// =============================================================================
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 📊 SECTION 1: TREND FILTER (Order Flow Bias)
+// ═══════════════════════════════════════════════════════════════════════════════
+g_trend = "═══════════════ 📊 1️⃣ TREND FILTER ═══════════════"
+i_useOrderFlowFilter = input.bool(true, "🔄 Enable Trend Filter", group=g_trend, tooltip="🎯 MASTER SWITCH ━━━━━━━━━━━━━━━━━━━━ ✅ ON: Longs in Bullish, Shorts in Bearish ❌ OFF: Trades both directions 💡 Recommended: Keep ON")
+i_of_useMtf          = input.bool(true, "📈 Use Higher Timeframe", group=g_trend, inline="htf", tooltip="🔍 MULTI-TIMEFRAME ━━━━━━━━━━━━━━━━━━━━ Analyzes trend on HTF for confluence")
+i_of_mtf             = input.timeframe("5", " ⏱️ HTF", group=g_trend, inline="htf")
+i_of_leftBars        = input.int(7, "🎚️ Pivot: L", group=g_trend, inline="piv", minval=1, tooltip="🔧 TREND SENSITIVITY ━━━━━━━━━━━━━━━━━━━━ 📉 Lower (3-5): Quick changes 📈 Higher (10+): Major trends only")
+i_of_rightBars       = input.int(14, " R", group=g_trend, inline="piv", minval=1)
+i_of_req             = input.int(1, " 💪 Strength", group=g_trend, inline="piv", minval=1, tooltip="1=Standard, 2=Strong, 3+=Very Strong")
+i_of_mode            = input.string("Strict", "🎭 Filter Mode", group=g_trend, options=["Strict", "Neutralize", "Aggressive"], tooltip="🎭 BEHAVIOR ━━━━━━━━━━━━━━━━━━━━ ⚡ Strict: No trades when unclear 🔄 Neutralize: Allows consolidation 🚀 Aggressive: Weak trends OK")
+i_of_showBg          = input.bool(true, "🎨 Show Background", group=g_trend, inline="col", tooltip="Visual trend indicator")
+i_of_bullColor       = input.color(color.new(#4caf4f, 85), " 🟢", group=g_trend, inline="col")
+i_of_bearColor       = input.color(color.new(#ff5252, 85), " 🔴", group=g_trend, inline="col")
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 🏗️ SECTION 2: STRUCTURE DETECTION (Break of Structure)
+// ═══════════════════════════════════════════════════════════════════════════════
+g_structure = "═══════════════ 🏗️ 2️⃣ STRUCTURE ═══════════════"
+i_minBOSDistance = input.int(1, "⏳ Min Bars Between BOS", group=g_structure, minval=1, tooltip="🚫 SPAM PREVENTION ━━━━━━━━━━━━━━━━━━━━ Prevents back-to-back signals")
+lb_l             = input.int(3, "🎚️ BOS Pivot: L", group=g_structure, inline="bos", minval=1, tooltip="🔍 STRUCTURE SENSITIVITY ━━━━━━━━━━━━━━━━━━━━ 📉 Lower (3-5): Minor breaks 📈 Higher (8-12): Major breaks only")
+lb_r             = input.int(2, " R", group=g_structure, inline="bos", minval=1)
+tf_pend          = input.timeframe("1", "⏱️ Pending TF", group=g_structure, inline="tfp")
+col_pend         = input.color(color.white, " 🔵", group=g_structure, inline="tfp")
+tf_conf          = input.timeframe("1", "⏱️ Confirmed TF", group=g_structure, inline="tfc")
+col_conf         = input.color(color.white, " 🟢", group=g_structure, inline="tfc")
+tf_perm          = input.timeframe("60", "⏱️ Permanent TF", group=g_structure, inline="tfm")
+col_perm         = input.color(color.red, " 🔴", group=g_structure, inline="tfm")
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ⚓ SECTION 3: ANCHOR SETTINGS (Fibonacci Origin Point)
+// ═══════════════════════════════════════════════════════════════════════════════
+g_anchor = "═══════════════ ⚓ 3️⃣ ANCHOR ═══════════════"
+i_anchor_tf = input.timeframe("30S", "⏱️ Anchor Timeframe", group=g_anchor, tooltip="📍 FIB STARTING POINT ━━━━━━━━━━━━━━━━━━━━ ⏰ Lower TF: Faster setups ⏰ Higher TF: More significant levels")
+i_anchor_lb = input.int(3, "🎚️ Pivot: L", group=g_anchor, inline="anc", minval=1, tooltip="🎯 ANCHOR SENSITIVITY ━━━━━━━━━━━━━━━━━━━━ 📉 Lower: Recent smaller swings 📈 Higher: Major swing points only")
+i_anchor_rb = input.int(2, " R", group=g_anchor, inline="anc", minval=1)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 🎯 SECTION 4: EXECUTION & RISK MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════════
+g_execution = "═══════════════ 🎯 4️⃣ EXECUTION ═══════════════"
+i_entryLevel         = input.float(0.675, "📍 Entry Fib Level", group=g_execution, minval=0.0, maxval=1.0, step=0.005, tooltip="🎯 WHERE TO ENTER ━━━━━━━━━━━━━━━━━━━━ 0.500 = Equilibrium (50%) 0.618 = Golden Ratio 0.705 = OTE Zone 0.79 = Deep OTE 💡 ICT Standard: 0.62-0.79")
+i_tradeCooldownBars  = input.int(2, "⏸️ Cooldown (bars)", group=g_execution, minval=0, tooltip="⏳ REST PERIOD ━━━━━━━━━━━━━━━━━━━━ Bars to wait after closing before new entry")
+i_useBiasFlipExit    = input.bool(true, "🔄 Exit on Trend Flip", group=g_execution, tooltip="🚨 EMERGENCY EXIT ━━━━━━━━━━━━━━━━━━━━ ✅ ON: Close if trend reverses ❌ OFF: Hold until SL/TP")
+i_slBufferPercent    = input.float(0.02, "🛡️ Stop Loss Buffer %", group=g_execution, minval=0.0, step=0.01, tooltip="🛡️ BREATHING ROOM ━━━━━━━━━━━━━━━━━━━━ 0.00% = Tight at swing 0.02% = Small buffer 0.05% = More room")
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ⚡ SECTION 4B: BREAKEVEN SETTINGS
+// ═══════════════════════════════════════════════════════════════════════════════
+g_breakeven = "═══════════════ ⚡ 4B: BREAKEVEN ═══════════════"
+i_useBreakeven           = input.bool(true, "⚡ Enable Breakeven", group=g_breakeven, tooltip="🎯 RISK-FREE TRADES ━━━━━━━━━━━━━━━━━━━━ ✅ ON: Moves SL to entry ❌ OFF: Original SL stays")
+i_beTriggerMode          = input.string("TP1 Hit", "📊 Trigger Mode", group=g_breakeven, options=["TP1 Hit", "Fib Level", "Both (AND)", "Either (OR)"], tooltip="🎯 WHEN TO ACTIVATE BE ━━━━━━━━━━━━━━━━━━━━ • TP1 Hit: When first target fills • Fib Level: When price reaches level • Both (AND): Requires BOTH • Either (OR): Whichever comes first")
+i_breakevenLevel         = input.float(0.0, "📍 BE Trigger Fib Level", group=g_breakeven, step=0.01, tooltip="🎯 FIB LEVEL TRIGGER ━━━━━━━━━━━━━━━━━━━━ 0.0 = At range high/low -0.14 = First extension -0.27 = Second extension ⚠️ Only used if Trigger Mode includes 'Fib Level'")
+i_breakevenProfitTicks   = input.int(8, "💰 BE Offset (ticks)", group=g_breakeven, minval=0, tooltip="💰 PROFIT TO LOCK IN ━━━━━━━━━━━━━━━━━━━━ 5-10 = Small profit lock 20+ = Larger cushion")
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 💰 SECTION 5: PROFIT TARGETS
+// ═══════════════════════════════════════════════════════════════════════════════
+g_profit = "═══════════════ 💰 5️⃣ TARGETS ═══════════════"
+i_qty_TP1               = input.int(4, "🎯 TP1: Qty", group=g_profit, inline="tp1", minval=0)
+i_level_TP1             = input.float(0.0, " @ Fib", group=g_profit, inline="tp1", step=0.01)
+i_qty_TP2               = input.int(2, "🎯 TP2: Qty", group=g_profit, inline="tp2", minval=0)
+i_level_TP2             = input.float(-0.14, " @ Fib", group=g_profit, inline="tp2", step=0.01)
+i_qty_Runner            = input.int(6, "🏃 Runner: Qty", group=g_profit, inline="run", minval=0)
+i_runnerSLMode          = input.string("BE Only", " SL Mode", group=g_profit, inline="run", options=["Trail", "BE Only", "Original SL"])
+i_runnerTrailActivation = input.int(200, "⚡ Trail Activation (ticks)", group=g_profit, minval=1)
+i_runnerTrailOffset     = input.int(100, "📏 Trail Distance (ticks)", group=g_profit, minval=1)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ✅ SECTION 6: SETUP VALIDATION FILTERS
+// ═══════════════════════════════════════════════════════════════════════════════
+g_validation = "═══════════════ ✅ 6️⃣ VALIDATION ═══════════════"
+i_minRangePercent  = input.float(0.08, "📏 Min Range %", group=g_validation, inline="rng", minval=0.0, step=0.01)
+i_maxRangePercent  = input.float(0.33, " Max %", group=g_validation, inline="rng", minval=0.01, step=0.01)
+i_maxSetupDuration = input.int(45, "⏰ Max Duration (bars)", group=g_validation, minval=1)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// ⏰ SECTION 7: TIME FILTERS (New York Time)
+// ═══════════════════════════════════════════════════════════════════════════════
+g_time = "═══════════════ ⏰ 7️⃣ TIME FILTERS ═══════════════"
+useSessionFilter = input.bool(true, "🕐 Enable Session Filter", group=g_time)
+
+g_killzones = "═══════════════ ⚔️ KILLZONES ═══════════════"
+useAsiaKZ         = input.bool(false, "🌏 Asia Range", group=g_killzones, inline="kz1")
+timeAsiaKZ        = input.session("2000-0000", " Time", group=g_killzones, inline="kz1")
+useLondonOpenKZ   = input.bool(false, "🇬🇧 London Open", group=g_killzones, inline="kz2")
+timeLondonOpenKZ  = input.session("0200-0500", " Time", group=g_killzones, inline="kz2")
+useNYOpenKZ       = input.bool(true, "🇺🇸 NY Open", group=g_killzones, inline="kz3")
+timeNYOpenKZ      = input.session("0945-1100", " Time", group=g_killzones, inline="kz3")
+useLondonCloseKZ  = input.bool(true, "🏁 London Close", group=g_killzones, inline="kz4")
+timeLondonCloseKZ = input.session("1345-1600", " Time", group=g_killzones, inline="kz4")
+
+g_macro = "═══════════════ ⚡ MACRO WINDOWS ═══════════════"
+includeMacro_0950 = input.bool(true, "🔥 09:50 AM", group=g_macro, inline="mc1")
+includeMacro_1050 = input.bool(false, " 10:50", group=g_macro, inline="mc1")
+includeMacro_1350 = input.bool(false, " 01:50 PM", group=g_macro, inline="mc1")
+includeMacro_1450 = input.bool(true, " 02:50 PM", group=g_macro, inline="mc1")
+
+g_eod = "═══════════════ 🌙 END OF DAY ═══════════════"
+i_useEodExit = input.bool(true, "🚪 Exit at EOD", group=g_eod, inline="eod")
+i_eodHour    = input.int(16, " Hour", group=g_eod, inline="eod", minval=0, maxval=23)
+i_eodMinute  = input.int(0, " Min", group=g_eod, inline="eod", minval=0, maxval=59)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// 🎨 SECTION 8: VISUAL SETTINGS
+// ═══════════════════════════════════════════════════════════════════════════════
+g_visuals = "═══════════════ 🎨 8️⃣ VISUALS ═══════════════"
+i_showFib         = input.bool(true, "📊 Show Fibonacci Levels", group=g_visuals)
+i_highColor       = input.color(color.new(#ff0000, 0), "🔴 Premium", group=g_visuals, inline="zn")
+i_lowColor        = input.color(color.new(#0004ff, 0), " 🔵 Discount", group=g_visuals, inline="zn")
+i_fib_1           = input.bool(true, "📍 1.0", group=g_visuals, inline="fib1")
+i_fib_0705        = input.bool(true, " 0.705", group=g_visuals, inline="fib1")
+i_fib_0618        = input.bool(true, " 0.618", group=g_visuals, inline="fib1")
+i_fib_05          = input.bool(true, " 0.5", group=g_visuals, inline="fib1")
+i_fib_0           = input.bool(true, " 0.0", group=g_visuals, inline="fib1")
+i_fib_ext         = input.bool(true, " Ext", group=g_visuals, inline="fib1")
+i_showDebugLabels = input.bool(false, "🔧 Debug Labels", group=g_visuals)
+
+g_holidays = "═══════════════ 📅 9️⃣ HOLIDAYS ═══════════════"
+i_filterHolidays = input.bool(true, "🚫 Block US Holidays", group=g_holidays)
+
+// =============================================================================
+// 🔧 CONSTANTS & CORE LOGIC
+// =============================================================================
+var int TRANSPARENCY_BG   = 85
+var int TRANSPARENCY_NONE = 0
+var string TZ_NY          = "America/New_York"
+
+max_bars_back(high, 500)
+max_bars_back(low, 500)
+max_bars_back(close, 500)
+
+int totalTradeQty = math.max(1, i_qty_TP1 + i_qty_TP2 + i_qty_Runner)
+
+get_swing_high_safe(len_l, len_r) =>
+    h = ta.pivothigh(high, len_l, len_r)
+    t = time[len_r]
+    [h[1], t[1]]
+
+get_swing_low_safe(len_l, len_r) =>
+    l = ta.pivotlow(low, len_l, len_r)
+    t = time[len_r]
+    [l[1], t[1]]
+
+[swingHigh_pend, swingHighTime_pend] = request.security(syminfo.tickerid, tf_pend, get_swing_high_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[swingLow_pend, swingLowTime_pend]   = request.security(syminfo.tickerid, tf_pend, get_swing_low_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[swingHigh_conf, swingHighTime_conf] = request.security(syminfo.tickerid, tf_conf, get_swing_high_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[swingLow_conf, swingLowTime_conf]   = request.security(syminfo.tickerid, tf_conf, get_swing_low_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[swingHigh_perm, swingHighTime_perm] = request.security(syminfo.tickerid, tf_perm, get_swing_high_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[swingLow_perm, swingLowTime_perm]   = request.security(syminfo.tickerid, tf_perm, get_swing_low_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[anchorHigh, anchorHighTime]         = request.security(syminfo.tickerid, i_anchor_tf, get_swing_high_safe(i_anchor_lb, i_anchor_rb), lookahead=barmerge.lookahead_on)
+[anchorLow, anchorLowTime]           = request.security(syminfo.tickerid, i_anchor_tf, get_swing_low_safe(i_anchor_lb, i_anchor_rb), lookahead=barmerge.lookahead_on)
+
+var settings = BOS.SwingSettings.new(col_pend, col_conf, col_perm, tf_pend, tf_conf, tf_perm, lb_r)
+var mgr      = BOS.init(settings)
+
+get_bull_streak(l, r, req, m) =>
+    [bull, _] = Lib.get_bias_pure(l, r, req, m)
+    bull[1]
+
+get_bear_streak(l, r, req, m) =>
+    [_, bear] = Lib.get_bias_pure(l, r, req, m)
+    bear[1]
+
+[cur_bullStreak, cur_bearStreak] = Lib.get_bias_pure(i_of_leftBars, i_of_rightBars, i_of_req, i_of_mode)
+
+htf_bullStreak = request.security(syminfo.tickerid, i_of_mtf, get_bull_streak(i_of_leftBars, i_of_rightBars, i_of_req, i_of_mode), lookahead=barmerge.lookahead_on)
+htf_bearStreak = request.security(syminfo.tickerid, i_of_mtf, get_bear_streak(i_of_leftBars, i_of_rightBars, i_of_req, i_of_mode), lookahead=barmerge.lookahead_on)
+
+int final_bull = i_of_useMtf ? nz(htf_bullStreak) : cur_bullStreak
+int final_bear = i_of_useMtf ? nz(htf_bearStreak) : cur_bearStreak
+
+bool rawIsBullish = (final_bull >= i_of_req)
+bool rawIsBearish = (final_bear >= i_of_req)
+
+bool allowLongs  = i_useOrderFlowFilter ? (rawIsBullish and not rawIsBearish) : true
+bool allowShorts = i_useOrderFlowFilter ? (rawIsBearish and not rawIsBullish) : true
+
+if i_useBiasFlipExit
+    if rawIsBearish and not rawIsBullish
+        allowLongs := false
+    if rawIsBullish and not rawIsBearish
+        allowShorts := false
+
+color bgCol = na
+if i_of_showBg
+    if rawIsBullish and rawIsBearish
+        bgCol := color.new(color.gray, 50)
+    else if rawIsBullish
+        bgCol := i_of_bullColor
+    else if rawIsBearish
+        bgCol := i_of_bearColor
+bgcolor(bgCol, title="Trend Background")
+
+// =============================================================================
+// 📊 STATE VARIABLES
+// =============================================================================
+var bool  isLongSetupAllowed      = false
+var bool  isShortSetupAllowed     = false
+var int   lastValidBOSBar         = 0
+var bool  hasTradedCurrentSetup   = false
+var float postBosHighest          = na
+var float postBosLowest           = na
+var float anchorPriceLong         = na
+var float anchorPriceShort        = na
+var int   anchorTimeLong          = na
+var int   anchorTimeShort         = na
+var float latestAnchorHigh        = na
+var int   latestAnchorHighTime    = na
+var float latestAnchorLow         = na
+var int   latestAnchorLowTime     = na
+var int   lastUsedAnchorTimeLong  = 0
+var int   lastUsedAnchorTimeShort = 0
+
+if not na(anchorHigh)
+    latestAnchorHigh     := anchorHigh
+    latestAnchorHighTime := anchorHighTime
+
+if not na(anchorLow)
+    latestAnchorLow      := anchorLow
+    latestAnchorLowTime  := anchorLowTime
+
+var bool  tp1_hit              = false
+var bool  tp2_hit              = false
+var int   lastTradeExitBar     = 0
+var float tradeRangeStart      = na
+var float tradeRangeEnd        = na
+var float activeStopLoss       = na
+var float originalStopLoss     = na
+var float breakevenTriggerPrice = na
+var bool  isStopAtBE           = false
+var float runnerTrailPrice     = na
+var bool  runnerTrailActive    = false
+var float be_stop_price        = na
+var bool  beFibLevelReached    = false
+var bool  entryAlertsSent      = false
+var bool  beAlertSent          = false
+var bool  exitAlertSent        = false
+var bool  beStopShouldExist    = false
+var int   beStopPlacedBar      = 0
+var bool  beStopRetried        = false
+
+// 🌐 Webhook tracking
+var string current_trade_side  = ""
+var float  current_entry_price = na
+
+var box   premiumBox  = na
+var box   discountBox = na
+var line[] fibLines   = array.new_line()
+var label[] fibLabels = array.new_label()
+
+if not allowLongs
+    strategy.cancel("Long")
+    isLongSetupAllowed := false
+
+if not allowShorts
+    strategy.cancel("Short")
+    isShortSetupAllowed := false
+
+// =============================================================================
+// 🔍 BOS DETECTION
+// =============================================================================
+bool canSignal       = bar_index >= lastValidBOSBar + i_minBOSDistance
+bool event_bos_long  = false
+bool event_bos_short = false
+
+if array.size(mgr.highs) > 0
+    for i = 0 to array.size(mgr.highs) - 1
+        BOS.SwingPoint s = array.get(mgr.highs, i)
+        if not s.mitigated and high > s.price
+            if s.status == 0 or s.status == 1
+                event_bos_long := true
+
+if array.size(mgr.lows) > 0
+    for i = 0 to array.size(mgr.lows) - 1
+        BOS.SwingPoint s = array.get(mgr.lows, i)
+        if not s.mitigated and low < s.price
+            if s.status == 0 or s.status == 1
+                event_bos_short := true
+
+BOS.update(mgr, swingHigh_pend, swingHighTime_pend, swingLow_pend, swingLowTime_pend, swingHigh_conf, swingLow_conf, swingHigh_perm, swingLow_perm)
+
+// =============================================================================
+// 📤 JSON ALERT GENERATORS (TradersPost)
+// =============================================================================
+getCleanTicker() =>
+    str.length(syminfo.root) > 0 ? syminfo.root : syminfo.ticker
+
+get_alert_json(string action, string sentiment, int quantity, float price, string orderType) =>
+    string ticker = getCleanTicker()
+    string json = '{"ticker": "' + ticker + '"'
+    json := json + ', "action": "' + action + '"'
+    if sentiment != ""
+        json := json + ', "sentiment": "' + sentiment + '"'
+    if quantity > 0
+        json := json + ', "quantity": ' + str.tostring(quantity)
+    if orderType != ""
+        json := json + ', "orderType": "' + orderType + '"'
+    if not na(price) and price > 0
+        string priceStr = str.tostring(math.round(price / syminfo.mintick) * syminfo.mintick)
+        if orderType == "limit"
+            json := json + ', "limitPrice": ' + priceStr
+        else if orderType == "stop"
+            json := json + ', "stopPrice": ' + priceStr
+        else
+            json := json + ', "price": ' + priceStr
+    json + '}'
+
+get_exit_json(string action, string sentiment) =>
+    string ticker = getCleanTicker()
+    '{"ticker": "' + ticker + '", "action": "' + action + '", "sentiment": "' + sentiment + '"}'
+
+get_bt_entry_msg(string action, string sentiment, int qty, float price) =>
+    string ticker = getCleanTicker()
+    '{"ticker": "' + ticker + '", "action": "' + action + '", "sentiment": "' + sentiment + '", "quantity": ' + str.tostring(qty) + ', "orderType": "limit", "limitPrice": ' + str.tostring(price) + ', "comment": "BT_ENTRY"}'
+
+get_bt_exit_limit_msg(string action, string sentiment, int qty, float price) =>
+    string ticker = getCleanTicker()
+    '{"ticker": "' + ticker + '", "action": "' + action + '", "sentiment": "' + sentiment + '", "quantity": ' + str.tostring(qty) + ', "orderType": "limit", "limitPrice": ' + str.tostring(price) + ', "comment": "BT_TP"}'
+
+get_bt_exit_market_msg(string action, string sentiment) =>
+    string ticker = getCleanTicker()
+    '{"ticker": "' + ticker + '", "action": "' + action + '", "sentiment": "' + sentiment + '", "orderType": "market", "comment": "BT_EXIT"}'
+
+get_bt_close_all_msg(string action, string sentiment, string reason) =>
+    string ticker = getCleanTicker()
+    '{"ticker": "' + ticker + '", "action": "' + action + '", "sentiment": "' + sentiment + '", "orderType": "market", "comment": "' + reason + '"}'
+
+// =============================================================================
+// 🎯 SETUP TRIGGERS
+// =============================================================================
+if canSignal and event_bos_long
+    if not na(latestAnchorLow)
+        if latestAnchorLowTime != lastUsedAnchorTimeLong
+            if isLongSetupAllowed
+                alert(get_exit_json("cancel", "flat"), alert.freq_once_per_bar)
+                strategy.cancel("Long")
+            anchorPriceLong        := latestAnchorLow
+            anchorTimeLong         := latestAnchorLowTime
+            lastUsedAnchorTimeLong := latestAnchorLowTime
+            isLongSetupAllowed     := true
+            isShortSetupAllowed    := false
+            lastValidBOSBar        := bar_index
+            postBosHighest         := high
+            hasTradedCurrentSetup  := false
+
+if canSignal and event_bos_short
+    if not na(latestAnchorHigh)
+        if latestAnchorHighTime != lastUsedAnchorTimeShort
+            if isShortSetupAllowed
+                alert(get_exit_json("cancel", "flat"), alert.freq_once_per_bar)
+                strategy.cancel("Short")
+            anchorPriceShort        := latestAnchorHigh
+            anchorTimeShort         := latestAnchorHighTime
+            lastUsedAnchorTimeShort := latestAnchorHighTime
+            isShortSetupAllowed     := true
+            isLongSetupAllowed      := false
+            lastValidBOSBar         := bar_index
+            postBosLowest           := low
+            hasTradedCurrentSetup   := false
+
+// Setup invalidation
+if isLongSetupAllowed and (bar_index - lastValidBOSBar > i_maxSetupDuration)
+    alert(get_exit_json("cancel", "flat"), alert.freq_once_per_bar)
+    isLongSetupAllowed := false
+    strategy.cancel("Long")
+
+if isShortSetupAllowed and (bar_index - lastValidBOSBar > i_maxSetupDuration)
+    alert(get_exit_json("cancel", "flat"), alert.freq_once_per_bar)
+    isShortSetupAllowed := false
+    strategy.cancel("Short")
+
+if isLongSetupAllowed and not na(anchorPriceLong)
+    postBosHighest := math.max(nz(postBosHighest, high), high)
+    float currentRangePct = (postBosHighest - anchorPriceLong) / anchorPriceLong * 100
+    if currentRangePct > i_maxRangePercent
+        alert(get_exit_json("cancel", "flat"), alert.freq_once_per_bar)
+        isLongSetupAllowed := false
+        strategy.cancel("Long")
+
+if isShortSetupAllowed and not na(anchorPriceShort)
+    postBosLowest := math.min(nz(postBosLowest, low), low)
+    float currentRangePct = (anchorPriceShort - postBosLowest) / anchorPriceShort * 100
+    if currentRangePct > i_maxRangePercent
+        alert(get_exit_json("cancel", "flat"), alert.freq_once_per_bar)
+        isShortSetupAllowed := false
+        strategy.cancel("Short")
+
+// =============================================================================
+// 🔧 HELPER FUNCTIONS
+// =============================================================================
+roundToTick(price) =>
+    math.round(price / syminfo.mintick) * syminfo.mintick
+
+drawFib(int startTime, int endTime, float rangeStart, float rangeEnd) =>
+    box newPremiumBox  = na
+    box newDiscountBox = na
+    line[] newFibLines   = array.new_line()
+    label[] newFibLabels = array.new_label()
+    float[] levels       = array.new_float()
+    string[] levelNames  = array.new_string()
+    
+    if i_fib_1
+        array.push(levels, 1.0), array.push(levelNames, "1.0")
+    if i_fib_0705
+        array.push(levels, 0.705), array.push(levelNames, "OTE")
+    if i_fib_0618
+        array.push(levels, 0.618), array.push(levelNames, "0.618")
+    if i_fib_05
+        array.push(levels, 0.5), array.push(levelNames, "EQ")
+    if i_fib_0
+        array.push(levels, 0.0), array.push(levelNames, "0.0")
+    if i_fib_ext
+        array.push(levels, -0.27), array.push(levelNames, "-0.27")
+        array.push(levels, -0.62), array.push(levelNames, "-0.62")
+        array.push(levels, -1.0), array.push(levelNames, "-1.0")
+    
+    int eodTime     = timestamp(TZ_NY, year(time), month(time), dayofmonth(time), 16, 0)
+    int drawEndTime = math.max(endTime, eodTime)
+    
+    float topPrice    = math.max(rangeStart, rangeEnd)
+    float bottomPrice = math.min(rangeStart, rangeEnd)
+    float eqPrice     = bottomPrice + (topPrice - bottomPrice) * 0.5
+    
+    newPremiumBox  := box.new(startTime, eqPrice, drawEndTime, topPrice, border_color=na, bgcolor=color.new(i_highColor, TRANSPARENCY_BG), xloc=xloc.bar_time)
+    newDiscountBox := box.new(startTime, bottomPrice, drawEndTime, eqPrice, border_color=na, bgcolor=color.new(i_lowColor, TRANSPARENCY_BG), xloc=xloc.bar_time)
+    
+    if array.size(levels) > 0
+        for i = 0 to array.size(levels) - 1
+            float level      = array.get(levels, i)
+            float levelPrice = rangeStart + (rangeEnd - rangeStart) * (1 - level)
+            array.push(newFibLines, line.new(startTime, levelPrice, drawEndTime, levelPrice, xloc=xloc.bar_time, color=color.new(color.red, TRANSPARENCY_NONE)))
+            array.push(newFibLabels, label.new(drawEndTime, levelPrice, array.get(levelNames, i), xloc=xloc.bar_time, style=label.style_label_left, textcolor=color.blue, color=color.new(color.black, 100)))
+    [newPremiumBox, newDiscountBox, newFibLines, newFibLabels]
+
+clearFibDrawings() =>
+    if array.size(fibLines) > 0
+        for l in fibLines
+            line.delete(l)
+        array.clear(fibLines)
+    if array.size(fibLabels) > 0
+        for l in fibLabels
+            label.delete(l)
+        array.clear(fibLabels)
+    if not na(premiumBox)
+        box.delete(premiumBox)
+    if not na(discountBox)
+        box.delete(discountBox)
+
+// =============================================================================
+// 📅 HOLIDAY & SESSION LOGIC
+// =============================================================================
+isFixedDate(m, d) =>
+    month(time) == m and dayofmonth(time) == d
+
+isNthWeekday(nth, dow, m) =>
+    if month(time) != m or dayofweek(time) != dow
+        false
+    else
+        d = dayofmonth(time)
+        (d > (nth - 1) * 7) and (d <= nth * 7)
+
+isLastWeekday(dow, m) =>
+    month(time) == m and dayofweek(time) == dow and (dayofmonth(time) + 7 > 31)
+
+isGoodFriday() =>
+    y = year(time)
+    m = month(time)
+    d = dayofmonth(time)
+    (y == 2023 and m == 4 and d == 7) or (y == 2024 and m == 3 and d == 29) or (y == 2025 and m == 4 and d == 18) or (y == 2026 and m == 4 and d == 3) or (y == 2027 and m == 3 and d == 26) or (y == 2028 and m == 4 and d == 14) or (y == 2029 and m == 3 and d == 30) or (y == 2030 and m == 4 and d == 18)
+
+isHoliday() =>
+    isFixedDate(1, 1) or isFixedDate(6, 19) or isFixedDate(7, 4) or isFixedDate(12, 25) or isFixedDate(11, 11) or isNthWeekday(3, dayofweek.monday, 1) or isNthWeekday(3, dayofweek.monday, 2) or isLastWeekday(dayofweek.monday, 5) or isNthWeekday(1, dayofweek.monday, 9) or isNthWeekday(2, dayofweek.monday, 10) or isNthWeekday(4, dayofweek.thursday, 11) or isGoodFriday()
+
+isTradingSession() =>
+    in_asia         = useAsiaKZ and not na(time(timeframe.period, timeAsiaKZ, TZ_NY))
+    in_london       = useLondonOpenKZ and not na(time(timeframe.period, timeLondonOpenKZ, TZ_NY))
+    in_ny_open      = useNYOpenKZ and not na(time(timeframe.period, timeNYOpenKZ, TZ_NY))
+    in_london_close = useLondonCloseKZ and not na(time(timeframe.period, timeLondonCloseKZ, TZ_NY))
+    in_asia or in_london or in_ny_open or in_london_close
+
+isMacroSession() =>
+    m1 = includeMacro_0950 and not na(time(timeframe.period, "0950-1010", TZ_NY))
+    m2 = includeMacro_1050 and not na(time(timeframe.period, "1050-1110", TZ_NY))
+    m3 = includeMacro_1350 and not na(time(timeframe.period, "1350-1410", TZ_NY))
+    m4 = includeMacro_1450 and not na(time(timeframe.period, "1450-1510", TZ_NY))
+    m1 or m2 or m3 or m4
+
+bool isHolidayToday = i_filterHolidays and isHoliday()
+bool inSession      = (not useSessionFilter or isTradingSession() or isMacroSession()) and not isHolidayToday
+
+// =============================================================================
+// 🎯 ENTRY EXECUTION
+// =============================================================================
+bool canEnterNewTrade = strategy.position_size == 0 and bar_index >= lastTradeExitBar + i_tradeCooldownBars
+
+if strategy.position_size != 0
+    isLongSetupAllowed    := false
+    isShortSetupAllowed   := false
+    hasTradedCurrentSetup := true
+
+// LONG ENTRY
+if inSession and not na(anchorPriceLong) and not na(postBosHighest) and isLongSetupAllowed and canEnterNewTrade and allowLongs and not hasTradedCurrentSetup
+    float rangeStart = anchorPriceLong
+    float rangeEnd   = postBosHighest
+    float tradeRange = rangeEnd - rangeStart
+    float rangePct   = (tradeRange / rangeStart) * 100
+    
+    if rangePct >= i_minRangePercent
+        if i_showFib
+            clearFibDrawings()
+            [newPremium, newDiscount, newLines, newLabels] = drawFib(anchorTimeLong, time, rangeStart, rangeEnd)
+            premiumBox  := newPremium
+            discountBox := newDiscount
+            fibLines    := newLines
+            fibLabels   := newLabels
+        
+        float entryPrice = roundToTick(rangeStart + (rangeEnd - rangeStart) * (1 - i_entryLevel))
+        float slPrice    = roundToTick(rangeStart * (1 - i_slBufferPercent / 100))
+        
+        activeStopLoss        := slPrice
+        originalStopLoss      := slPrice
+        tradeRangeStart       := rangeStart
+        tradeRangeEnd         := rangeEnd
+        be_stop_price         := entryPrice + (i_breakevenProfitTicks * syminfo.mintick)
+        breakevenTriggerPrice := rangeStart + (rangeEnd - rangeStart) * (1 - i_breakevenLevel)
+        isStopAtBE            := false
+        tp1_hit               := false
+        tp2_hit               := false
+        runnerTrailActive     := false
+        runnerTrailPrice      := na
+        beFibLevelReached     := false
+        entryAlertsSent       := false
+        beAlertSent           := false
+        exitAlertSent         := false
+        
+        // 🌐 WEBHOOK: Track entry
+        current_trade_side  := "long"
+        current_entry_price := entryPrice
+        
+        // 🌐 WEBHOOK: Entry Alert
+        if use_webhook
+            alert(getWebhookEntry("long", entryPrice, totalTradeQty), alert.freq_once_per_bar)
+        
+        string entryMsg = get_alert_json("buy", "bullish", totalTradeQty, entryPrice, "limit")
+        strategy.entry("Long", strategy.long, qty=totalTradeQty, limit=entryPrice, alert_message=entryMsg)
+        alert(entryMsg, alert.freq_once_per_bar)
+
+// SHORT ENTRY
+if inSession and not na(anchorPriceShort) and not na(postBosLowest) and isShortSetupAllowed and canEnterNewTrade and allowShorts and not hasTradedCurrentSetup
+    float rangeStart = anchorPriceShort
+    float rangeEnd   = postBosLowest
+    float tradeRange = rangeStart - rangeEnd
+    float rangePct   = (tradeRange / rangeStart) * 100
+    
+    if rangePct >= i_minRangePercent
+        if i_showFib
+            clearFibDrawings()
+            [newPremium, newDiscount, newLines, newLabels] = drawFib(anchorTimeShort, time, rangeStart, rangeEnd)
+            premiumBox  := newPremium
+            discountBox := newDiscount
+            fibLines    := newLines
+            fibLabels   := newLabels
+        
+        float entryPrice = roundToTick(rangeStart + (rangeEnd - rangeStart) * (1 - i_entryLevel))
+        float slPrice    = roundToTick(rangeStart * (1 + i_slBufferPercent / 100))
+        
+        activeStopLoss        := slPrice
+        originalStopLoss      := slPrice
+        tradeRangeStart       := rangeStart
+        tradeRangeEnd         := rangeEnd
+        be_stop_price         := entryPrice - (i_breakevenProfitTicks * syminfo.mintick)
+        breakevenTriggerPrice := rangeStart + (rangeEnd - rangeStart) * (1 - i_breakevenLevel)
+        isStopAtBE            := false
+        tp1_hit               := false
+        tp2_hit               := false
+        runnerTrailActive     := false
+        runnerTrailPrice      := na
+        beFibLevelReached     := false
+        entryAlertsSent       := false
+        beAlertSent           := false
+        exitAlertSent         := false
+        
+        // 🌐 WEBHOOK: Track entry
+        current_trade_side  := "short"
+        current_entry_price := entryPrice
+        
+        // 🌐 WEBHOOK: Entry Alert
+        if use_webhook
+            alert(getWebhookEntry("short", entryPrice, totalTradeQty), alert.freq_once_per_bar)
+        
+        string entryMsg = get_alert_json("sell", "bearish", totalTradeQty, entryPrice, "limit")
+        strategy.entry("Short", strategy.short, qty=totalTradeQty, limit=entryPrice, alert_message=entryMsg)
+        alert(entryMsg, alert.freq_once_per_bar)
+
+// =============================================================================
+// 📤 POST-FILL ALERT HANDLING
+// =============================================================================
+var bool wasFlat = true
+bool isFlat      = strategy.position_size == 0
+bool justEntered = wasFlat and not isFlat
+wasFlat := isFlat
+
+if justEntered and not entryAlertsSent
+    float tp1_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP1))
+    if strategy.position_size > 0
+        if i_qty_TP1 > 0
+            string tp1Msg = get_alert_json("sell", "bullish", i_qty_TP1, tp1_price, "limit")
+            alert(tp1Msg, alert.freq_once_per_bar)
+    else
+        if i_qty_TP1 > 0
+            string tp1Msg = get_alert_json("buy", "bearish", i_qty_TP1, tp1_price, "limit")
+            alert(tp1Msg, alert.freq_once_per_bar)
+    entryAlertsSent := true
+
+// =============================================================================
+// 🎯 EXIT MANAGEMENT
+// =============================================================================
+bool isEodTime   = i_useEodExit and ((hour(time, TZ_NY) > i_eodHour) or (hour(time, TZ_NY) == i_eodHour and minute(time, TZ_NY) >= i_eodMinute))
+bool isEntryBar  = (strategy.opentrades > 0) and (bar_index == strategy.opentrades.entry_bar_index(strategy.opentrades - 1))
+
+// LONG EXIT MANAGEMENT
+if strategy.position_size > 0
+    float tp1_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP1))
+    float tp2_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP2))
+    
+    if not beFibLevelReached and high >= breakevenTriggerPrice
+        beFibLevelReached := true
+    
+    // TP1 EXIT
+    if not tp1_hit and i_qty_TP1 > 0
+        string tp1BtMsg = get_bt_exit_limit_msg("sell", "bullish", i_qty_TP1, tp1_price)
+        strategy.exit("TP1_L", "Long", qty=i_qty_TP1, limit=tp1_price, alert_message=tp1BtMsg)
+        if high >= tp1_price
+            tp1_hit := true
+            // 🌐 WEBHOOK: TP1 Hit
+            if use_webhook
+                float tp1_pnl = (tp1_price - current_entry_price) * i_qty_TP1 * syminfo.pointvalue
+                alert(getWebhookExit("long", "tp1", tp1_price, current_entry_price, i_qty_TP1, tp1_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    
+    // BREAKEVEN LOGIC
+    if i_useBreakeven and not isStopAtBE
+        bool shouldTriggerBE = false
+        if i_beTriggerMode == "TP1 Hit"
+            shouldTriggerBE := tp1_hit
+        else if i_beTriggerMode == "Fib Level"
+            shouldTriggerBE := beFibLevelReached
+        else if i_beTriggerMode == "Both (AND)"
+            shouldTriggerBE := tp1_hit and beFibLevelReached
+        else if i_beTriggerMode == "Either (OR)"
+            shouldTriggerBE := tp1_hit or beFibLevelReached
+        
+        if shouldTriggerBE and not beAlertSent
+            isStopAtBE       := true
+            activeStopLoss   := be_stop_price
+            string beMsg     = get_alert_json("sell", "bullish", 0, be_stop_price, "stop")
+            alert(beMsg, alert.freq_once_per_bar)
+            beAlertSent      := true
+            beStopShouldExist := true
+            beStopPlacedBar  := bar_index
+            beStopRetried    := false
+    
+    // TP2 EXIT
+    if not tp2_hit and i_qty_TP2 > 0
+        string tp2BtMsg = get_bt_exit_limit_msg("sell", "bullish", i_qty_TP2, tp2_price)
+        strategy.exit("TP2_L", "Long", qty=i_qty_TP2, limit=tp2_price, alert_message=tp2BtMsg)
+        if high >= tp2_price
+            tp2_hit := true
+            // 🌐 WEBHOOK: TP2 Hit
+            if use_webhook
+                float tp2_pnl = (tp2_price - current_entry_price) * i_qty_TP2 * syminfo.pointvalue
+                alert(getWebhookExit("long", "tp2", tp2_price, current_entry_price, i_qty_TP2, tp2_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string tp2Msg = get_alert_json("sell", "bullish", i_qty_TP2, tp2_price, "market")
+            alert(tp2Msg, alert.freq_once_per_bar)
+            if isStopAtBE and strategy.position_size - i_qty_TP2 > 0
+                string beMsg = get_alert_json("sell", "bullish", 0, be_stop_price, "stop")
+                alert(beMsg, alert.freq_once_per_bar)
+    
+    // BE STOP RETRY
+    if beStopShouldExist and not beStopRetried and bar_index == beStopPlacedBar + 1
+        if strategy.position_size > 0
+            string beMsg = get_alert_json("sell", "bullish", 0, be_stop_price, "stop")
+            alert(beMsg, alert.freq_once_per_bar)
+            beStopRetried := true
+    
+    // BE EMERGENCY
+    if beStopShouldExist and strategy.position_size > 0 and bar_index > beStopPlacedBar + 2
+        if low <= be_stop_price
+            // 🌐 WEBHOOK: BE Emergency
+            if use_webhook
+                float be_pnl = (be_stop_price - current_entry_price) * math.abs(strategy.position_size) * syminfo.pointvalue
+                alert(getWebhookExit("long", "be_emergency", be_stop_price, current_entry_price, int(math.abs(strategy.position_size)), be_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string emergencyMsg   = get_alert_json("sell", "bullish", 0, close, "market")
+            string emergencyBtMsg = get_bt_close_all_msg("sell", "bullish", "BE_EMERGENCY")
+            strategy.close_all(comment="🚨 BE Emergency", alert_message=emergencyBtMsg)
+            alert(emergencyMsg, alert.freq_once_per_bar)
+            beStopShouldExist := false
+    
+    // RUNNER TRAIL
+    if i_qty_Runner > 0 and i_runnerSLMode == "Trail"
+        float trailActivationPrice = strategy.opentrades.entry_price(strategy.opentrades - 1) + (i_runnerTrailActivation * syminfo.mintick)
+        if not runnerTrailActive and high >= trailActivationPrice
+            runnerTrailActive := true
+            runnerTrailPrice  := high - (i_runnerTrailOffset * syminfo.mintick)
+        if runnerTrailActive
+            runnerTrailPrice := math.max(nz(runnerTrailPrice), high - (i_runnerTrailOffset * syminfo.mintick))
+            if low <= runnerTrailPrice
+                // 🌐 WEBHOOK: Runner Trail
+                if use_webhook
+                    float trail_pnl = (runnerTrailPrice - current_entry_price) * i_qty_Runner * syminfo.pointvalue
+                    alert(getWebhookExit("long", "runner_trail", runnerTrailPrice, current_entry_price, i_qty_Runner, trail_pnl, strategy.netprofit), alert.freq_once_per_bar)
+                string trailMsg   = get_alert_json("sell", "bullish", i_qty_Runner, runnerTrailPrice, "market")
+                string trailBtMsg = get_bt_exit_market_msg("sell", "bullish")
+                alert(trailMsg, alert.freq_once_per_bar)
+                strategy.close("Long", qty=i_qty_Runner, comment="Trail", alert_message=trailBtMsg)
+                runnerTrailActive := false
+    
+    // BIAS FLIP / EOD
+    if not isEntryBar and not exitAlertSent
+        if isEodTime
+            // 🌐 WEBHOOK: EOD Exit
+            if use_webhook
+                float eod_pnl = (close - current_entry_price) * math.abs(strategy.position_size) * syminfo.pointvalue
+                alert(getWebhookExit("long", "eod", close, current_entry_price, int(math.abs(strategy.position_size)), eod_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string eodMsg   = get_alert_json("sell", "bullish", 0, close, "market")
+            string eodBtMsg = get_bt_exit_market_msg("sell", "bullish")
+            strategy.close("Long", comment="EOD", alert_message=eodBtMsg)
+            alert(eodMsg, alert.freq_once_per_bar)
+            exitAlertSent := true
+        else if i_useBiasFlipExit and (rawIsBearish and not rawIsBullish)
+            // 🌐 WEBHOOK: Bias Flip
+            if use_webhook
+                float flip_pnl = (close - current_entry_price) * math.abs(strategy.position_size) * syminfo.pointvalue
+                alert(getWebhookExit("long", "bias_flip", close, current_entry_price, int(math.abs(strategy.position_size)), flip_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string flipMsg   = get_alert_json("sell", "bullish", 0, close, "market")
+            string flipBtMsg = get_bt_exit_market_msg("sell", "bullish")
+            strategy.close("Long", comment="Flip", alert_message=flipBtMsg)
+            alert(flipMsg, alert.freq_once_per_bar)
+            exitAlertSent := true
+    
+    // STOP LOSS
+    bool slTriggered = false
+    if isStopAtBE
+        if low <= be_stop_price
+            slTriggered := true
+    else
+        if close <= activeStopLoss
+            slTriggered := true
+    
+    if slTriggered and not exitAlertSent
+        // 🌐 WEBHOOK: Stop Loss
+        if use_webhook
+            float sl_price = isStopAtBE ? be_stop_price : activeStopLoss
+            float sl_pnl   = (sl_price - current_entry_price) * math.abs(strategy.position_size) * syminfo.pointvalue
+            alert(getWebhookExit("long", isStopAtBE ? "be_stop" : "sl", sl_price, current_entry_price, int(math.abs(strategy.position_size)), sl_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        string slMsg   = get_alert_json("sell", "bullish", 0, activeStopLoss, "market")
+        string slBtMsg = get_bt_close_all_msg("sell", "bullish", isStopAtBE ? "BE_STOP" : "SL_HIT")
+        strategy.close_all(comment=isStopAtBE ? "BE Stop" : "SL Hit", alert_message=slBtMsg)
+        alert(slMsg, alert.freq_once_per_bar)
+        exitAlertSent := true
+
+// SHORT EXIT MANAGEMENT
+if strategy.position_size < 0
+    float tp1_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP1))
+    float tp2_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP2))
+    
+    if not beFibLevelReached and low <= breakevenTriggerPrice
+        beFibLevelReached := true
+    
+    // TP1 EXIT
+    if not tp1_hit and i_qty_TP1 > 0
+        string tp1BtMsg = get_bt_exit_limit_msg("buy", "bearish", i_qty_TP1, tp1_price)
+        strategy.exit("TP1_S", "Short", qty=i_qty_TP1, limit=tp1_price, alert_message=tp1BtMsg)
+        if low <= tp1_price
+            tp1_hit := true
+            // 🌐 WEBHOOK: TP1 Hit
+            if use_webhook
+                float tp1_pnl = (current_entry_price - tp1_price) * i_qty_TP1 * syminfo.pointvalue
+                alert(getWebhookExit("short", "tp1", tp1_price, current_entry_price, i_qty_TP1, tp1_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    
+    // BREAKEVEN LOGIC
+    if i_useBreakeven and not isStopAtBE
+        bool shouldTriggerBE = false
+        if i_beTriggerMode == "TP1 Hit"
+            shouldTriggerBE := tp1_hit
+        else if i_beTriggerMode == "Fib Level"
+            shouldTriggerBE := beFibLevelReached
+        else if i_beTriggerMode == "Both (AND)"
+            shouldTriggerBE := tp1_hit and beFibLevelReached
+        else if i_beTriggerMode == "Either (OR)"
+            shouldTriggerBE := tp1_hit or beFibLevelReached
+        
+        if shouldTriggerBE and not beAlertSent
+            isStopAtBE       := true
+            activeStopLoss   := be_stop_price
+            string beMsg     = get_alert_json("buy", "bearish", 0, be_stop_price, "stop")
+            alert(beMsg, alert.freq_once_per_bar)
+            beAlertSent      := true
+            beStopShouldExist := true
+            beStopPlacedBar  := bar_index
+            beStopRetried    := false
+    
+    // TP2 EXIT
+    if not tp2_hit and i_qty_TP2 > 0
+        string tp2BtMsg = get_bt_exit_limit_msg("buy", "bearish", i_qty_TP2, tp2_price)
+        strategy.exit("TP2_S", "Short", qty=i_qty_TP2, limit=tp2_price, alert_message=tp2BtMsg)
+        if low <= tp2_price
+            tp2_hit := true
+            // 🌐 WEBHOOK: TP2 Hit
+            if use_webhook
+                float tp2_pnl = (current_entry_price - tp2_price) * i_qty_TP2 * syminfo.pointvalue
+                alert(getWebhookExit("short", "tp2", tp2_price, current_entry_price, i_qty_TP2, tp2_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string tp2Msg = get_alert_json("buy", "bearish", i_qty_TP2, tp2_price, "market")
+            alert(tp2Msg, alert.freq_once_per_bar)
+            if isStopAtBE and strategy.position_size + i_qty_TP2 < 0
+                string beMsg = get_alert_json("buy", "bearish", 0, be_stop_price, "stop")
+                alert(beMsg, alert.freq_once_per_bar)
+    
+    // BE STOP RETRY
+    if beStopShouldExist and not beStopRetried and bar_index == beStopPlacedBar + 1
+        if strategy.position_size < 0
+            string beMsg = get_alert_json("buy", "bearish", 0, be_stop_price, "stop")
+            alert(beMsg, alert.freq_once_per_bar)
+            beStopRetried := true
+    
+    // BE EMERGENCY
+    if beStopShouldExist and strategy.position_size < 0 and bar_index > beStopPlacedBar + 2
+        if high >= be_stop_price
+            // 🌐 WEBHOOK: BE Emergency
+            if use_webhook
+                float be_pnl = (current_entry_price - be_stop_price) * math.abs(strategy.position_size) * syminfo.pointvalue
+                alert(getWebhookExit("short", "be_emergency", be_stop_price, current_entry_price, int(math.abs(strategy.position_size)), be_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string emergencyMsg   = get_alert_json("buy", "bearish", 0, close, "market")
+            string emergencyBtMsg = get_bt_close_all_msg("buy", "bearish", "BE_EMERGENCY")
+            strategy.close_all(comment="🚨 BE Emergency", alert_message=emergencyBtMsg)
+            alert(emergencyMsg, alert.freq_once_per_bar)
+            beStopShouldExist := false
+    
+    // RUNNER TRAIL
+    if i_qty_Runner > 0 and i_runnerSLMode == "Trail"
+        float trailActivationPrice = strategy.opentrades.entry_price(strategy.opentrades - 1) - (i_runnerTrailActivation * syminfo.mintick)
+        if not runnerTrailActive and low <= trailActivationPrice
+            runnerTrailActive := true
+            runnerTrailPrice  := low + (i_runnerTrailOffset * syminfo.mintick)
+        if runnerTrailActive
+            runnerTrailPrice := math.min(nz(runnerTrailPrice), low + (i_runnerTrailOffset * syminfo.mintick))
+            if high >= runnerTrailPrice
+                // 🌐 WEBHOOK: Runner Trail
+                if use_webhook
+                    float trail_pnl = (current_entry_price - runnerTrailPrice) * i_qty_Runner * syminfo.pointvalue
+                    alert(getWebhookExit("short", "runner_trail", runnerTrailPrice, current_entry_price, i_qty_Runner, trail_pnl, strategy.netprofit), alert.freq_once_per_bar)
+                string trailMsg   = get_alert_json("buy", "bearish", i_qty_Runner, runnerTrailPrice, "market")
+                string trailBtMsg = get_bt_exit_market_msg("buy", "bearish")
+                alert(trailMsg, alert.freq_once_per_bar)
+                strategy.close("Short", qty=i_qty_Runner, comment="Trail", alert_message=trailBtMsg)
+                runnerTrailActive := false
+    
+    // BIAS FLIP / EOD
+    if not isEntryBar and not exitAlertSent
+        if isEodTime
+            // 🌐 WEBHOOK: EOD Exit
+            if use_webhook
+                float eod_pnl = (current_entry_price - close) * math.abs(strategy.position_size) * syminfo.pointvalue
+                alert(getWebhookExit("short", "eod", close, current_entry_price, int(math.abs(strategy.position_size)), eod_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string eodMsg   = get_alert_json("buy", "bearish", 0, close, "market")
+            string eodBtMsg = get_bt_exit_market_msg("buy", "bearish")
+            strategy.close("Short", comment="EOD", alert_message=eodBtMsg)
+            alert(eodMsg, alert.freq_once_per_bar)
+            exitAlertSent := true
+        else if i_useBiasFlipExit and (rawIsBullish and not rawIsBearish)
+            // 🌐 WEBHOOK: Bias Flip
+            if use_webhook
+                float flip_pnl = (current_entry_price - close) * math.abs(strategy.position_size) * syminfo.pointvalue
+                alert(getWebhookExit("short", "bias_flip", close, current_entry_price, int(math.abs(strategy.position_size)), flip_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            string flipMsg   = get_alert_json("buy", "bearish", 0, close, "market")
+            string flipBtMsg = get_bt_exit_market_msg("buy", "bearish")
+            strategy.close("Short", comment="Flip", alert_message=flipBtMsg)
+            alert(flipMsg, alert.freq_once_per_bar)
+            exitAlertSent := true
+    
+    // STOP LOSS
+    bool slTriggered = false
+    if isStopAtBE
+        if high >= be_stop_price
+            slTriggered := true
+    else
+        if close >= activeStopLoss
+            slTriggered := true
+    
+    if slTriggered and not exitAlertSent
+        // 🌐 WEBHOOK: Stop Loss
+        if use_webhook
+            float sl_price = isStopAtBE ? be_stop_price : activeStopLoss
+            float sl_pnl   = (current_entry_price - sl_price) * math.abs(strategy.position_size) * syminfo.pointvalue
+            alert(getWebhookExit("short", isStopAtBE ? "be_stop" : "sl", sl_price, current_entry_price, int(math.abs(strategy.position_size)), sl_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        string slMsg   = get_alert_json("buy", "bearish", 0, activeStopLoss, "market")
+        string slBtMsg = get_bt_close_all_msg("buy", "bearish", isStopAtBE ? "BE_STOP" : "SL_HIT")
+        strategy.close_all(comment=isStopAtBE ? "BE Stop" : "SL Hit", alert_message=slBtMsg)
+        alert(slMsg, alert.freq_once_per_bar)
+        exitAlertSent := true
+
+// =============================================================================
+// 📊 CLEANUP ON EXIT
+// =============================================================================
+if strategy.position_size[1] != 0 and strategy.position_size == 0
+    lastTradeExitBar     := bar_index
+    runnerTrailPrice     := na
+    runnerTrailActive    := false
+    beFibLevelReached    := false
+    entryAlertsSent      := false
+    beAlertSent          := false
+    exitAlertSent        := false
+    beStopShouldExist    := false
+    beStopPlacedBar      := 0
+    beStopRetried        := false
+    current_trade_side   := ""
+    current_entry_price  := na
+
+// =============================================================================
+// 📈 VISUALS & TABLE
+// =============================================================================
+float plotSL = strategy.position_size != 0 ? (isStopAtBE ? be_stop_price : activeStopLoss) : na
+plot(plotSL, "Current Stop Loss", color=color.red, style=plot.style_linebr, linewidth=2)
+
+float plotTrail = runnerTrailActive ? runnerTrailPrice : na
+plot(plotTrail, "Runner Trail", color=color.orange, style=plot.style_linebr, linewidth=1)
+
+var table infoTable = table.new(position.top_right, 2, 12, bgcolor=color.new(color.black, 80), border_width=1)
+
+if barstate.islast
+    table.cell(infoTable, 0, 0, "📊 OTE Refined", text_color=color.white, text_size=size.small)
+    table.cell(infoTable, 1, 0, "WEBHOOK ✓", text_color=color.green, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 1, "🌐 Webhook:", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 1, use_webhook ? "ON" : "OFF", text_color=use_webhook ? color.green : color.red, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 2, "Trend:", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 2, rawIsBullish ? "🟢 BULL" : rawIsBearish ? "🔴 BEAR" : "⚪ FLAT", text_color=color.white, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 3, "Session:", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 3, inSession ? "✅ ACTIVE" : "❌ CLOSED", text_color=inSession ? color.green : color.red, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 4, "Position:", text_color=color.gray, text_size=size.tiny)
+    string posText = strategy.position_size > 0 ? "📈 LONG" : strategy.position_size < 0 ? "📉 SHORT" : "⚪ FLAT"
+    table.cell(infoTable, 1, 4, posText, text_color=color.white, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 5, "BE Status:", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 5, isStopAtBE ? "✅ ACTIVE" : "❌ OFF", text_color=isStopAtBE ? color.green : color.gray, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 6, "TP1:", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 6, tp1_hit ? "✅ HIT" : "⏳", text_color=tp1_hit ? color.green : color.yellow, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 7, "TP2:", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 7, tp2_hit ? "✅ HIT" : "⏳", text_color=tp2_hit ? color.green : color.yellow, text_size=size.tiny)
+    
+    table.cell(infoTable, 0, 8, "Runner Trail:", text_color=color.gray, text_size=size.tiny)
+    table.cell(infoTable, 1, 8, runnerTrailActive ? "✅ ACTIVE" : "❌ OFF", text_color=runnerTrailActive ? color.green : color.gray, text_size=size.tiny)

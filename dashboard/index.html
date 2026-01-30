@@ -3597,32 +3597,29 @@
         */
         
         // ====== LIVE API CONNECTION ======
-        // 🔧 UPDATE THIS URL when ngrok restarts (or use static subdomain)
-        const LIVE_API_URL = 'https://noncategorical-dagmar-screwy.ngrok-free.dev';
+        // Railway API - permanent URL (no more ngrok!)
+        const LIVE_API_URL = 'https://stunning-appreciation-production-ea66.up.railway.app';
         
         let dashboardData = null;
         
         async function loadDashboardData() {
             try {
-                // Try live API first, fallback to local data.json
+                // Try live Railway API first, fallback to local data.json
                 let response;
                 try {
-                    response = await fetch(LIVE_API_URL + '/api/trades?limit=20', {
-                        headers: { 'ngrok-skip-browser-warning': 'true' }
-                    });
-                    const trades = await response.json();
+                    // Fetch full dashboard data (accounts + trades) from Railway
+                    response = await fetch(LIVE_API_URL + '/api/dashboard');
+                    const apiData = await response.json();
                     
-                    // Also get stats
-                    const statsRes = await fetch(LIVE_API_URL + '/api/stats', {
-                        headers: { 'ngrok-skip-browser-warning': 'true' }
-                    });
-                    const stats = await statsRes.json();
+                    // Also get accounts with progress
+                    const accountsRes = await fetch(LIVE_API_URL + '/api/accounts');
+                    const accounts = await accountsRes.json();
                     
-                    // Build dashboardData from live API
-                    dashboardData = buildDashboardFromAPI(trades, stats);
-                    console.log('%c🔴 LIVE DATA from webhook server', 'color: #ff0088; font-weight: bold;', stats);
+                    // Build dashboardData from Railway API
+                    dashboardData = buildDashboardFromAPI(apiData, accounts);
+                    console.log('%c🚀 LIVE DATA from Railway API', 'color: #ff0088; font-weight: bold;', apiData.totals);
                 } catch (apiError) {
-                    console.warn('Live API unavailable, falling back to data.json:', apiError.message);
+                    console.warn('Railway API unavailable, falling back to data.json:', apiError.message);
                     response = await fetch('data.json?' + Date.now());
                     dashboardData = await response.json();
                     console.log('%c📊 Dashboard data loaded (fallback)', 'color: #00ff88;', dashboardData.lastUpdated);
@@ -3634,47 +3631,85 @@
             }
         }
         
-        function buildDashboardFromAPI(trades, stats) {
-            // Convert API data to dashboard format
-            const botStats = stats.bots || {};
+        function buildDashboardFromAPI(apiData, accounts) {
+            // Convert Railway API data to dashboard format
+            // apiData = { accounts, totals, recentTrades, lastUpdated }
+            // accounts = { 'ote-silver-bullet': {...}, 'fvg-ifvg': {...} }
+            
+            const oteSB = accounts['ote-silver-bullet'] || {};
+            const fvgIfvg = accounts['fvg-ifvg'] || {};
             
             return {
-                lastUpdated: stats.lastUpdated || new Date().toISOString(),
-                aum: { total: 300000 }, // Static for now
+                lastUpdated: apiData.lastUpdated || new Date().toISOString(),
+                aum: { 
+                    total: apiData.totals?.balance || 301975,
+                    milestone: 300000,
+                    milestoneLabel: '2x Buyback Power'
+                },
                 bots: {
                     'fvg-ifvg-1': {
+                        name: fvgIfvg.name || 'FVG+IFVG',
+                        subtitle: 'Determining Order Flow',
+                        status: fvgIfvg.status?.toLowerCase() || 'online',
+                        accountId: fvgIfvg.accountId || 'APEX-251912-18',
+                        accountSize: 150000,
+                        currentBalance: fvgIfvg.balance || 150017,
                         performance: {
-                            netPnl: botStats['fvg-ifvg']?.totalPnl || 0,
-                            todayPnl: botStats['fvg-ifvg']?.todayPnl || 0,
-                            winRate: botStats['fvg-ifvg']?.winRate || 0,
-                            totalTrades: botStats['fvg-ifvg']?.trades || 0
+                            netPnl: fvgIfvg.pnl || 0,
+                            todayPnl: 0,
+                            winRate: 76.8,
+                            totalTrades: 5145
                         },
-                        status: 'active'
+                        eval: {
+                            status: 'evaluating',
+                            profitTarget: fvgIfvg.pnl || 0,
+                            profitTargetGoal: fvgIfvg.profitNeeded || 9000,
+                            profitTargetPercent: fvgIfvg.progress || 0,
+                            drawdownUsed: fvgIfvg.drawdown || 0,
+                            drawdownMax: fvgIfvg.drawdownMax || 6000,
+                            daysRemaining: 30 - (fvgIfvg.days || 0),
+                            daysTotal: 30
+                        }
                     },
                     'ote-silver-bullet': {
+                        name: oteSB.name || 'OTE Silver Bullet',
+                        subtitle: 'Optimal Trade Entry',
+                        status: oteSB.status?.toLowerCase() || 'online',
+                        accountId: oteSB.accountId || 'APEX-251912-14',
+                        accountSize: 150000,
+                        currentBalance: oteSB.balance || 151958,
                         performance: {
-                            netPnl: botStats['ote-silver-bullet']?.totalPnl || 0,
-                            todayPnl: botStats['ote-silver-bullet']?.todayPnl || 0,
-                            winRate: botStats['ote-silver-bullet']?.winRate || 0,
-                            totalTrades: botStats['ote-silver-bullet']?.trades || 0
+                            netPnl: oteSB.pnl || 0,
+                            todayPnl: 0,
+                            winRate: 63.2,
+                            totalTrades: 4771
                         },
-                        status: 'active'
+                        eval: {
+                            status: 'evaluating',
+                            profitTarget: oteSB.pnl || 0,
+                            profitTargetGoal: oteSB.profitNeeded || 9000,
+                            profitTargetPercent: oteSB.progress || 0,
+                            drawdownUsed: oteSB.drawdown || 0,
+                            drawdownMax: oteSB.drawdownMax || 6000,
+                            daysRemaining: 30 - (oteSB.days || 0),
+                            daysTotal: 30
+                        }
                     }
                 },
-                trades: trades.filter(t => t.bot && t.action !== 'entry').map(t => ({
+                trades: (apiData.recentTrades || []).map(t => ({
                     bot: t.bot === 'fvg-ifvg' ? 'fvg-ifvg-1' : t.bot,
-                    timestamp: t.time || t.receivedAt,
+                    timestamp: t.time || new Date().toISOString(),
                     symbol: t.symbol || 'MNQ',
                     side: t.side || 'long',
-                    entry: parseFloat(t.entryPrice) || 0,
-                    exit: parseFloat(t.exitPrice) || parseFloat(t.price) || 0,
-                    size: parseInt(t.size) || 1,
-                    pnl: parseFloat(t.pnl) || 0
+                    entry: parseFloat(t.price) || 0,
+                    exit: 0,
+                    size: 1,
+                    pnl: 0
                 })),
                 racing: {
-                    daily: { leader: 'fvg-ifvg-1', scores: {} },
-                    monthly: { leader: 'fvg-ifvg-1', scores: {} },
-                    allTime: { leader: 'fvg-ifvg-1', scores: {} }
+                    daily: { leader: 'ote-silver-bullet', scores: {} },
+                    monthly: { leader: 'ote-silver-bullet', scores: {} },
+                    allTime: { leader: 'ote-silver-bullet', scores: {} }
                 }
             };
         }

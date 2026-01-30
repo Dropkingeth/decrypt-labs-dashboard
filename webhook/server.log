@@ -1,0 +1,500 @@
+
+╔══════════════════════════════════════════════════════════════╗
+║  🤖 Decrypt Labs Webhook Server + API                        ║
+╠══════════════════════════════════════════════════════════════╣
+║  Status:    ONLINE                                           ║
+║  Port:      3456                                             ║
+╠══════════════════════════════════════════════════════════════╣
+║  📡 API Endpoints:                                           ║
+║    GET  /api/stats     — Overall statistics                  ║
+║    GET  /api/bots      — Individual bot data                 ║
+║    GET  /api/trades    — Trade history                       ║
+║    GET  /api/live      — Real-time widget data               ║
+╠══════════════════════════════════════════════════════════════╣
+║  🎨 Embed:                                                   ║
+║    GET  /embed         — Embeddable widget (iframe)          ║
+║    GET  /widget.js     — JavaScript widget                   ║
+╠══════════════════════════════════════════════════════════════╣
+║  📥 Webhooks:                                                ║
+║    POST /webhook/ote-silver-bullet                           ║
+║    POST /webhook/ote-refined         (Large)                 ║
+║    POST /webhook/ote-refined-small   (Small)                 ║
+║    POST /webhook/fvg-ifvg                                    ║
+╠══════════════════════════════════════════════════════════════╣
+║  🌐 ngrok http 3456  to expose publicly                      ║
+╚══════════════════════════════════════════════════════════════╝
+  
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25719.5,"entryPrice":25719.5,"size":12,"timeframe":"30S","time":"2026-01-29T11:53:30-0500","receivedAt":"2026-01-29T16:54:00.498Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25719.5,"entryPrice":25719.5,"size":12,"timeframe":"30S","time":"2026-01-29T11:54:00-0500","receivedAt":"2026-01-29T16:54:30.279Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25719.5,"entryPrice":25719.5,"size":12,"timeframe":"30S","time":"2026-01-29T11:54:30-0500","receivedAt":"2026-01-29T16:55:00.788Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25719.5,"entryPrice":25719.5,"size":12,"timeframe":"30S","time":"2026-01-29T11:55:00-0500","receivedAt":"2026-01-29T16:55:30.241Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25719.5,"entryPrice":25719.5,"size":12,"timeframe":"30S","time":"2026-01-29T11:55:30-0500","receivedAt":"2026-01-29T16:56:00.980Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25718.25,"entryPrice":25718.25,"size":12,"timeframe":"30S","time":"2026-01-29T11:56:00-0500","receivedAt":"2026-01-29T16:56:30.305Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25718.25,"entryPrice":25718.25,"size":12,"timeframe":"30S","time":"2026-01-29T11:56:30-0500","receivedAt":"2026-01-29T16:57:15.747Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:00:06.163Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25718.25,"entryPrice":25718.25,"size":12,"timeframe":"30S","time":"2026-01-29T11:57:00-0500","receivedAt":"2026-01-29T17:00:15.835Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:00:17.702Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25717.25,"entryPrice":25717.25,"size":12,"timeframe":"30S","time":"2026-01-29T11:57:30-0500","receivedAt":"2026-01-29T17:00:21.571Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25715.25,"entryPrice":25715.25,"size":12,"timeframe":"30S","time":"2026-01-29T11:58:00-0500","receivedAt":"2026-01-29T17:00:35.000Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25715.25,"entryPrice":25715.25,"size":12,"timeframe":"30S","time":"2026-01-29T11:59:00-0500","receivedAt":"2026-01-29T17:00:35.489Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25715.25,"entryPrice":25715.25,"size":12,"timeframe":"30S","time":"2026-01-29T11:58:30-0500","receivedAt":"2026-01-29T17:00:46.985Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQH2026","action":"sell","orderType":"limit","limitPrice":25715.25,"quantity":12,"receivedAt":"2026-01-29T17:00:58.880Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"limit","limitPrice":25684.5,"quantity":5,"receivedAt":"2026-01-29T17:01:06.684Z","source":"ote-silver-bullet"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"sl","side":"short","symbol":"MNQH2026","price":25735.25,"exitPrice":25735.25,"entryPrice":25715.25,"size":12,"pnl":-480,"totalPnl":3428,"timeframe":"30S","time":"2026-01-29T12:01:00-0500","receivedAt":"2026-01-29T17:01:30.287Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"market","quantity":12,"receivedAt":"2026-01-29T17:01:30.316Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:48:00.257Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:48:00.282Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:52:00.481Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:52:00.632Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:58:31.652Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T17:58:31.674Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25879,"receivedAt":"2026-01-29T18:46:00.909Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25879,"entryPrice":25879,"size":12,"timeframe":"30S","time":"2026-01-29T13:45:30-0500","receivedAt":"2026-01-29T18:46:00.989Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25879,"entryPrice":25879,"size":12,"timeframe":"30S","time":"2026-01-29T13:45:30-0500","receivedAt":"2026-01-29T18:46:01.910Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25879,"entryPrice":25879,"size":6,"timeframe":"30S","time":"2026-01-29T13:45:30-0500","receivedAt":"2026-01-29T18:46:05.600Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25879,"receivedAt":"2026-01-29T18:46:05.625Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876.75,"entryPrice":25876.75,"size":12,"timeframe":"30S","time":"2026-01-29T13:46:00-0500","receivedAt":"2026-01-29T18:46:30.328Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876.75,"receivedAt":"2026-01-29T18:46:30.330Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876.75,"entryPrice":25876.75,"size":12,"timeframe":"30S","time":"2026-01-29T13:46:00-0500","receivedAt":"2026-01-29T18:46:30.358Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876.75,"receivedAt":"2026-01-29T18:46:30.360Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876.75,"entryPrice":25876.75,"size":6,"timeframe":"30S","time":"2026-01-29T13:46:00-0500","receivedAt":"2026-01-29T18:46:30.368Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:47:00.349Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:47:00.368Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":6,"timeframe":"30S","time":"2026-01-29T13:46:30-0500","receivedAt":"2026-01-29T18:47:00.388Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:46:30-0500","receivedAt":"2026-01-29T18:47:00.435Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:46:30-0500","receivedAt":"2026-01-29T18:47:00.676Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:47:30.277Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":6,"timeframe":"30S","time":"2026-01-29T13:47:00-0500","receivedAt":"2026-01-29T18:47:30.307Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:47:00-0500","receivedAt":"2026-01-29T18:47:30.311Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:47:30.317Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:47:00-0500","receivedAt":"2026-01-29T18:47:30.318Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:47:30-0500","receivedAt":"2026-01-29T18:48:00.704Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:48:00.838Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:48:00.862Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":6,"timeframe":"30S","time":"2026-01-29T13:47:30-0500","receivedAt":"2026-01-29T18:48:00.943Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:47:30-0500","receivedAt":"2026-01-29T18:48:00.987Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:48:00-0500","receivedAt":"2026-01-29T18:48:30.321Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:48:30.329Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:48:30.349Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":6,"timeframe":"30S","time":"2026-01-29T13:48:00-0500","receivedAt":"2026-01-29T18:48:30.351Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:48:00-0500","receivedAt":"2026-01-29T18:48:30.361Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:49:00.295Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:48:30-0500","receivedAt":"2026-01-29T18:49:00.328Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:48:30-0500","receivedAt":"2026-01-29T18:49:00.355Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":6,"timeframe":"30S","time":"2026-01-29T13:48:30-0500","receivedAt":"2026-01-29T18:49:01.295Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:49:01.395Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:49:30.827Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:49:00-0500","receivedAt":"2026-01-29T18:49:30.829Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:49:00-0500","receivedAt":"2026-01-29T18:49:30.833Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":6,"timeframe":"30S","time":"2026-01-29T13:49:00-0500","receivedAt":"2026-01-29T18:49:30.858Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:49:30.860Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:49:30-0500","receivedAt":"2026-01-29T18:50:00.759Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:50:01.002Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":12,"timeframe":"30S","time":"2026-01-29T13:49:30-0500","receivedAt":"2026-01-29T18:50:01.038Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:50:01.258Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876,"entryPrice":25876,"size":6,"timeframe":"30S","time":"2026-01-29T13:49:30-0500","receivedAt":"2026-01-29T18:50:01.591Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:50:24.027Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQH2026","action":"sell","orderType":"limit","limitPrice":25876,"quantity":12,"receivedAt":"2026-01-29T18:50:25.377Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":4,"orderType":"limit","limitPrice":25846.5,"receivedAt":"2026-01-29T18:50:30.196Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"limit","limitPrice":25846.5,"quantity":5,"receivedAt":"2026-01-29T18:50:30.231Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876,"receivedAt":"2026-01-29T18:50:30.390Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":3,"orderType":"limit","limitPrice":25846.5,"receivedAt":"2026-01-29T18:50:30.437Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"limit","limitPrice":25846.5,"quantity":5,"comment":"TP1_BACKTESTER","receivedAt":"2026-01-29T18:57:55.421Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":4,"orderType":"limit","limitPrice":25846.5,"comment":"BT_TP","receivedAt":"2026-01-29T18:57:55.765Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"tp1","side":"short","symbol":"MNQH2026","price":25846.5,"exitPrice":25846.5,"entryPrice":25876,"size":4,"pnl":236,"totalPnl":8444,"timeframe":"30S","time":"2026-01-29T13:57:30-0500","receivedAt":"2026-01-29T18:58:01.857Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"tp1","side":"short","symbol":"MNQH2026","price":25846.5,"exitPrice":25846.5,"entryPrice":25876,"size":5,"pnl":295,"totalPnl":3117,"timeframe":"30S","time":"2026-01-29T13:57:30-0500","receivedAt":"2026-01-29T18:58:01.977Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":3,"orderType":"limit","limitPrice":25846.5,"comment":"BT_TP","receivedAt":"2026-01-29T18:58:02.785Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"stop","stopPrice":25874.5,"receivedAt":"2026-01-29T18:58:03.252Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"tp1","side":"short","symbol":"MNQH2026","price":25846.5,"exitPrice":25846.5,"entryPrice":25876,"size":3,"pnl":177,"totalPnl":3920.5,"timeframe":"30S","time":"2026-01-29T13:57:30-0500","receivedAt":"2026-01-29T18:58:04.090Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"stop","stopPrice":25874.5,"receivedAt":"2026-01-29T18:58:04.214Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"stop","stopPrice":25874.5,"receivedAt":"2026-01-29T18:58:31.299Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"stop","stopPrice":25874.5,"receivedAt":"2026-01-29T18:58:31.985Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":2,"orderType":"limit","limitPrice":25840.5,"comment":"BT_TP","receivedAt":"2026-01-29T18:59:30.782Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":1,"orderType":"limit","limitPrice":25840.5,"comment":"BT_TP","receivedAt":"2026-01-29T18:59:40.456Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"market","quantity":2,"receivedAt":"2026-01-29T19:00:00.341Z","source":"ote-silver-bullet"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"tp2","side":"short","symbol":"MNQH2026","price":25840.5,"exitPrice":25840.5,"entryPrice":25876,"size":2,"pnl":142,"totalPnl":3117,"timeframe":"30S","time":"2026-01-29T13:59:30-0500","receivedAt":"2026-01-29T19:00:00.360Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"tp2","side":"short","symbol":"MNQH2026","price":25840.5,"exitPrice":25840.5,"entryPrice":25876,"size":2,"pnl":142,"totalPnl":8586,"timeframe":"30S","time":"2026-01-29T13:59:30-0500","receivedAt":"2026-01-29T19:00:00.495Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"stop","stopPrice":25874.5,"receivedAt":"2026-01-29T19:00:00.733Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":2,"orderType":"market","price":25840.5,"receivedAt":"2026-01-29T19:00:00.777Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"tp2","side":"short","symbol":"MNQH2026","price":25840.5,"exitPrice":25840.5,"entryPrice":25876,"size":1,"pnl":71,"totalPnl":3991.5,"timeframe":"30S","time":"2026-01-29T13:59:30-0500","receivedAt":"2026-01-29T19:00:02.609Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"stop","stopPrice":25874.5,"receivedAt":"2026-01-29T19:00:04.797Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":1,"orderType":"market","price":25840.5,"receivedAt":"2026-01-29T19:00:04.857Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"be_emergency","side":"short","symbol":"MNQH2026","price":25874.5,"exitPrice":25874.5,"entryPrice":25876,"size":6,"pnl":18,"totalPnl":8586,"timeframe":"30S","time":"2026-01-29T14:06:30-0500","receivedAt":"2026-01-29T19:07:00.340Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25870.5,"receivedAt":"2026-01-29T19:07:00.351Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"be_stop","side":"short","symbol":"MNQH2026","price":25874.5,"exitPrice":25874.5,"entryPrice":25876,"size":6,"pnl":18,"totalPnl":8586,"timeframe":"30S","time":"2026-01-29T14:06:30-0500","receivedAt":"2026-01-29T19:07:00.370Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","comment":"BE_EMERGENCY","receivedAt":"2026-01-29T19:07:00.372Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","comment":"BE_EMERGENCY","receivedAt":"2026-01-29T19:07:00.373Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25870.5,"receivedAt":"2026-01-29T19:07:00.387Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25874.5,"receivedAt":"2026-01-29T19:07:00.393Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25874.5,"receivedAt":"2026-01-29T19:07:00.412Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"be_stop","side":"short","symbol":"MNQH2026","price":25874.5,"exitPrice":25874.5,"entryPrice":25876,"size":2,"pnl":6,"totalPnl":3991.5,"timeframe":"30S","time":"2026-01-29T14:06:30-0500","receivedAt":"2026-01-29T19:07:00.479Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"be_emergency","side":"short","symbol":"MNQH2026","price":25874.5,"exitPrice":25874.5,"entryPrice":25876,"size":2,"pnl":6,"totalPnl":3991.5,"timeframe":"30S","time":"2026-01-29T14:06:30-0500","receivedAt":"2026-01-29T19:07:00.527Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"market","quantity":5,"receivedAt":"2026-01-29T19:08:00.396Z","source":"ote-silver-bullet"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"sl","side":"short","symbol":"MNQH2026","price":25874,"exitPrice":25874,"entryPrice":25876,"size":5,"pnl":20,"totalPnl":3273,"timeframe":"30S","time":"2026-01-29T14:07:30-0500","receivedAt":"2026-01-29T19:08:00.453Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25879.25,"receivedAt":"2026-01-29T19:30:30.284Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25879.25,"entryPrice":25879.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:30:00-0500","receivedAt":"2026-01-29T19:30:30.294Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25879.25,"entryPrice":25879.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:30:00-0500","receivedAt":"2026-01-29T19:30:30.306Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25879.25,"entryPrice":25879.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:30:00-0500","receivedAt":"2026-01-29T19:30:30.308Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25879.25,"receivedAt":"2026-01-29T19:30:30.327Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876.25,"entryPrice":25876.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:30:30-0500","receivedAt":"2026-01-29T19:31:00.287Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25876.25,"receivedAt":"2026-01-29T19:31:00.289Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25876.25,"entryPrice":25876.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:30:30-0500","receivedAt":"2026-01-29T19:31:00.438Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25876.25,"receivedAt":"2026-01-29T19:31:00.653Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25876.25,"entryPrice":25876.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:30:30-0500","receivedAt":"2026-01-29T19:31:00.883Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:31:00-0500","receivedAt":"2026-01-29T19:31:30.333Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:31:00-0500","receivedAt":"2026-01-29T19:31:30.338Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:31:30.340Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:31:00-0500","receivedAt":"2026-01-29T19:31:30.757Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:31:30.784Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:31:30-0500","receivedAt":"2026-01-29T19:32:00.291Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:32:00.296Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:32:00.326Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:31:30-0500","receivedAt":"2026-01-29T19:32:00.349Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:31:30-0500","receivedAt":"2026-01-29T19:32:00.357Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:32:00-0500","receivedAt":"2026-01-29T19:32:30.292Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:32:00-0500","receivedAt":"2026-01-29T19:32:30.296Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:32:00-0500","receivedAt":"2026-01-29T19:32:30.330Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:32:30.331Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:32:30.332Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:32:30-0500","receivedAt":"2026-01-29T19:33:00.328Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:32:30-0500","receivedAt":"2026-01-29T19:33:00.340Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:32:30-0500","receivedAt":"2026-01-29T19:33:00.372Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:33:00.373Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:33:00.402Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:33:32.913Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:33:00-0500","receivedAt":"2026-01-29T19:33:32.937Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:33:33.169Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:33:00-0500","receivedAt":"2026-01-29T19:33:33.191Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:33:00-0500","receivedAt":"2026-01-29T19:33:33.271Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:33:30-0500","receivedAt":"2026-01-29T19:34:00.298Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:33:30-0500","receivedAt":"2026-01-29T19:34:00.458Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:34:00.493Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.5,"entryPrice":25874.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:33:30-0500","receivedAt":"2026-01-29T19:34:05.830Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.5,"receivedAt":"2026-01-29T19:34:05.832Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.25,"entryPrice":25874.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:34:00-0500","receivedAt":"2026-01-29T19:34:30.264Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.25,"receivedAt":"2026-01-29T19:34:30.274Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.25,"receivedAt":"2026-01-29T19:34:30.294Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.25,"entryPrice":25874.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:34:00-0500","receivedAt":"2026-01-29T19:34:30.295Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:34:00-0500","receivedAt":"2026-01-29T19:34:30.297Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.25,"entryPrice":25874.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:34:30-0500","receivedAt":"2026-01-29T19:35:00.405Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25874.25,"entryPrice":25874.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:34:30-0500","receivedAt":"2026-01-29T19:35:00.440Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25874.25,"receivedAt":"2026-01-29T19:35:00.510Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:34:30-0500","receivedAt":"2026-01-29T19:35:00.677Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25874.25,"receivedAt":"2026-01-29T19:35:00.723Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T19:35:30.291Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:35:00-0500","receivedAt":"2026-01-29T19:35:30.295Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:35:00-0500","receivedAt":"2026-01-29T19:35:30.300Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:35:30.312Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:35:31.936Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T19:35:31.971Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:35:00-0500","receivedAt":"2026-01-29T19:35:31.973Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:35:30-0500","receivedAt":"2026-01-29T19:36:00.234Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:36:00.296Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:35:30-0500","receivedAt":"2026-01-29T19:36:00.431Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:36:01.435Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:35:30-0500","receivedAt":"2026-01-29T19:36:01.486Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:36:00-0500","receivedAt":"2026-01-29T19:36:30.699Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:36:00-0500","receivedAt":"2026-01-29T19:36:30.728Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:36:30.729Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:36:00-0500","receivedAt":"2026-01-29T19:36:30.730Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:36:30.732Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:37:00.270Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:36:30-0500","receivedAt":"2026-01-29T19:37:00.273Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:37:00.650Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:36:30-0500","receivedAt":"2026-01-29T19:37:00.675Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:36:30-0500","receivedAt":"2026-01-29T19:37:00.843Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:37:30.225Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:37:00-0500","receivedAt":"2026-01-29T19:37:30.232Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:37:00-0500","receivedAt":"2026-01-29T19:37:30.266Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:37:30.270Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:37:00-0500","receivedAt":"2026-01-29T19:37:30.271Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:37:30-0500","receivedAt":"2026-01-29T19:38:00.254Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:38:00.268Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:37:30-0500","receivedAt":"2026-01-29T19:38:00.279Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:37:30-0500","receivedAt":"2026-01-29T19:38:03.369Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:38:03.407Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:38:00-0500","receivedAt":"2026-01-29T19:38:32.856Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:38:32.865Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:38:32.879Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:38:00-0500","receivedAt":"2026-01-29T19:38:33.003Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:38:00-0500","receivedAt":"2026-01-29T19:38:33.273Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:38:30-0500","receivedAt":"2026-01-29T19:39:00.283Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:38:30-0500","receivedAt":"2026-01-29T19:39:00.330Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:39:00.352Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:38:30-0500","receivedAt":"2026-01-29T19:39:00.375Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:39:00.562Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:39:30.262Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:39:30.292Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:39:00-0500","receivedAt":"2026-01-29T19:39:30.294Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:39:00-0500","receivedAt":"2026-01-29T19:39:30.296Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:39:00-0500","receivedAt":"2026-01-29T19:39:30.297Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:39:30-0500","receivedAt":"2026-01-29T19:40:00.610Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:40:00.767Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:39:30-0500","receivedAt":"2026-01-29T19:40:01.106Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:39:30-0500","receivedAt":"2026-01-29T19:40:03.456Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:40:03.572Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:40:00-0500","receivedAt":"2026-01-29T19:40:30.277Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:40:00-0500","receivedAt":"2026-01-29T19:40:30.280Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:40:30.288Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:40:30.289Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:40:00-0500","receivedAt":"2026-01-29T19:40:30.291Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:40:30-0500","receivedAt":"2026-01-29T19:41:00.448Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:40:30-0500","receivedAt":"2026-01-29T19:41:00.480Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:41:00.491Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:41:00.554Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:40:30-0500","receivedAt":"2026-01-29T19:41:00.559Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:41:00-0500","receivedAt":"2026-01-29T19:41:30.288Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:41:00-0500","receivedAt":"2026-01-29T19:41:30.340Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:41:30.343Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:41:30.343Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:41:00-0500","receivedAt":"2026-01-29T19:41:30.344Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:41:30-0500","receivedAt":"2026-01-29T19:42:00.309Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:42:00.318Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:41:30-0500","receivedAt":"2026-01-29T19:42:00.833Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:42:00.997Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:41:30-0500","receivedAt":"2026-01-29T19:42:01.300Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:42:30.273Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:42:30.280Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:42:00-0500","receivedAt":"2026-01-29T19:42:30.282Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:42:00-0500","receivedAt":"2026-01-29T19:42:30.285Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:42:00-0500","receivedAt":"2026-01-29T19:42:30.291Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:43:00.374Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:42:30-0500","receivedAt":"2026-01-29T19:43:00.399Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:42:30-0500","receivedAt":"2026-01-29T19:43:00.519Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:43:00.708Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:42:30-0500","receivedAt":"2026-01-29T19:43:00.722Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:43:00-0500","receivedAt":"2026-01-29T19:43:30.288Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:43:30.316Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:43:00-0500","receivedAt":"2026-01-29T19:43:30.318Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:43:00-0500","receivedAt":"2026-01-29T19:43:30.320Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:43:30.322Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:44:00.249Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:43:30-0500","receivedAt":"2026-01-29T19:44:00.261Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:43:30-0500","receivedAt":"2026-01-29T19:44:00.321Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:44:00.324Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:43:30-0500","receivedAt":"2026-01-29T19:44:00.362Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:44:00-0500","receivedAt":"2026-01-29T19:44:30.515Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:44:30.519Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:44:00-0500","receivedAt":"2026-01-29T19:44:30.544Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:44:00-0500","receivedAt":"2026-01-29T19:44:30.550Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:44:30.552Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:44:30-0500","receivedAt":"2026-01-29T19:45:00.859Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:45:00.892Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:44:30-0500","receivedAt":"2026-01-29T19:45:01.096Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:44:30-0500","receivedAt":"2026-01-29T19:45:05.005Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:45:05.063Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:45:00-0500","receivedAt":"2026-01-29T19:45:30.262Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:45:00-0500","receivedAt":"2026-01-29T19:45:30.264Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:45:00-0500","receivedAt":"2026-01-29T19:45:30.291Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:45:30.294Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:45:30.300Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:45:30-0500","receivedAt":"2026-01-29T19:46:00.773Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:46:00.958Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:46:01.395Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:45:30-0500","receivedAt":"2026-01-29T19:46:01.661Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:45:30-0500","receivedAt":"2026-01-29T19:46:01.818Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:46:00-0500","receivedAt":"2026-01-29T19:46:31.061Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:46:31.095Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T19:46:31.293Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T14:46:00-0500","receivedAt":"2026-01-29T19:46:31.480Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T14:46:00-0500","receivedAt":"2026-01-29T19:46:31.483Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T19:47:00.247Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T19:47:00.298Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25858.25,"entryPrice":25858.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:47:30-0500","receivedAt":"2026-01-29T19:48:00.621Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25858.25,"entryPrice":25858.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:47:30-0500","receivedAt":"2026-01-29T19:48:00.660Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25858.25,"receivedAt":"2026-01-29T19:48:00.724Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25858.25,"receivedAt":"2026-01-29T19:48:02.542Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25858.25,"entryPrice":25858.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:47:30-0500","receivedAt":"2026-01-29T19:48:02.546Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":6,"timeframe":"30S","time":"2026-01-29T14:48:00-0500","receivedAt":"2026-01-29T19:48:36.975Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25856.75,"receivedAt":"2026-01-29T19:48:38.919Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25856.75,"receivedAt":"2026-01-29T19:48:38.992Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":12,"timeframe":"30S","time":"2026-01-29T14:48:00-0500","receivedAt":"2026-01-29T19:48:39.118Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":12,"timeframe":"30S","time":"2026-01-29T14:48:00-0500","receivedAt":"2026-01-29T19:48:39.123Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25856.75,"receivedAt":"2026-01-29T19:49:00.381Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":6,"timeframe":"30S","time":"2026-01-29T14:48:30-0500","receivedAt":"2026-01-29T19:49:00.385Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":12,"timeframe":"30S","time":"2026-01-29T14:48:30-0500","receivedAt":"2026-01-29T19:49:00.422Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25856.75,"receivedAt":"2026-01-29T19:49:00.423Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":12,"timeframe":"30S","time":"2026-01-29T14:48:30-0500","receivedAt":"2026-01-29T19:49:00.469Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":6,"timeframe":"30S","time":"2026-01-29T14:49:00-0500","receivedAt":"2026-01-29T19:49:30.654Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25856.75,"receivedAt":"2026-01-29T19:49:30.660Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25856.75,"receivedAt":"2026-01-29T19:49:30.680Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":12,"timeframe":"30S","time":"2026-01-29T14:49:00-0500","receivedAt":"2026-01-29T19:49:30.684Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25856.75,"entryPrice":25856.75,"size":12,"timeframe":"30S","time":"2026-01-29T14:49:00-0500","receivedAt":"2026-01-29T19:49:30.686Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:49:30-0500","receivedAt":"2026-01-29T19:50:00.481Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:49:30-0500","receivedAt":"2026-01-29T19:50:00.546Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:49:30-0500","receivedAt":"2026-01-29T19:50:00.914Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:50:00.964Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:50:00.966Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:50:30.296Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:50:00-0500","receivedAt":"2026-01-29T19:50:30.312Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:50:00-0500","receivedAt":"2026-01-29T19:50:30.321Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:50:00-0500","receivedAt":"2026-01-29T19:50:30.328Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:50:30.330Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:50:30-0500","receivedAt":"2026-01-29T19:51:00.570Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":12,"timeframe":"30S","time":"2026-01-29T14:50:30-0500","receivedAt":"2026-01-29T19:51:00.599Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:51:00.687Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25855.25,"entryPrice":25855.25,"size":6,"timeframe":"30S","time":"2026-01-29T14:50:30-0500","receivedAt":"2026-01-29T19:51:00.689Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:51:00.781Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:51:11.011Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQH2026","action":"sell","orderType":"limit","limitPrice":25855.25,"quantity":12,"receivedAt":"2026-01-29T19:51:15.407Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25855.25,"receivedAt":"2026-01-29T19:51:20.663Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"limit","limitPrice":25834.25,"quantity":5,"receivedAt":"2026-01-29T19:51:30.285Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":4,"orderType":"limit","limitPrice":25834.25,"receivedAt":"2026-01-29T19:51:30.311Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":3,"orderType":"limit","limitPrice":25834.25,"receivedAt":"2026-01-29T19:51:30.315Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"sl","side":"short","symbol":"MNQH2026","price":25873.25,"exitPrice":25873.25,"entryPrice":25855.25,"size":6,"pnl":-216,"totalPnl":4013.5,"timeframe":"30S","time":"2026-01-29T15:08:00-0500","receivedAt":"2026-01-29T20:08:30.419Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"market","quantity":12,"receivedAt":"2026-01-29T20:08:30.449Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","comment":"SL_HIT","receivedAt":"2026-01-29T20:08:30.449Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25873.25,"receivedAt":"2026-01-29T20:08:30.763Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25873.25,"receivedAt":"2026-01-29T20:08:30.768Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"sl","side":"short","symbol":"MNQH2026","price":25873.25,"exitPrice":25873.25,"entryPrice":25855.25,"size":12,"pnl":-432,"totalPnl":8652,"timeframe":"30S","time":"2026-01-29T15:08:00-0500","receivedAt":"2026-01-29T20:08:30.863Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"sl","side":"short","symbol":"MNQH2026","price":25870.75,"exitPrice":25870.75,"entryPrice":25855.25,"size":12,"pnl":-372,"totalPnl":3258,"timeframe":"30S","time":"2026-01-29T15:08:00-0500","receivedAt":"2026-01-29T20:08:30.869Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","comment":"SL_HIT","receivedAt":"2026-01-29T20:08:30.875Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"cancel","sentiment":"flat","receivedAt":"2026-01-29T20:20:30.391Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":6,"timeframe":"30S","time":"2026-01-29T15:28:30-0500","receivedAt":"2026-01-29T20:29:00.319Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T20:29:00.347Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:28:30-0500","receivedAt":"2026-01-29T20:29:00.348Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25873.5,"receivedAt":"2026-01-29T20:29:00.590Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25873.5,"entryPrice":25873.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:28:30-0500","receivedAt":"2026-01-29T20:29:00.812Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25872.25,"receivedAt":"2026-01-29T20:29:30.422Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25872.25,"entryPrice":25872.25,"size":6,"timeframe":"30S","time":"2026-01-29T15:29:00-0500","receivedAt":"2026-01-29T20:29:30.442Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25872.25,"entryPrice":25872.25,"size":12,"timeframe":"30S","time":"2026-01-29T15:29:00-0500","receivedAt":"2026-01-29T20:29:30.497Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25872.25,"entryPrice":25872.25,"size":12,"timeframe":"30S","time":"2026-01-29T15:29:00-0500","receivedAt":"2026-01-29T20:29:30.531Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25872.25,"receivedAt":"2026-01-29T20:29:30.658Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25871.25,"receivedAt":"2026-01-29T20:30:00.357Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25871.25,"entryPrice":25871.25,"size":6,"timeframe":"30S","time":"2026-01-29T15:29:30-0500","receivedAt":"2026-01-29T20:30:00.410Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25871.25,"entryPrice":25871.25,"size":12,"timeframe":"30S","time":"2026-01-29T15:29:30-0500","receivedAt":"2026-01-29T20:30:00.437Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25871.25,"receivedAt":"2026-01-29T20:30:00.537Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25871.25,"entryPrice":25871.25,"size":12,"timeframe":"30S","time":"2026-01-29T15:29:30-0500","receivedAt":"2026-01-29T20:30:03.317Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25871.25,"entryPrice":25871.25,"size":12,"timeframe":"30S","time":"2026-01-29T15:30:00-0500","receivedAt":"2026-01-29T20:30:30.244Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25871.25,"receivedAt":"2026-01-29T20:30:30.277Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25871.25,"receivedAt":"2026-01-29T20:30:30.281Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25871.25,"entryPrice":25871.25,"size":6,"timeframe":"30S","time":"2026-01-29T15:30:00-0500","receivedAt":"2026-01-29T20:30:30.293Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25871.25,"entryPrice":25871.25,"size":12,"timeframe":"30S","time":"2026-01-29T15:30:00-0500","receivedAt":"2026-01-29T20:30:30.294Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25871,"receivedAt":"2026-01-29T20:31:00.761Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25871,"entryPrice":25871,"size":6,"timeframe":"30S","time":"2026-01-29T15:30:30-0500","receivedAt":"2026-01-29T20:31:00.780Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25871,"receivedAt":"2026-01-29T20:31:01.030Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25871,"entryPrice":25871,"size":12,"timeframe":"30S","time":"2026-01-29T15:30:30-0500","receivedAt":"2026-01-29T20:31:01.038Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25871,"entryPrice":25871,"size":12,"timeframe":"30S","time":"2026-01-29T15:30:30-0500","receivedAt":"2026-01-29T20:31:01.063Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25870.75,"receivedAt":"2026-01-29T20:31:30.321Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25870.75,"entryPrice":25870.75,"size":6,"timeframe":"30S","time":"2026-01-29T15:31:00-0500","receivedAt":"2026-01-29T20:31:30.325Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25870.75,"receivedAt":"2026-01-29T20:31:30.327Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25870.75,"entryPrice":25870.75,"size":12,"timeframe":"30S","time":"2026-01-29T15:31:00-0500","receivedAt":"2026-01-29T20:31:30.330Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25870.75,"entryPrice":25870.75,"size":12,"timeframe":"30S","time":"2026-01-29T15:31:00-0500","receivedAt":"2026-01-29T20:31:42.036Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25870.75,"receivedAt":"2026-01-29T20:32:00.252Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25870.75,"receivedAt":"2026-01-29T20:32:00.277Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25870.75,"entryPrice":25870.75,"size":6,"timeframe":"30S","time":"2026-01-29T15:31:30-0500","receivedAt":"2026-01-29T20:32:00.296Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25870.75,"entryPrice":25870.75,"size":12,"timeframe":"30S","time":"2026-01-29T15:31:30-0500","receivedAt":"2026-01-29T20:32:00.298Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25870.75,"entryPrice":25870.75,"size":12,"timeframe":"30S","time":"2026-01-29T15:31:30-0500","receivedAt":"2026-01-29T20:32:14.398Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25869.75,"receivedAt":"2026-01-29T20:32:30.243Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25869.75,"receivedAt":"2026-01-29T20:32:30.252Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.75,"entryPrice":25869.75,"size":6,"timeframe":"30S","time":"2026-01-29T15:32:00-0500","receivedAt":"2026-01-29T20:32:30.266Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.75,"entryPrice":25869.75,"size":12,"timeframe":"30S","time":"2026-01-29T15:32:00-0500","receivedAt":"2026-01-29T20:32:30.272Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25869.75,"entryPrice":25869.75,"size":12,"timeframe":"30S","time":"2026-01-29T15:32:00-0500","receivedAt":"2026-01-29T20:32:30.732Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:32:30-0500","receivedAt":"2026-01-29T20:33:00.288Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:33:00.347Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:32:30-0500","receivedAt":"2026-01-29T20:33:00.365Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":6,"timeframe":"30S","time":"2026-01-29T15:32:30-0500","receivedAt":"2026-01-29T20:33:00.496Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:33:00.788Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:33:32.847Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:33:00-0500","receivedAt":"2026-01-29T20:33:32.849Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":6,"timeframe":"30S","time":"2026-01-29T15:33:00-0500","receivedAt":"2026-01-29T20:33:33.722Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:33:34.026Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:33:00-0500","receivedAt":"2026-01-29T20:33:34.058Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:34:00.297Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:33:30-0500","receivedAt":"2026-01-29T20:34:00.327Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":6,"timeframe":"30S","time":"2026-01-29T15:33:30-0500","receivedAt":"2026-01-29T20:34:00.329Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"entry","side":"short","symbol":"MNQH2026","price":25869.5,"entryPrice":25869.5,"size":12,"timeframe":"30S","time":"2026-01-29T15:33:30-0500","receivedAt":"2026-01-29T20:34:00.407Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:34:00.449Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":12,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:34:05.280Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"sell","sentiment":"bearish","quantity":6,"orderType":"limit","limitPrice":25869.5,"receivedAt":"2026-01-29T20:34:08.222Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQH2026","action":"sell","orderType":"limit","limitPrice":25869.5,"quantity":12,"receivedAt":"2026-01-29T20:34:10.373Z","source":"ote-silver-bullet"}
+📊 Trade received: {"test":true,"receivedAt":"2026-01-29T20:34:14.685Z","source":"test"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":4,"orderType":"limit","limitPrice":25846.5,"receivedAt":"2026-01-29T20:34:31.289Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"limit","limitPrice":25846.5,"quantity":5,"receivedAt":"2026-01-29T20:34:31.328Z","source":"ote-silver-bullet"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","quantity":3,"orderType":"limit","limitPrice":25846.5,"receivedAt":"2026-01-29T20:34:32.125Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25888.5,"receivedAt":"2026-01-29T20:38:00.438Z","source":"ote-refined"}
+📊 Trade received: {"bot":"ote-refined","action":"sl","side":"short","symbol":"MNQH2026","price":25888.5,"exitPrice":25888.5,"entryPrice":25869.5,"size":12,"pnl":-456,"totalPnl":8160,"timeframe":"30S","time":"2026-01-29T15:37:30-0500","receivedAt":"2026-01-29T20:38:00.444Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","comment":"SL_HIT","receivedAt":"2026-01-29T20:38:00.460Z","source":"ote-refined"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","price":25888.5,"receivedAt":"2026-01-29T20:38:00.568Z","source":"ote-refined-small"}
+📊 Trade received: {"ticker":"MNQ","action":"buy","sentiment":"bearish","orderType":"market","comment":"SL_HIT","receivedAt":"2026-01-29T20:38:00.586Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-refined","action":"sl","side":"short","symbol":"MNQH2026","price":25888.5,"exitPrice":25888.5,"entryPrice":25869.5,"size":6,"pnl":-228,"totalPnl":3767.5,"timeframe":"30S","time":"2026-01-29T15:37:30-0500","receivedAt":"2026-01-29T20:38:00.632Z","source":"ote-refined-small"}
+📊 Trade received: {"bot":"ote-silver-bullet","action":"sl","side":"short","symbol":"MNQH2026","price":25886,"exitPrice":25886,"entryPrice":25869.5,"size":12,"pnl":-396,"totalPnl":2760,"timeframe":"30S","time":"2026-01-29T15:37:30-0500","receivedAt":"2026-01-29T20:38:00.857Z","source":"ote-silver-bullet"}
+✅ Dashboard updated for ote-silver-bullet
+📊 Trade received: {"ticker":"MNQH2026","action":"buy","orderType":"market","quantity":12,"receivedAt":"2026-01-29T20:38:00.944Z","source":"ote-silver-bullet"}

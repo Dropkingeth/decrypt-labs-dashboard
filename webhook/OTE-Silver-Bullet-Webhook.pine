@@ -1,0 +1,1127 @@
+//@version=5
+strategy("Optimal Trade Entry [Silver-Bullet] - Webhook", shorttitle="OTE [Silver-Bullet] Webhook", overlay=true, pyramiding=0, initial_capital=50000, process_orders_on_close=true, max_lines_count=500)
+
+// =============================================================================
+// 📚 IMPORTS
+// =============================================================================
+import DropkingICT/OrderFlowBiasLibV1/2 as Lib
+import DropkingICT/BreakOfStructurelib/1 as BOS
+
+// =============================================================================
+// 🌐 DECRYPT LABS WEBHOOK INTEGRATION
+// =============================================================================
+group_webhook = "🌐 0️⃣ DECRYPT LABS WEBHOOK"
+use_webhook = input.bool(true, "📡 Enable Webhook Alerts", tooltip="Send trade data to Decrypt Labs dashboard", group=group_webhook)
+webhook_url_display = input.string("https://YOUR-NGROK-URL/webhook/ote-silver-bullet", "Webhook URL (for reference)", tooltip="Set this URL in your TradingView alert webhook field", group=group_webhook)
+
+// =============================================================================
+// 📊 WEBHOOK ALERT FUNCTIONS (Single-line to avoid Pine syntax errors)
+// =============================================================================
+
+// Entry Alert
+getWebhookEntry(string side, float entryPrice, int size) =>
+    '{"bot":"ote-silver-bullet","action":"entry","side":"' + side + '","symbol":"' + syminfo.ticker + '","price":' + str.tostring(entryPrice) + ',"entryPrice":' + str.tostring(entryPrice) + ',"size":' + str.tostring(size) + ',"timeframe":"' + timeframe.period + '","time":"' + str.format_time(time, "yyyy-MM-dd\'T\'HH:mm:ssZ", "America/New_York") + '"}'
+
+// Exit Alert
+getWebhookExit(string side, string exitType, float exitPrice, float entryPrice, int size, float pnl, float totalPnl) =>
+    '{"bot":"ote-silver-bullet","action":"' + exitType + '","side":"' + side + '","symbol":"' + syminfo.ticker + '","price":' + str.tostring(exitPrice) + ',"exitPrice":' + str.tostring(exitPrice) + ',"entryPrice":' + str.tostring(entryPrice) + ',"size":' + str.tostring(size) + ',"pnl":' + str.tostring(pnl) + ',"totalPnl":' + str.tostring(totalPnl) + ',"timeframe":"' + timeframe.period + '","time":"' + str.format_time(time, "yyyy-MM-dd\'T\'HH:mm:ssZ", "America/New_York") + '"}'
+
+// =============================================================================
+// ⚙️ STRATEGY SETTINGS
+// =============================================================================
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 📊 SECTION 1: TREND FILTER (Order Flow Bias)
+// ═════════════════════════════════════════════════════════════════════════════
+g_trend = "📊 1️⃣ TREND FILTER (Order Flow Bias)"
+i_useOrderFlowFilter = input.bool(true, "🔄 Enable Trend Filter?", group=g_trend, inline="tf01")
+i_of_useMtf          = input.bool(true, " 📈 Use Higher Timeframe?", group=g_trend, inline="tf01")
+i_of_mtf             = input.timeframe("5", " ⏱️ HTF", group=g_trend, inline="tf01")
+i_of_leftBars        = input.int(7, "🎚️ Pivot Sensitivity: Left Bars", group=g_trend, inline="tf02", minval=1)
+i_of_rightBars       = input.int(14, " Right Bars", group=g_trend, inline="tf02", minval=1)
+i_of_req             = input.int(1, "💪 Trend Strength Required", group=g_trend, inline="tf03", minval=1)
+i_of_mode            = input.string("Strict", " 🎭 Mode", group=g_trend, inline="tf03", options=["Strict", "Neutralize", "Aggressive"])
+i_of_showBg          = input.bool(true, "🎨 Show Trend Background?", group=g_trend, inline="tf04")
+i_of_bullColor       = input.color(color.new(#4caf4f, 85), " 🟢 Bullish", group=g_trend, inline="tf04")
+i_of_bearColor       = input.color(color.new(#ff5252, 85), " 🔴 Bearish", group=g_trend, inline="tf04")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 🏗️ SECTION 2: STRUCTURE DETECTION (Break of Structure)
+// ═════════════════════════════════════════════════════════════════════════════
+g_structure = "🏗️ 2️⃣ STRUCTURE DETECTION (Break of Structure)"
+i_minBOSDistance = input.int(2, "⏳ Min Bars Between BOS", group=g_structure, inline="st01", minval=1)
+lb_l             = input.int(3, "🎚️ BOS Pivot: Left Bars", group=g_structure, inline="st02", minval=1)
+lb_r             = input.int(2, " Right Bars", group=g_structure, inline="st02", minval=1)
+tf_pend          = input.timeframe("1", "⏱️ Pending TF", group=g_structure, inline="st03")
+col_pend         = input.color(color.white, " 🔵 Color", group=g_structure, inline="st03")
+tf_conf          = input.timeframe("1", "⏱️ Confirmed TF", group=g_structure, inline="st04")
+col_conf         = input.color(color.white, " 🟢 Color", group=g_structure, inline="st04")
+tf_perm          = input.timeframe("60", "⏱️ Permanent TF", group=g_structure, inline="st05")
+col_perm         = input.color(color.red, " 🔴 Color", group=g_structure, inline="st05")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ⚓ SECTION 3: ANCHOR SETTINGS
+// ═════════════════════════════════════════════════════════════════════════════
+g_anchor = "⚓ 3️⃣ ANCHOR SETTINGS"
+i_anchor_tf = input.timeframe("30S", "⏱️ Anchor Timeframe", group=g_anchor, inline="an01")
+i_anchor_lb = input.int(3, "🎚️ Pivot: Left Bars", group=g_anchor, inline="an02", minval=1)
+i_anchor_rb = input.int(2, " Right Bars", group=g_anchor, inline="an02", minval=1)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 🎯 SECTION 4: EXECUTION & RISK
+// ═════════════════════════════════════════════════════════════════════════════
+g_execution = "🎯 4️⃣ EXECUTION & RISK MANAGEMENT"
+i_entryLevel           = input.float(0.675, "📍 Entry Fibonacci Level", group=g_execution, inline="ex01", minval=0.0, maxval=1.0, step=0.005)
+i_tradeCooldownBars    = input.int(2, " ⏸️ Cooldown (bars)", group=g_execution, inline="ex01")
+i_useBiasFlipExit      = input.bool(true, "🔄 Exit on Trend Flip?", group=g_execution, inline="ex02")
+i_biasFlipExitRunner   = input.bool(false, " 🏃 Include Runner in Bias Flip Exit?", group=g_execution, inline="ex02", tooltip="If OFF, the runner will hold through bias flips until target/EOD.")
+i_slBufferPercent      = input.float(0.03, "🛡️ Stop Loss Buffer (%)", group=g_execution, inline="ex03", minval=0.0, step=0.01)
+i_useBreakeven         = input.bool(true, "⚡ Move Stop to Breakeven?", group=g_execution, inline="ex04")
+i_breakevenLevel       = input.float(0.0, " 📊 Trigger @ Fib", group=g_execution, inline="ex04", step=0.01)
+i_breakevenProfitTicks = input.int(8, " 💰 Offset (ticks)", group=g_execution, inline="ex04")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 💰 SECTION 5: PROFIT TARGETS
+// ═════════════════════════════════════════════════════════════════════════════
+g_profit = "💰 5️⃣ PROFIT TARGETS"
+i_qty_TP1    = input.float(5, "🎯 Target 1: Quantity (Hard Limit)", group=g_profit, inline="tp01")
+i_level_TP1  = input.float(0.0, " @ Fibonacci", group=g_profit, inline="tp01", step=0.01)
+i_qty_TP2    = input.float(2, "🎯 Target 2: Quantity (Active)", group=g_profit, inline="tp02")
+i_level_TP2  = input.float(-0.14, " @ Fibonacci", group=g_profit, inline="tp02", step=0.01)
+i_qty_Runner = input.float(5, "🏃 Runner Quantity (Active)", group=g_profit, inline="tp03")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 📊 SECTION 6: RUNNER: CBDR OPTION
+// ═════════════════════════════════════════════════════════════════════════════
+g_cbdr = "📊 6️⃣ RUNNER: CBDR TARGETS"
+i_useCbdrTarget = input.bool(true, "✅ Use CBDR Target for Runner?", group=g_cbdr, inline="cb01", tooltip="If ON: Runner aims for CBDR Expansion target. If OFF: Runner holds until End of Day (No Target).")
+i_cbdr_sd       = input.float(1.5, " Standard Deviations", group=g_cbdr, inline="cb01", step=0.5)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ✅ SECTION 7: VALIDATION
+// ═════════════════════════════════════════════════════════════════════════════
+g_validation = "✅ 7️⃣ SETUP VALIDATION FILTERS"
+i_minRangePercent  = input.float(0.08, "📏 Minimum Range %", group=g_validation, inline="va01", minval=0.0, step=0.01)
+i_maxRangePercent  = input.float(0.33, " 📏 Maximum Range %", group=g_validation, inline="va01", minval=0.01, step=0.01)
+i_maxSetupDuration = input.int(45, "⏰ Maximum Duration (bars)", group=g_validation, inline="va02", minval=1)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// ⏰ SECTION 8: TIME & MACRO
+// ═════════════════════════════════════════════════════════════════════════════
+g_time = "⏰ 8️⃣ TIME FILTERS (New York Timezone)"
+useSessionFilter = input.bool(true, "🕐 Enable Session Filter?", group=g_time, inline="tm01")
+london_session_active = input.bool(false, "🇬🇧 Enable London Session?", group=g_time, inline="tm00", tooltip="London Open Kill Zone: 2:00 AM - 5:00 AM EST. Often sets the High/Low of the day.")
+london_session        = input.session("0300-0400", " ⏱️ Time", group=g_time, inline="tm00", tooltip="Micro Time: 03:00 - 04:00 AM (Classic London Open)")
+ny_am_session         = input.session("0955-1100", "🇺🇸 NY AM Session", group=g_time, inline="tm01")
+ny_lunch_session_active = input.bool(false, "🍽️ Enable Lunch Session?", group=g_time, inline="tm02")
+ny_lunch_session      = input.session("1145-1230", " ⏱️ Time", group=g_time, inline="tm02")
+ny_pm_session         = input.session("1345-1600", "🌆 NY PM Session", group=g_time, inline="tm03")
+
+g_macro = "⚡ Macro Windows"
+includeMacro_0950 = input.bool(true, "🔥 09:50 AM", group=g_macro, inline="mc01")
+includeMacro_1050 = input.bool(true, " 🔥 10:50 AM", group=g_macro, inline="mc01")
+includeMacro_1350 = input.bool(true, " 🔥 01:50 PM", group=g_macro, inline="mc01")
+includeMacro_1450 = input.bool(true, " 🔥 02:50 PM", group=g_macro, inline="mc01")
+
+g_eod = "🌙 End of Day Management"
+i_useEodExit = input.bool(true, "🚪 Exit at End of Day?", group=g_eod, inline="eod1")
+i_eodHour    = input.int(16, " ⏰ Hour", group=g_eod, inline="eod1", minval=0, maxval=23)
+i_eodMinute  = input.int(0, " Min", group=g_eod, inline="eod1", minval=0, maxval=59)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 🎨 SECTION 9: VISUALS
+// ═════════════════════════════════════════════════════════════════════════════
+g_visuals = "🎨 9️⃣ VISUAL SETTINGS"
+i_showFib   = input.bool(true, "📊 Show Fibonacci Levels?", group=g_visuals, inline="vs01")
+i_highColor = input.color(color.new(#ff0000, 0), " 🔴 Premium", group=g_visuals, inline="vs01")
+i_lowColor  = input.color(color.new(#0004ff, 0), " 🔵 Discount", group=g_visuals, inline="vs01")
+i_fib_1     = input.bool(true, "📍 1.0", group=g_visuals, inline="vs02")
+i_fib_0705  = input.bool(true, " 📍 0.705", group=g_visuals, inline="vs02")
+i_fib_0618  = input.bool(true, " 📍 0.618", group=g_visuals, inline="vs02")
+i_fib_05    = input.bool(true, " 📍 0.5", group=g_visuals, inline="vs02")
+i_fib_0     = input.bool(true, " 📍 0.0", group=g_visuals, inline="vs02")
+i_fib_ext   = input.bool(true, " 📍 Extensions", group=g_visuals, inline="vs02")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 🛡️ SECTION 10: OPTIMIZATION (AI BARRIERS)
+// ═════════════════════════════════════════════════════════════════════════════
+g_opt = "🛡️ 🔟 STRATEGY OPTIMIZATION (AI BARRIERS)"
+i_filterHolidays = input.bool(true, "🚫 Block Trading on US Holidays?", group=g_opt)
+i_opt_wed        = input.string("Skip Trade", "Wednesday Shield", options=["Trade Full", "Half Size", "Skip Trade"], group=g_opt)
+i_opt_week1      = input.string("Half Size", "Week 1 (NFP) Governor", options=["Trade Full", "Half Size", "Skip Trade"], group=g_opt)
+i_opt_postHol    = input.string("Skip Trade", "Holiday Hangover Protocol", options=["Trade Full", "Half Size", "Skip Trade"], group=g_opt)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 🌏 SECTION 11: ASIAN RANGE FILTER
+// ═════════════════════════════════════════════════════════════════════════════
+g_asia = "🌏 1️⃣1️⃣ ASIAN RANGE FILTER"
+i_useAsiaFilter  = input.bool(false, "🚫 Block if Asian Range Too Large?", group=g_asia, inline="as01", tooltip="If the 19:00-00:00 range exceeds the max points, trading is disabled for the rest of the day.")
+i_maxAsiaPoints  = input.float(60.0, " Max Points", group=g_asia, inline="as01", tooltip="Max allowed range in points (e.g., 50-70 for NQ/MNQ).")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 🧠 SECTION 12: ICT BACKTESTED TIME FILTERS
+// ═════════════════════════════════════════════════════════════════════════════
+g_ict = "🧠 1️⃣2️⃣ ICT TIME FILTERS (Backtested 2023-2026)"
+i_useIctFilters       = input.bool(true, "✅ Enable ICT Time-Based Filters?", group=g_ict, tooltip="Based on 692 trading days of backtest data. Filters out historically underperforming times.")
+i_ict_filterFriday    = input.bool(true, "🔴 AVOID Friday", group=g_ict, inline="dow1", tooltip="Friday: Only negative day (-$6.62 avg), 44.3% win rate")
+i_ict_filterMonday    = input.bool(false, " Monday", group=g_ict, inline="dow1")
+i_ict_filterTuesday   = input.bool(false, " Tuesday", group=g_ict, inline="dow1")
+i_ict_filterWednesday = input.bool(false, " Wednesday", group=g_ict, inline="dow1")
+i_ict_filterThursday  = input.bool(false, " Thursday", group=g_ict, inline="dow1")
+i_ict_useWomFilter    = input.bool(true, "📅 Enable Week of Month Filters?", group=g_ict, inline="wom0")
+i_ict_filterWom1      = input.bool(false, " Wk1", group=g_ict, inline="wom1", tooltip="Week 1: $33.80 avg (lowest)")
+i_ict_filterWom2      = input.bool(false, " Wk2", group=g_ict, inline="wom1", tooltip="Week 2: $65.29 avg")
+i_ict_filterWom3      = input.bool(false, " Wk3", group=g_ict, inline="wom1", tooltip="Week 3: BEST - $171.75 avg, 56.2% WR")
+i_ict_filterWom4      = input.bool(false, " Wk4", group=g_ict, inline="wom1", tooltip="Week 4: $85.00 avg")
+i_ict_filterWom5      = input.bool(false, " Wk5", group=g_ict, inline="wom1", tooltip="Week 5: $75.82 avg (fewest days)")
+i_ict_useCombos       = input.bool(true, "⚠️ Enable Worst Combo Filters?", group=g_ict, tooltip="Filters specific Day + Week combinations with large losses")
+i_ict_filterW4Fri     = input.bool(true, "🔴 Week 4 + Friday (-$5,657)", group=g_ict, inline="cmb1")
+i_ict_filterW1Fri     = input.bool(true, "🔴 Week 1 + Friday (-$3,741)", group=g_ict, inline="cmb1")
+i_ict_filterW3Tue     = input.bool(true, "🟠 Week 3 + Tuesday (-$2,272)", group=g_ict, inline="cmb2")
+i_ict_filterW5Mon     = input.bool(true, "🟠 Week 5 + Monday (-$2,250)", group=g_ict, inline="cmb2")
+i_ict_filterW2Thu     = input.bool(false, "🟡 Week 2 + Thursday (-$1,504)", group=g_ict, inline="cmb3")
+i_ict_useMonthFilter  = input.bool(true, "📆 Enable Month Filters?", group=g_ict)
+i_ict_filterNovember  = input.bool(true, "🔴 AVOID November", group=g_ict, inline="mon1", tooltip="November: Only negative month (-$14.57 avg)")
+i_ict_filterMarch     = input.bool(false, " March", group=g_ict, inline="mon1", tooltip="March: $33.49 avg (2nd lowest)")
+i_ict_filterMay       = input.bool(false, " May", group=g_ict, inline="mon1", tooltip="May: $38.52 avg")
+i_ict_filterSeptember = input.bool(false, " September", group=g_ict, inline="mon1", tooltip="September: $37.20 avg")
+i_ict_useWoyFilter    = input.bool(true, "📊 Enable Week of Year Filters?", group=g_ict)
+i_ict_filterWoy46     = input.bool(true, "🔴 Week 46 (mid-Nov, -$5,405)", group=g_ict, inline="woy1")
+i_ict_filterWoy19     = input.bool(true, "🟠 Week 19 (early May, -$3,641)", group=g_ict, inline="woy1")
+i_ict_filterWoy12     = input.bool(false, "🟡 Week 12 (mid-Mar, -$3,427)", group=g_ict, inline="woy2")
+i_ict_filterWoy27     = input.bool(false, "🟡 Week 27 (early Jul, -$2,873)", group=g_ict, inline="woy2")
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 💪 SECTION 13: ICT DYNAMIC POSITION SIZING
+// ═════════════════════════════════════════════════════════════════════════════
+g_ict_size = "💪 1️⃣3️⃣ ICT DYNAMIC SIZING (Boost Best Times)"
+i_useDynamicSizing     = input.bool(true, "✅ Enable Dynamic Position Sizing?", group=g_ict_size, tooltip="Increases size during historically profitable times")
+i_boostThursday        = input.bool(true, "🟢 Boost Thursday (+$202 avg)", group=g_ict_size, inline="bst1")
+i_boostThursdayMult    = input.float(1.25, " Multiplier", group=g_ict_size, inline="bst1", minval=1.0, maxval=2.0, step=0.05)
+i_boostMonday          = input.bool(true, "🟢 Boost Monday (+$158 avg)", group=g_ict_size, inline="bst2")
+i_boostMondayMult      = input.float(1.15, " Multiplier", group=g_ict_size, inline="bst2", minval=1.0, maxval=2.0, step=0.05)
+i_boostWom3            = input.bool(true, "🟢 Boost Week 3 (+$171 avg, 56% WR)", group=g_ict_size, inline="bst3")
+i_boostWom3Mult        = input.float(1.25, " Multiplier", group=g_ict_size, inline="bst3", minval=1.0, maxval=2.0, step=0.05)
+i_boostBestCombo       = input.bool(true, "🚀 Boost Week 3 + Thursday ($18,287)", group=g_ict_size, inline="bst4")
+i_boostBestComboMult   = input.float(1.5, " Multiplier", group=g_ict_size, inline="bst4", minval=1.0, maxval=2.5, step=0.1)
+i_boostOctober         = input.bool(true, "🟢 Boost October (+$239 avg, 60% WR)", group=g_ict_size, inline="bst5")
+i_boostOctoberMult     = input.float(1.25, " Multiplier", group=g_ict_size, inline="bst5", minval=1.0, maxval=2.0, step=0.05)
+i_reduceCautionPeriods = input.bool(true, "🟡 Reduce Size in Caution Periods?", group=g_ict_size, inline="red1")
+i_cautionMult          = input.float(0.75, " Multiplier", group=g_ict_size, inline="red1", minval=0.25, maxval=1.0, step=0.05)
+
+// ═════════════════════════════════════════════════════════════════════════════
+// 📈 SECTION 14: DIRECTION BIAS FILTER
+// ═════════════════════════════════════════════════════════════════════════════
+g_dir = "📈 1️⃣4️⃣ DIRECTION FILTERS (By Day)"
+i_useDirectionFilter = input.bool(false, "✅ Enable Direction-Based Day Filters?", group=g_dir, tooltip="Based on analysis: Longs perform better overall (63.9% vs 58.3%)")
+i_blockFridayLongs   = input.bool(false, "🔴 Block Friday LONGS (-$2,785)", group=g_dir, inline="dir1", tooltip="Friday longs lost -$2,785 while shorts made +$1,858")
+i_blockFridayShorts  = input.bool(false, " Block Friday SHORTS", group=g_dir, inline="dir1")
+i_blockMondayShorts  = input.bool(false, "🔴 Block Monday SHORTS (-$2,418)", group=g_dir, inline="dir2", tooltip="Monday shorts lost -$2,418 while longs made +$22,561")
+i_blockMondayLongs   = input.bool(false, " Block Monday LONGS", group=g_dir, inline="dir2")
+
+// =============================================================================
+// 🧠 CORE LOGIC
+// =============================================================================
+max_bars_back(high, 500)
+max_bars_back(low, 500)
+max_bars_back(close, 500)
+
+currentDayOfWeek   = dayofweek(time, "America/New_York")
+currentDayOfMonth  = dayofmonth(time, "America/New_York")
+currentWeekOfMonth = math.ceil(currentDayOfMonth / 7)
+currentMonth       = month(time, "America/New_York")
+currentWeekOfYear  = weekofyear(time, "America/New_York")
+
+// --- ICT TIME FILTER LOGIC ---
+bool isDayBlocked = false
+if i_useIctFilters
+    if i_ict_filterFriday and currentDayOfWeek == 6
+        isDayBlocked := true
+    if i_ict_filterMonday and currentDayOfWeek == 2
+        isDayBlocked := true
+    if i_ict_filterTuesday and currentDayOfWeek == 3
+        isDayBlocked := true
+    if i_ict_filterWednesday and currentDayOfWeek == 4
+        isDayBlocked := true
+    if i_ict_filterThursday and currentDayOfWeek == 5
+        isDayBlocked := true
+
+bool isWomBlocked = false
+if i_useIctFilters and i_ict_useWomFilter
+    if i_ict_filterWom1 and currentWeekOfMonth == 1
+        isWomBlocked := true
+    if i_ict_filterWom2 and currentWeekOfMonth == 2
+        isWomBlocked := true
+    if i_ict_filterWom3 and currentWeekOfMonth == 3
+        isWomBlocked := true
+    if i_ict_filterWom4 and currentWeekOfMonth == 4
+        isWomBlocked := true
+    if i_ict_filterWom5 and currentWeekOfMonth == 5
+        isWomBlocked := true
+
+bool isComboBlocked = false
+if i_useIctFilters and i_ict_useCombos
+    if i_ict_filterW4Fri and currentWeekOfMonth == 4 and currentDayOfWeek == 6
+        isComboBlocked := true
+    if i_ict_filterW1Fri and currentWeekOfMonth == 1 and currentDayOfWeek == 6
+        isComboBlocked := true
+    if i_ict_filterW3Tue and currentWeekOfMonth == 3 and currentDayOfWeek == 3
+        isComboBlocked := true
+    if i_ict_filterW5Mon and currentWeekOfMonth == 5 and currentDayOfWeek == 2
+        isComboBlocked := true
+    if i_ict_filterW2Thu and currentWeekOfMonth == 2 and currentDayOfWeek == 5
+        isComboBlocked := true
+
+bool isMonthBlocked = false
+if i_useIctFilters and i_ict_useMonthFilter
+    if i_ict_filterNovember and currentMonth == 11
+        isMonthBlocked := true
+    if i_ict_filterMarch and currentMonth == 3
+        isMonthBlocked := true
+    if i_ict_filterMay and currentMonth == 5
+        isMonthBlocked := true
+    if i_ict_filterSeptember and currentMonth == 9
+        isMonthBlocked := true
+
+bool isWoyBlocked = false
+if i_useIctFilters and i_ict_useWoyFilter
+    if i_ict_filterWoy46 and currentWeekOfYear == 46
+        isWoyBlocked := true
+    if i_ict_filterWoy19 and currentWeekOfYear == 19
+        isWoyBlocked := true
+    if i_ict_filterWoy12 and currentWeekOfYear == 12
+        isWoyBlocked := true
+    if i_ict_filterWoy27 and currentWeekOfYear == 27
+        isWoyBlocked := true
+
+bool isIctBlocked = isDayBlocked or isWomBlocked or isComboBlocked or isMonthBlocked or isWoyBlocked
+
+// --- ICT DYNAMIC POSITION SIZING LOGIC ---
+float ictSizeMultiplier = 1.0
+if i_useDynamicSizing
+    bool isBestCombo = (currentWeekOfMonth == 3 and currentDayOfWeek == 5)
+    bool isThursday  = (currentDayOfWeek == 5)
+    bool isMonday    = (currentDayOfWeek == 2)
+    bool isWeek3     = (currentWeekOfMonth == 3)
+    bool isOctober   = (currentMonth == 10)
+    
+    if i_boostBestCombo and isBestCombo
+        ictSizeMultiplier := i_boostBestComboMult
+    else
+        float dayBoost   = 1.0
+        float weekBoost  = 1.0
+        float monthBoost = 1.0
+        if i_boostThursday and isThursday
+            dayBoost := i_boostThursdayMult
+        if i_boostMonday and isMonday
+            dayBoost := math.max(dayBoost, i_boostMondayMult)
+        if i_boostWom3 and isWeek3
+            weekBoost := i_boostWom3Mult
+        if i_boostOctober and isOctober
+            monthBoost := i_boostOctoberMult
+        ictSizeMultiplier := math.max(dayBoost, math.max(weekBoost, monthBoost))
+    
+    if i_reduceCautionPeriods
+        bool isCautionPeriod = false
+        if currentWeekOfMonth == 1 or currentWeekOfMonth == 2
+            isCautionPeriod := true
+        if currentMonth == 11 and not isMonthBlocked
+            isCautionPeriod := true
+        if isCautionPeriod and ictSizeMultiplier <= 1.0
+            ictSizeMultiplier := i_cautionMult
+
+// --- DIRECTION FILTERS ---
+bool blockLongDirection  = false
+bool blockShortDirection = false
+if i_useDirectionFilter
+    if currentDayOfWeek == 6
+        if i_blockFridayLongs
+            blockLongDirection := true
+        if i_blockFridayShorts
+            blockShortDirection := true
+    if currentDayOfWeek == 2
+        if i_blockMondayShorts
+            blockShortDirection := true
+        if i_blockMondayLongs
+            blockLongDirection := true
+
+// --- ASIAN RANGE LOGIC ---
+var float asia_high           = na
+var float asia_low            = na
+var float asia_range_points   = 0.0
+var bool  asia_range_exceeded = false
+
+bool in_asia_time = not na(time(timeframe.period, "1900-0000", "America/New_York"))
+bool asia_start   = in_asia_time and not in_asia_time[1]
+bool asia_end     = not in_asia_time and in_asia_time[1]
+
+if asia_start
+    asia_high           := high
+    asia_low            := low
+    asia_range_exceeded := false
+else if in_asia_time
+    asia_high := math.max(nz(asia_high, high), high)
+    asia_low  := math.min(nz(asia_low, low), low)
+
+if asia_end
+    asia_range_points := (asia_high - asia_low) / syminfo.mintick * syminfo.mintick
+    if i_useAsiaFilter and (asia_high - asia_low) > i_maxAsiaPoints
+        asia_range_exceeded := true
+
+// --- CBDR LOGIC ---
+var float cbdr_high_forming = na
+var float cbdr_low_forming  = na
+var float cbdr_high_locked  = na
+var float cbdr_low_locked   = na
+
+bool in_cbdr_time = not na(time(timeframe.period, "1400-2000", "America/New_York"))
+bool cbdr_start   = in_cbdr_time and not in_cbdr_time[1]
+bool cbdr_end     = not in_cbdr_time and in_cbdr_time[1]
+
+if cbdr_start
+    cbdr_high_forming := high
+    cbdr_low_forming  := low
+else if in_cbdr_time
+    cbdr_high_forming := math.max(nz(cbdr_high_forming, high), high)
+    cbdr_low_forming  := math.min(nz(cbdr_low_forming, low), low)
+
+if cbdr_end
+    cbdr_high_locked := cbdr_high_forming
+    cbdr_low_locked  := cbdr_low_forming
+
+// --- DATA HELPERS ---
+get_swing_high_safe(len_l, len_r) =>
+    h = ta.pivothigh(high, len_l, len_r)
+    t = time[len_r]
+    [h[1], t[1]]
+
+get_swing_low_safe(len_l, len_r) =>
+    l = ta.pivotlow(low, len_l, len_r)
+    t = time[len_r]
+    [l[1], t[1]]
+
+// --- FETCH SWING DATA ---
+[h_p, t_p]     = request.security(syminfo.tickerid, tf_pend, get_swing_high_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[l_p, tl_p]    = request.security(syminfo.tickerid, tf_pend, get_swing_low_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[h_c, t_c]     = request.security(syminfo.tickerid, tf_conf, get_swing_high_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[l_c, tl_c]    = request.security(syminfo.tickerid, tf_conf, get_swing_low_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[h_pm, t_pm]   = request.security(syminfo.tickerid, tf_perm, get_swing_high_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[l_pm, tl_pm]  = request.security(syminfo.tickerid, tf_perm, get_swing_low_safe(lb_l, lb_r), lookahead=barmerge.lookahead_on)
+[h_anch, t_anch]   = request.security(syminfo.tickerid, i_anchor_tf, get_swing_high_safe(i_anchor_lb, i_anchor_rb), lookahead=barmerge.lookahead_on)
+[l_anch, tl_anch]  = request.security(syminfo.tickerid, i_anchor_tf, get_swing_low_safe(i_anchor_lb, i_anchor_rb), lookahead=barmerge.lookahead_on)
+
+// --- STRUCTURE ENGINE ---
+var settings = BOS.SwingSettings.new(col_pend, col_conf, col_perm, tf_pend, tf_conf, tf_perm, lb_r)
+var mgr      = BOS.init(settings)
+
+// --- TREND FILTER ---
+[cur_bullStreak, cur_bearStreak] = Lib.get_bias_pure(i_of_leftBars, i_of_rightBars, i_of_req, i_of_mode)
+
+get_bull_component(l, r, req, m) =>
+    [bull, bear] = Lib.get_bias_pure(l, r, req, m)
+    bull
+
+get_bear_component(l, r, req, m) =>
+    [bull, bear] = Lib.get_bias_pure(l, r, req, m)
+    bear
+
+[htf_bullStreak, htf_bearStreak] = request.security(syminfo.tickerid, i_of_mtf, [get_bull_component(i_of_leftBars, i_of_rightBars, i_of_req, i_of_mode)[1], get_bear_component(i_of_leftBars, i_of_rightBars, i_of_req, i_of_mode)[1]], lookahead=barmerge.lookahead_on)
+
+int final_bull = i_of_useMtf ? nz(htf_bullStreak) : cur_bullStreak
+int final_bear = i_of_useMtf ? nz(htf_bearStreak) : cur_bearStreak
+
+bool rawIsBullish = (final_bull >= i_of_req)
+bool rawIsBearish = (final_bear >= i_of_req)
+
+bool allowLongs  = i_useOrderFlowFilter ? (rawIsBullish and not rawIsBearish) : true
+bool allowShorts = i_useOrderFlowFilter ? (rawIsBearish and not rawIsBullish) : true
+
+if blockLongDirection
+    allowLongs := false
+if blockShortDirection
+    allowShorts := false
+
+if i_useBiasFlipExit
+    if rawIsBearish
+        allowLongs := false
+    if rawIsBullish
+        allowShorts := false
+
+color bgCol = na
+if i_of_showBg
+    if rawIsBullish and rawIsBearish
+        bgCol := color.new(color.gray, 50)
+    else if rawIsBullish
+        bgCol := i_of_bullColor
+    else if rawIsBearish
+        bgCol := i_of_bearColor
+bgcolor(bgCol, title="Trend Background")
+
+// =============================================================================
+// STRATEGY EXECUTION
+// =============================================================================
+var bool  isLongSetupAllowed     = false
+var bool  isShortSetupAllowed    = false
+var int   lastValidBOSBar        = 0
+var bool  hasTradedCurrentSetup  = false
+var float postBosHighest         = na
+var float postBosLowest          = na
+var float anchorPriceLong        = na
+var float anchorPriceShort       = na
+var int   anchorTimeLong         = na
+var int   anchorTimeShort        = na
+var float latestAnchorHigh       = na
+var int   latestAnchorHighTime   = na
+var float latestAnchorLow        = na
+var int   latestAnchorLowTime    = na
+var int   lastUsedAnchorTimeLong = 0
+var int   lastUsedAnchorTimeShort= 0
+
+if not na(h_anch)
+    latestAnchorHigh     := h_anch
+    latestAnchorHighTime := t_anch
+
+if not na(l_anch)
+    latestAnchorLow      := l_anch
+    latestAnchorLowTime  := tl_anch
+
+var int   lastTradeExitBar       = 0
+var float tradeRangeStart        = na
+var float tradeRangeEnd          = na
+var float activeStopLoss         = na
+var float breakevenTriggerPrice  = na
+var bool  isStopAtBE             = false
+var float runnerCbdrTarget       = na
+
+// Runner tracking
+var bool  tp1_filled             = false
+var bool  tp2_filled             = false
+var bool  runner_active          = false
+var float runner_qty_remaining   = 0.0
+var bool  isLongTrade            = false
+var string current_trade_side    = ""
+
+// Pending order tracking
+var bool  hasActiveEntryOrder    = false
+var bool  hasActiveTP1Order      = false
+var float pendingEntryPrice      = na
+var float pendingTP1Price        = na
+
+// EOD alert tracking
+var bool  eodAlertSent           = false
+
+var box   premiumBox             = na
+var box   discountBox            = na
+var line[] fibLines              = array.new_line()
+var label[] fibLabels            = array.new_label()
+
+// --- SAFETY ---
+if not allowLongs
+    strategy.cancel("Long")
+    isLongSetupAllowed := false
+
+if not allowShorts
+    strategy.cancel("Short")
+    isShortSetupAllowed := false
+
+// --- BOS DETECTION ---
+bool canSignal       = bar_index >= lastValidBOSBar + i_minBOSDistance
+bool event_bos_long  = false
+bool event_bos_short = false
+
+if array.size(mgr.highs) > 0
+    for i = 0 to array.size(mgr.highs) - 1
+        BOS.SwingPoint s = array.get(mgr.highs, i)
+        if not s.mitigated and high > s.price
+            if s.status == 0 or s.status == 1
+                event_bos_long := true
+
+if array.size(mgr.lows) > 0
+    for i = 0 to array.size(mgr.lows) - 1
+        BOS.SwingPoint s = array.get(mgr.lows, i)
+        if not s.mitigated and low < s.price
+            if s.status == 0 or s.status == 1
+                event_bos_short := true
+
+BOS.update(mgr, h_p, t_p, l_p, tl_p, h_c, l_c, h_pm, l_pm)
+
+// --- SETUP TRIGGERS ---
+if canSignal and event_bos_long
+    if not na(latestAnchorLow)
+        if latestAnchorLowTime != lastUsedAnchorTimeLong
+            anchorPriceLong        := latestAnchorLow
+            anchorTimeLong         := latestAnchorLowTime
+            lastUsedAnchorTimeLong := latestAnchorLowTime
+            isLongSetupAllowed     := true
+            isShortSetupAllowed    := false
+            lastValidBOSBar        := bar_index
+            postBosHighest         := high
+            hasTradedCurrentSetup  := false
+
+if canSignal and event_bos_short
+    if not na(latestAnchorHigh)
+        if latestAnchorHighTime != lastUsedAnchorTimeShort
+            anchorPriceShort        := latestAnchorHigh
+            anchorTimeShort         := latestAnchorHighTime
+            lastUsedAnchorTimeShort := latestAnchorHighTime
+            isShortSetupAllowed     := true
+            isLongSetupAllowed      := false
+            lastValidBOSBar         := bar_index
+            postBosLowest           := low
+            hasTradedCurrentSetup   := false
+
+// --- INVALIDATION ---
+if isLongSetupAllowed and (bar_index - lastValidBOSBar > i_maxSetupDuration)
+    isLongSetupAllowed := false
+    strategy.cancel("Long")
+
+if isShortSetupAllowed and (bar_index - lastValidBOSBar > i_maxSetupDuration)
+    isShortSetupAllowed := false
+    strategy.cancel("Short")
+
+if isLongSetupAllowed and not na(anchorPriceLong)
+    postBosHighest       := math.max(nz(postBosHighest, high), high)
+    float currentRangePct = (postBosHighest - anchorPriceLong) / anchorPriceLong * 100
+    if currentRangePct > i_maxRangePercent
+        isLongSetupAllowed := false
+        strategy.cancel("Long")
+
+if isShortSetupAllowed and not na(anchorPriceShort)
+    postBosLowest        := math.min(nz(postBosLowest, low), low)
+    float currentRangePct = (anchorPriceShort - postBosLowest) / anchorPriceShort * 100
+    if currentRangePct > i_maxRangePercent
+        isShortSetupAllowed := false
+        strategy.cancel("Short")
+
+// --- HELPERS & HOLIDAYS ---
+roundToTick(price) =>
+    math.round(price / syminfo.mintick) * syminfo.mintick
+
+clearFibDrawings() =>
+    if array.size(fibLines) > 0
+        for l in fibLines
+            line.delete(l)
+        array.clear(fibLines)
+    if array.size(fibLabels) > 0
+        for l in fibLabels
+            label.delete(l)
+        array.clear(fibLabels)
+    if not na(premiumBox)
+        box.delete(premiumBox)
+    if not na(discountBox)
+        box.delete(discountBox)
+
+isDate(y, m, d) =>
+    year(time) == y and month(time) == m and dayofmonth(time) == d
+
+isFixedDate(m, d) =>
+    month(time) == m and dayofmonth(time) == d
+
+isNthWeekday(nth, dow, m) =>
+    if month(time) != m or dayofweek(time) != dow
+        false
+    else
+        d = dayofmonth(time)
+        (d > (nth - 1) * 7) and (d <= nth * 7)
+
+isLastWeekday(dow, m) =>
+    month(time) == m and dayofweek(time) == dow and (dayofmonth(time) + 7 > 31)
+
+isHoliday() =>
+    h_NewYear = isFixedDate(1, 1), h_Juneteenth = isFixedDate(6, 19), h_July4 = isFixedDate(7, 4), h_Christmas = isFixedDate(12, 25), h_Veterans = isFixedDate(11, 11)
+    h_MLK = isNthWeekday(3, dayofweek.monday, 1), h_Presidents = isNthWeekday(3, dayofweek.monday, 2)
+    h_Memorial = isLastWeekday(dayofweek.monday, 5), h_Labor = isNthWeekday(1, dayofweek.monday, 9)
+    h_Columbus = isNthWeekday(2, dayofweek.monday, 10), h_Thanksgiving = isNthWeekday(4, dayofweek.thursday, 11)
+    h_GoodFri = isDate(2023, 4, 7) or isDate(2024, 3, 29) or isDate(2025, 4, 18) or isDate(2026, 4, 3)
+    h_NewYear or h_Juneteenth or h_July4 or h_Christmas or h_MLK or h_Presidents or h_Memorial or h_Labor or h_Columbus or h_Veterans or h_Thanksgiving or h_GoodFri
+
+isPostHoliday() =>
+    ph_NewYear = isFixedDate(1, 2), ph_Juneteenth = isFixedDate(6, 20), ph_July4 = isFixedDate(7, 5), ph_Christmas = isFixedDate(12, 26)
+    ph_MLK = dayofweek(time) == dayofweek.tuesday and month(time) == 1 and dayofmonth(time) >= 16 and dayofmonth(time) <= 22
+    ph_Presidents = dayofweek(time) == dayofweek.tuesday and month(time) == 2 and dayofmonth(time) >= 16 and dayofmonth(time) <= 22
+    ph_Memorial = dayofweek(time) == dayofweek.tuesday and ((month(time) == 5 and dayofmonth(time) >= 26) or (month(time) == 6 and dayofmonth(time) == 1))
+    ph_NewYear or ph_Juneteenth or ph_July4 or ph_Christmas or ph_MLK or ph_Presidents or ph_Memorial
+
+isTradingSession() =>
+    in_london   = london_session_active and not na(time(timeframe.period, london_session, "America/New_York"))
+    in_ny_am    = not na(time(timeframe.period, ny_am_session, "America/New_York"))
+    in_ny_lunch = ny_lunch_session_active and not na(time(timeframe.period, ny_lunch_session, "America/New_York"))
+    in_ny_pm    = not na(time(timeframe.period, ny_pm_session, "America/New_York"))
+    in_london or in_ny_am or in_ny_lunch or in_ny_pm
+
+isMacroSession() =>
+    m1 = includeMacro_0950 and not na(time(timeframe.period, "0950-1010", "America/New_York"))
+    m2 = includeMacro_1050 and not na(time(timeframe.period, "1050-1110", "America/New_York"))
+    m3 = includeMacro_1350 and not na(time(timeframe.period, "1350-1410", "America/New_York"))
+    m4 = includeMacro_1450 and not na(time(timeframe.period, "1450-1510", "America/New_York"))
+    m1 or m2 or m3 or m4
+
+drawFib(int startTime, int endTime, float rangeStart, float rangeEnd) =>
+    box newPremiumBox  = na
+    box newDiscountBox = na
+    line[] newFibLines   = array.new_line()
+    label[] newFibLabels = array.new_label()
+    float[] levels       = array.new_float()
+    string[] levelNames  = array.new_string()
+    
+    if i_fib_1
+        array.push(levels, 1.0), array.push(levelNames, "1.0")
+    if i_fib_0705
+        array.push(levels, 0.705), array.push(levelNames, "OTE")
+    if i_fib_0618
+        array.push(levels, 0.618), array.push(levelNames, "0.618")
+    if i_fib_05
+        array.push(levels, 0.5), array.push(levelNames, "EQ")
+    if i_fib_0
+        array.push(levels, 0.0), array.push(levelNames, "0.0")
+    if i_fib_ext
+        array.push(levels, -0.27), array.push(levelNames, "-0.27")
+        array.push(levels, -0.62), array.push(levelNames, "-0.62")
+        array.push(levels, -1.0), array.push(levelNames, "-1.0")
+    
+    int eodTime     = timestamp("America/New_York", year(time), month(time), dayofmonth(time), 16, 0)
+    int drawEndTime = math.max(endTime, eodTime)
+    
+    topPrice    = math.max(rangeStart, rangeEnd)
+    bottomPrice = math.min(rangeStart, rangeEnd)
+    eqPrice     = bottomPrice + (topPrice - bottomPrice) * 0.5
+    
+    newPremiumBox  := box.new(startTime, eqPrice, drawEndTime, topPrice, border_color=na, bgcolor=color.new(i_highColor, 85), xloc=xloc.bar_time)
+    newDiscountBox := box.new(startTime, bottomPrice, drawEndTime, eqPrice, border_color=na, bgcolor=color.new(i_lowColor, 85), xloc=xloc.bar_time)
+    
+    if array.size(levels) > 0
+        for i = 0 to array.size(levels) - 1
+            float level      = array.get(levels, i)
+            float levelPrice = rangeStart + (rangeEnd - rangeStart) * (1 - level)
+            array.push(newFibLines, line.new(startTime, levelPrice, drawEndTime, levelPrice, xloc=xloc.bar_time, color=color.new(#ff0000, 0)))
+            array.push(newFibLabels, label.new(drawEndTime, levelPrice, array.get(levelNames, i), xloc=xloc.bar_time, style=label.style_label_left, textcolor=color.rgb(0, 55, 255, 9), color=color.new(color.black, 100)))
+    [newPremiumBox, newDiscountBox, newFibLines, newFibLabels]
+
+// --- ENTRY EXECUTION ---
+float totalTradeQty    = i_qty_TP1 + i_qty_TP2 + i_qty_Runner
+bool  canEnterNewTrade = strategy.position_size == 0 and bar_index >= lastTradeExitBar + i_tradeCooldownBars
+bool  isHolidayToday   = i_filterHolidays and isHoliday()
+bool  isAsiaExceeded   = i_useAsiaFilter and asia_range_exceeded
+bool  inSession        = (not useSessionFilter or isTradingSession() or isMacroSession()) and not isHolidayToday and not isAsiaExceeded and not isIctBlocked
+
+float sizeMultiplier = 1.0
+if dayofweek(time) == dayofweek.wednesday
+    if i_opt_wed == "Skip Trade"
+        sizeMultiplier := 0.0
+    else if i_opt_wed == "Half Size"
+        sizeMultiplier := 0.5
+
+if dayofmonth(time) <= 7
+    if i_opt_week1 == "Skip Trade"
+        sizeMultiplier := 0.0
+    else if i_opt_week1 == "Half Size"
+        sizeMultiplier := math.min(sizeMultiplier, 0.5)
+
+if isPostHoliday()
+    if i_opt_postHol == "Skip Trade"
+        sizeMultiplier := 0.0
+    else if i_opt_postHol == "Half Size"
+        sizeMultiplier := math.min(sizeMultiplier, 0.5)
+
+sizeMultiplier    := sizeMultiplier * ictSizeMultiplier
+float finalTradeQty = math.floor(totalTradeQty * sizeMultiplier)
+
+if strategy.position_size != 0
+    isLongSetupAllowed    := false
+    isShortSetupAllowed   := false
+    hasTradedCurrentSetup := true
+
+// =============================================================================
+// ⏰ END OF DAY DETECTION
+// =============================================================================
+bool isEodTime = i_useEodExit and ((hour(time, "America/New_York") > i_eodHour) or (hour(time, "America/New_York") == i_eodHour and minute(time, "America/New_York") >= i_eodMinute))
+
+bool isNewTradingDay = hour(time, "America/New_York") < i_eodHour
+if isNewTradingDay
+    eodAlertSent := false
+
+// =============================================================================
+// 🆕 EOD: FLATTEN ALL POSITIONS
+// =============================================================================
+if isEodTime and not eodAlertSent
+    strategy.cancel_all()
+    
+    // 🌐 WEBHOOK: EOD Exit
+    if use_webhook and strategy.position_size != 0
+        float eod_pnl = strategy.openprofit
+        alert(getWebhookExit(current_trade_side, "eod", close, strategy.opentrades.entry_price(0), int(math.abs(strategy.position_size)), eod_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    
+    string eodFlattenMsg = '{"ticker": "' + syminfo.ticker + '", "action": "exit"}'
+    alert(eodFlattenMsg, alert.freq_once_per_bar)
+    
+    eodAlertSent          := true
+    hasActiveEntryOrder   := false
+    hasActiveTP1Order     := false
+    pendingEntryPrice     := na
+    pendingTP1Price       := na
+    isLongSetupAllowed    := false
+    isShortSetupAllowed   := false
+    runner_active         := false
+    runner_qty_remaining  := 0
+    tp1_filled            := false
+    tp2_filled            := false
+
+if isEodTime and strategy.position_size != 0
+    string eodBacktestMsg = '{"ticker": "' + syminfo.ticker + '", "action": "exit", "comment": "EOD_BACKTEST_SYNC"}'
+    strategy.close_all(comment="EOD Flatten", alert_message=eodBacktestMsg)
+
+// =============================================================================
+// 📈 LONG ENTRY
+// =============================================================================
+if sizeMultiplier > 0 and inSession and not na(anchorPriceLong) and not na(postBosHighest) and isLongSetupAllowed and canEnterNewTrade and allowLongs and not hasTradedCurrentSetup and not isEodTime
+    float rangeStart = anchorPriceLong
+    float rangeEnd   = postBosHighest
+    float tradeRange = rangeEnd - rangeStart
+    float rangePct   = (tradeRange / rangeStart) * 100
+    
+    if rangePct >= i_minRangePercent
+        if i_showFib
+            clearFibDrawings()
+            [newPremium, newDiscount, newLines, newLabels] = drawFib(anchorTimeLong, time, rangeStart, rangeEnd)
+            premiumBox  := newPremium
+            discountBox := newDiscount
+            fibLines    := newLines
+            fibLabels   := newLabels
+        
+        float entryPrice = roundToTick(rangeStart + (rangeEnd - rangeStart) * (1 - i_entryLevel))
+        activeStopLoss   := roundToTick(rangeStart * (1 - i_slBufferPercent / 100))
+        tradeRangeStart  := rangeStart
+        tradeRangeEnd    := rangeEnd
+        
+        float cbdr_range = cbdr_high_locked - cbdr_low_locked
+        if i_useCbdrTarget and not na(cbdr_range) and cbdr_range > 0
+            runnerCbdrTarget := cbdr_high_locked + (cbdr_range * i_cbdr_sd)
+        else
+            runnerCbdrTarget := na
+        
+        tp1_filled           := false
+        tp2_filled           := false
+        runner_active        := true
+        runner_qty_remaining := i_qty_Runner * sizeMultiplier
+        isLongTrade          := true
+        current_trade_side   := "long"
+        
+        // 🌐 WEBHOOK: Long Entry
+        if use_webhook
+            alert(getWebhookEntry("long", entryPrice, int(finalTradeQty)), alert.freq_once_per_bar)
+        
+        string entryMessage = '{"ticker": "' + syminfo.ticker + '", "action": "buy", "orderType": "limit", "limitPrice": ' + str.tostring(entryPrice) + ', "quantity": ' + str.tostring(finalTradeQty) + '}'
+        strategy.entry("Long", strategy.long, qty=finalTradeQty, limit=entryPrice, alert_message=entryMessage)
+        
+        hasActiveEntryOrder     := true
+        pendingEntryPrice       := entryPrice
+        breakevenTriggerPrice   := rangeStart + (rangeEnd - rangeStart) * (1 - i_breakevenLevel)
+        isStopAtBE              := false
+
+// =============================================================================
+// 📉 SHORT ENTRY
+// =============================================================================
+if sizeMultiplier > 0 and inSession and not na(anchorPriceShort) and not na(postBosLowest) and isShortSetupAllowed and canEnterNewTrade and allowShorts and not hasTradedCurrentSetup and not isEodTime
+    float rangeStart = anchorPriceShort
+    float rangeEnd   = postBosLowest
+    float tradeRange = rangeStart - rangeEnd
+    float rangePct   = (tradeRange / rangeStart) * 100
+    
+    if rangePct >= i_minRangePercent
+        if i_showFib
+            clearFibDrawings()
+            [newPremium, newDiscount, newLines, newLabels] = drawFib(anchorTimeShort, time, rangeStart, rangeEnd)
+            premiumBox  := newPremium
+            discountBox := newDiscount
+            fibLines    := newLines
+            fibLabels   := newLabels
+        
+        float entryPrice = roundToTick(rangeStart + (rangeEnd - rangeStart) * (1 - i_entryLevel))
+        activeStopLoss   := roundToTick(rangeStart * (1 + i_slBufferPercent / 100))
+        tradeRangeStart  := rangeStart
+        tradeRangeEnd    := rangeEnd
+        
+        float cbdr_range = cbdr_high_locked - cbdr_low_locked
+        if i_useCbdrTarget and not na(cbdr_range) and cbdr_range > 0
+            runnerCbdrTarget := cbdr_low_locked - (cbdr_range * i_cbdr_sd)
+        else
+            runnerCbdrTarget := na
+        
+        tp1_filled           := false
+        tp2_filled           := false
+        runner_active        := true
+        runner_qty_remaining := i_qty_Runner * sizeMultiplier
+        isLongTrade          := false
+        current_trade_side   := "short"
+        
+        // 🌐 WEBHOOK: Short Entry
+        if use_webhook
+            alert(getWebhookEntry("short", entryPrice, int(finalTradeQty)), alert.freq_once_per_bar)
+        
+        string entryMessage = '{"ticker": "' + syminfo.ticker + '", "action": "sell", "orderType": "limit", "limitPrice": ' + str.tostring(entryPrice) + ', "quantity": ' + str.tostring(finalTradeQty) + '}'
+        strategy.entry("Short", strategy.short, qty=finalTradeQty, limit=entryPrice, alert_message=entryMessage)
+        
+        hasActiveEntryOrder     := true
+        pendingEntryPrice       := entryPrice
+        breakevenTriggerPrice   := rangeStart + (rangeEnd - rangeStart) * (1 - i_breakevenLevel)
+        isStopAtBE              := false
+
+// =============================================================================
+// ⚡ EXITS AND TRADE MANAGEMENT
+// =============================================================================
+float currentQty   = math.abs(strategy.position_size)
+float exitQty_TP1  = math.floor(i_qty_TP1 * sizeMultiplier)
+float exitQty_TP2  = math.floor(i_qty_TP2 * sizeMultiplier)
+float exitQty_Run  = math.floor(i_qty_Runner * sizeMultiplier)
+bool  isEntryBar   = (strategy.opentrades > 0) and (bar_index == strategy.opentrades.entry_bar_index(strategy.opentrades - 1))
+
+if strategy.position_size != 0 and not na(runnerCbdrTarget)
+    line.new(bar_index, runnerCbdrTarget, bar_index+1, runnerCbdrTarget, color=color.purple, style=line.style_dashed, width=2)
+
+bool just_entered_long  = strategy.position_size > 0 and strategy.position_size[1] == 0
+bool just_entered_short = strategy.position_size < 0 and strategy.position_size[1] == 0
+
+if just_entered_long or just_entered_short
+    hasActiveEntryOrder := false
+    pendingEntryPrice   := na
+
+// =============================================================================
+// LONG TRADE MANAGEMENT
+// =============================================================================
+if strategy.position_size > 0 and not isEodTime
+    float tp1_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP1))
+    float tp2_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP2))
+    
+    if just_entered_long
+        string tp1Msg = '{"ticker": "' + syminfo.ticker + '", "action": "sell", "orderType": "limit", "limitPrice": ' + str.tostring(tp1_price) + ', "quantity": ' + str.tostring(exitQty_TP1) + '}'
+        alert(tp1Msg, alert.freq_once_per_bar)
+        hasActiveTP1Order := true
+        pendingTP1Price   := tp1_price
+    
+    string tp1BacktestLong = '{"ticker": "' + syminfo.ticker + '", "action": "sell", "orderType": "limit", "limitPrice": ' + str.tostring(tp1_price) + ', "quantity": ' + str.tostring(exitQty_TP1) + ', "comment": "TP1_BACKTESTER"}'
+    strategy.exit("TP1", "Long", qty=exitQty_TP1, limit=tp1_price, alert_message=tp1BacktestLong)
+    
+    if strategy.position_size < strategy.position_size[1] and not tp1_filled
+        if strategy.position_size[1] - strategy.position_size >= exitQty_TP1 * 0.9
+            tp1_filled        := true
+            hasActiveTP1Order := false
+            pendingTP1Price   := na
+            
+            // 🌐 WEBHOOK: TP1 Hit
+            if use_webhook
+                float tp1_pnl = (tp1_price - strategy.opentrades.entry_price(0)) * exitQty_TP1 * syminfo.pointvalue
+                alert(getWebhookExit("long", "tp1", tp1_price, strategy.opentrades.entry_price(0), int(exitQty_TP1), tp1_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    
+    if tp1_filled and not tp2_filled and high >= tp2_price and exitQty_TP2 > 0
+        // 🌐 WEBHOOK: TP2 Hit
+        if use_webhook
+            float tp2_pnl = (tp2_price - strategy.opentrades.entry_price(0)) * exitQty_TP2 * syminfo.pointvalue
+            alert(getWebhookExit("long", "tp2", tp2_price, strategy.opentrades.entry_price(0), int(exitQty_TP2), tp2_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        
+        string tp2Msg = '{"ticker": "' + syminfo.ticker + '", "action": "sell", "orderType": "market", "quantity": ' + str.tostring(exitQty_TP2) + '}'
+        strategy.close("Long", qty=exitQty_TP2, comment="TP2 Active", alert_message=tp2Msg)
+        tp2_filled := true
+    
+    if i_useCbdrTarget and not na(runnerCbdrTarget) and tp1_filled and tp2_filled
+        if high >= runnerCbdrTarget and runner_active
+            // 🌐 WEBHOOK: Runner CBDR Target
+            if use_webhook
+                float runner_pnl = (runnerCbdrTarget - strategy.opentrades.entry_price(0)) * runner_qty_remaining * syminfo.pointvalue
+                alert(getWebhookExit("long", "runner_cbdr", runnerCbdrTarget, strategy.opentrades.entry_price(0), int(runner_qty_remaining), runner_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            
+            string cbdrMsg = '{"ticker": "' + syminfo.ticker + '", "action": "sell", "orderType": "market", "quantity": ' + str.tostring(runner_qty_remaining) + '}'
+            strategy.close("Long", qty=runner_qty_remaining, comment="Runner CBDR Target", alert_message=cbdrMsg)
+            runner_active        := false
+            runner_qty_remaining := 0
+    
+    if i_useBreakeven and not isStopAtBE and high >= breakevenTriggerPrice
+        isStopAtBE := true
+    
+    float stopPrice = isStopAtBE ? strategy.opentrades.entry_price(0) + (i_breakevenProfitTicks * syminfo.mintick) : activeStopLoss
+    
+    if close < stopPrice
+        float qty_to_stop = currentQty
+        if runner_active and not i_biasFlipExitRunner
+            qty_to_stop := math.max(0, currentQty - runner_qty_remaining)
+        if qty_to_stop > 0
+            // 🌐 WEBHOOK: Stop Loss
+            if use_webhook
+                float sl_pnl = (stopPrice - strategy.opentrades.entry_price(0)) * qty_to_stop * syminfo.pointvalue
+                alert(getWebhookExit("long", "sl", stopPrice, strategy.opentrades.entry_price(0), int(qty_to_stop), sl_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            
+            string slMsg = '{"ticker": "' + syminfo.ticker + '", "action": "sell", "orderType": "market", "quantity": ' + str.tostring(qty_to_stop) + '}'
+            strategy.close("Long", qty=qty_to_stop, comment="Stop Loss Active", alert_message=slMsg)
+    
+    if i_useBiasFlipExit and (rawIsBearish and not rawIsBullish) and not isEntryBar
+        float qty_to_close = currentQty
+        if runner_active and not i_biasFlipExitRunner
+            qty_to_close := math.max(0, currentQty - runner_qty_remaining)
+        if qty_to_close > 0
+            // 🌐 WEBHOOK: Bias Flip Exit
+            if use_webhook
+                float flip_pnl = (close - strategy.opentrades.entry_price(0)) * qty_to_close * syminfo.pointvalue
+                alert(getWebhookExit("long", "bias_flip", close, strategy.opentrades.entry_price(0), int(qty_to_close), flip_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            
+            string closeMsg = '{"ticker": "' + syminfo.ticker + '", "action": "sell", "orderType": "market", "quantity": ' + str.tostring(qty_to_close) + '}'
+            strategy.close("Long", qty=qty_to_close, comment="Bias Flip Exit", alert_message=closeMsg)
+
+// =============================================================================
+// SHORT TRADE MANAGEMENT
+// =============================================================================
+if strategy.position_size < 0 and not isEodTime
+    float tp1_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP1))
+    float tp2_price = roundToTick(tradeRangeStart + (tradeRangeEnd - tradeRangeStart) * (1 - i_level_TP2))
+    
+    if just_entered_short
+        string tp1Msg = '{"ticker": "' + syminfo.ticker + '", "action": "buy", "orderType": "limit", "limitPrice": ' + str.tostring(tp1_price) + ', "quantity": ' + str.tostring(exitQty_TP1) + '}'
+        alert(tp1Msg, alert.freq_once_per_bar)
+        hasActiveTP1Order := true
+        pendingTP1Price   := tp1_price
+    
+    string tp1BacktestShort = '{"ticker": "' + syminfo.ticker + '", "action": "buy", "orderType": "limit", "limitPrice": ' + str.tostring(tp1_price) + ', "quantity": ' + str.tostring(exitQty_TP1) + ', "comment": "TP1_BACKTESTER"}'
+    strategy.exit("TP1", "Short", qty=exitQty_TP1, limit=tp1_price, alert_message=tp1BacktestShort)
+    
+    if math.abs(strategy.position_size) < math.abs(strategy.position_size[1]) and not tp1_filled
+        if math.abs(strategy.position_size[1]) - math.abs(strategy.position_size) >= exitQty_TP1 * 0.9
+            tp1_filled        := true
+            hasActiveTP1Order := false
+            pendingTP1Price   := na
+            
+            // 🌐 WEBHOOK: TP1 Hit
+            if use_webhook
+                float tp1_pnl = (strategy.opentrades.entry_price(0) - tp1_price) * exitQty_TP1 * syminfo.pointvalue
+                alert(getWebhookExit("short", "tp1", tp1_price, strategy.opentrades.entry_price(0), int(exitQty_TP1), tp1_pnl, strategy.netprofit), alert.freq_once_per_bar)
+    
+    if tp1_filled and not tp2_filled and low <= tp2_price and exitQty_TP2 > 0
+        // 🌐 WEBHOOK: TP2 Hit
+        if use_webhook
+            float tp2_pnl = (strategy.opentrades.entry_price(0) - tp2_price) * exitQty_TP2 * syminfo.pointvalue
+            alert(getWebhookExit("short", "tp2", tp2_price, strategy.opentrades.entry_price(0), int(exitQty_TP2), tp2_pnl, strategy.netprofit), alert.freq_once_per_bar)
+        
+        string tp2Msg = '{"ticker": "' + syminfo.ticker + '", "action": "buy", "orderType": "market", "quantity": ' + str.tostring(exitQty_TP2) + '}'
+        strategy.close("Short", qty=exitQty_TP2, comment="TP2 Active", alert_message=tp2Msg)
+        tp2_filled := true
+    
+    if i_useCbdrTarget and not na(runnerCbdrTarget) and tp1_filled and tp2_filled
+        if low <= runnerCbdrTarget and runner_active
+            // 🌐 WEBHOOK: Runner CBDR Target
+            if use_webhook
+                float runner_pnl = (strategy.opentrades.entry_price(0) - runnerCbdrTarget) * runner_qty_remaining * syminfo.pointvalue
+                alert(getWebhookExit("short", "runner_cbdr", runnerCbdrTarget, strategy.opentrades.entry_price(0), int(runner_qty_remaining), runner_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            
+            string cbdrMsg = '{"ticker": "' + syminfo.ticker + '", "action": "buy", "orderType": "market", "quantity": ' + str.tostring(runner_qty_remaining) + '}'
+            strategy.close("Short", qty=runner_qty_remaining, comment="Runner CBDR Target", alert_message=cbdrMsg)
+            runner_active        := false
+            runner_qty_remaining := 0
+    
+    if i_useBreakeven and not isStopAtBE and low <= breakevenTriggerPrice
+        isStopAtBE := true
+    
+    float stopPrice = isStopAtBE ? strategy.opentrades.entry_price(0) - (i_breakevenProfitTicks * syminfo.mintick) : activeStopLoss
+    
+    if close > stopPrice
+        float qty_to_stop = currentQty
+        if runner_active and not i_biasFlipExitRunner
+            qty_to_stop := math.max(0, currentQty - runner_qty_remaining)
+        if qty_to_stop > 0
+            // 🌐 WEBHOOK: Stop Loss
+            if use_webhook
+                float sl_pnl = (strategy.opentrades.entry_price(0) - stopPrice) * qty_to_stop * syminfo.pointvalue
+                alert(getWebhookExit("short", "sl", stopPrice, strategy.opentrades.entry_price(0), int(qty_to_stop), sl_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            
+            string slMsg = '{"ticker": "' + syminfo.ticker + '", "action": "buy", "orderType": "market", "quantity": ' + str.tostring(qty_to_stop) + '}'
+            strategy.close("Short", qty=qty_to_stop, comment="Stop Loss Active", alert_message=slMsg)
+    
+    if i_useBiasFlipExit and (rawIsBullish and not rawIsBearish) and not isEntryBar
+        float qty_to_close = currentQty
+        if runner_active and not i_biasFlipExitRunner
+            qty_to_close := math.max(0, currentQty - runner_qty_remaining)
+        if qty_to_close > 0
+            // 🌐 WEBHOOK: Bias Flip Exit
+            if use_webhook
+                float flip_pnl = (strategy.opentrades.entry_price(0) - close) * qty_to_close * syminfo.pointvalue
+                alert(getWebhookExit("short", "bias_flip", close, strategy.opentrades.entry_price(0), int(qty_to_close), flip_pnl, strategy.netprofit), alert.freq_once_per_bar)
+            
+            string closeMsg = '{"ticker": "' + syminfo.ticker + '", "action": "buy", "orderType": "market", "quantity": ' + str.tostring(qty_to_close) + '}'
+            strategy.close("Short", qty=qty_to_close, comment="Bias Flip Exit", alert_message=closeMsg)
+
+// =============================================================================
+// POSITION CLOSED CLEANUP
+// =============================================================================
+if strategy.position_size[1] != 0 and strategy.position_size == 0
+    lastTradeExitBar     := bar_index
+    runnerCbdrTarget     := na
+    tp1_filled           := false
+    tp2_filled           := false
+    runner_active        := false
+    runner_qty_remaining := 0
+    hasActiveTP1Order    := false
+    pendingTP1Price      := na
+    current_trade_side   := ""
+
+// =============================================================================
+// 📊 DEBUG TABLE
+// =============================================================================
+var table debugTable = table.new(position.top_right, 2, 16, bgcolor=color.new(color.black, 80), border_width=1)
+
+if barstate.islast
+    table.cell(debugTable, 0, 0, "🌐 Webhook", text_color=color.white)
+    table.cell(debugTable, 1, 0, use_webhook ? "ON" : "OFF", text_color=use_webhook ? color.green : color.red)
+    
+    table.cell(debugTable, 0, 1, "Position Size", text_color=color.white)
+    table.cell(debugTable, 1, 1, str.tostring(strategy.position_size), text_color=color.yellow)
+    
+    table.cell(debugTable, 0, 2, "TP1 Filled", text_color=color.white)
+    table.cell(debugTable, 1, 2, tp1_filled ? "YES" : "NO", text_color=tp1_filled ? color.green : color.red)
+    
+    table.cell(debugTable, 0, 3, "TP2 Filled", text_color=color.white)
+    table.cell(debugTable, 1, 3, tp2_filled ? "YES" : "NO", text_color=tp2_filled ? color.green : color.red)
+    
+    table.cell(debugTable, 0, 4, "Runner Active", text_color=color.white)
+    table.cell(debugTable, 1, 4, runner_active ? "YES" : "NO", text_color=runner_active ? color.green : color.red)
+    
+    table.cell(debugTable, 0, 5, "Runner Qty", text_color=color.white)
+    table.cell(debugTable, 1, 5, str.tostring(runner_qty_remaining), text_color=color.yellow)
+    
+    table.cell(debugTable, 0, 6, "CBDR Target", text_color=color.white)
+    table.cell(debugTable, 1, 6, na(runnerCbdrTarget) ? "N/A" : str.tostring(runnerCbdrTarget, "#.##"), text_color=color.purple)
+    
+    table.cell(debugTable, 0, 7, "Stop @ BE", text_color=color.white)
+    table.cell(debugTable, 1, 7, isStopAtBE ? "YES" : "NO", text_color=isStopAtBE ? color.green : color.orange)
+    
+    table.cell(debugTable, 0, 8, "Pending Entry", text_color=color.white)
+    table.cell(debugTable, 1, 8, hasActiveEntryOrder ? str.tostring(pendingEntryPrice, "#.##") : "NONE", text_color=hasActiveEntryOrder ? color.yellow : color.gray)
+    
+    table.cell(debugTable, 0, 9, "Pending TP1", text_color=color.white)
+    table.cell(debugTable, 1, 9, hasActiveTP1Order ? str.tostring(pendingTP1Price, "#.##") : "NONE", text_color=hasActiveTP1Order ? color.yellow : color.gray)
+    
+    table.cell(debugTable, 0, 10, "EOD Status", text_color=color.white)
+    table.cell(debugTable, 1, 10, isEodTime ? (eodAlertSent ? "FLATTENED" : "FLATTENING...") : "ACTIVE", text_color=isEodTime ? color.red : color.green)
+    
+    table.cell(debugTable, 0, 11, "═══ ICT FILTERS ═══", text_color=color.aqua)
+    table.cell(debugTable, 1, 11, "", text_color=color.aqua)
+    
+    table.cell(debugTable, 0, 12, "ICT Blocked?", text_color=color.white)
+    table.cell(debugTable, 1, 12, isIctBlocked ? "🔴 YES" : "🟢 NO", text_color=isIctBlocked ? color.red : color.green)
+    
+    table.cell(debugTable, 0, 13, "Size Multiplier", text_color=color.white)
+    table.cell(debugTable, 1, 13, str.tostring(ictSizeMultiplier, "#.##") + "x", text_color=ictSizeMultiplier > 1 ? color.green : (ictSizeMultiplier < 1 ? color.orange : color.white))
+    
+    string dayName = currentDayOfWeek == 2 ? "Mon" : currentDayOfWeek == 3 ? "Tue" : currentDayOfWeek == 4 ? "Wed" : currentDayOfWeek == 5 ? "Thu" : currentDayOfWeek == 6 ? "Fri" : "Other"
+    table.cell(debugTable, 0, 14, "Day/WoM/WoY", text_color=color.white)
+    table.cell(debugTable, 1, 14, dayName + " / W" + str.tostring(currentWeekOfMonth) + " / W" + str.tostring(currentWeekOfYear), text_color=color.yellow)
+    
+    table.cell(debugTable, 0, 15, "Final Qty", text_color=color.white)
+    table.cell(debugTable, 1, 15, str.tostring(finalTradeQty, "#.#"), text_color=color.yellow)
+
+// =============================================================================
+// 📊 ICT FILTER VISUAL INDICATOR
+// =============================================================================
+color ictBgColor = na
+if i_useIctFilters and isIctBlocked
+    ictBgColor := color.new(color.red, 92)
+else if i_useDynamicSizing and ictSizeMultiplier > 1.2
+    ictBgColor := color.new(color.green, 94)
+else if i_useDynamicSizing and ictSizeMultiplier < 0.8
+    ictBgColor := color.new(color.orange, 94)
+bgcolor(ictBgColor, title="ICT Filter Background")

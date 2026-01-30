@@ -1,0 +1,45 @@
+{
+  "bots": {
+    "ote-silver-bullet": {
+      "trades": 6,
+      "wins": 3,
+      "losses": 3,
+      "totalPnl": -791,
+      "todayPnl": -791,
+      "lastReset": "Thu Jan 29 2026"
+    },
+    "ote-refined": {
+      "trades": 8,
+      "wins": 4,
+      "losses": 4,
+      "totalPnl": -706,
+      "todayPnl": -706,
+      "lastReset": "Thu Jan 29 2026"
+    },
+    "ote-refined-small": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "totalPnl": 0,
+      "todayPnl": 0,
+      "lastReset": "Thu Jan 29 2026"
+    },
+    "fvg-ifvg": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "totalPnl": 0,
+      "todayPnl": 0,
+      "lastReset": "Thu Jan 29 2026"
+    },
+    "test": {
+      "trades": 0,
+      "wins": 0,
+      "losses": 0,
+      "totalPnl": 0,
+      "todayPnl": 0,
+      "lastReset": "Thu Jan 29 2026"
+    }
+  },
+  "lastUpdated": "2026-01-29T20:38:00.944Z"
+}
