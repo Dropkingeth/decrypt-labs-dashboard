@@ -1,0 +1,15 @@
+{
+  "name": "decrypt-labs-api",
+  "version": "1.0.0",
+  "description": "Webhook receiver & API for Decrypt Labs trading bots",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "keywords": ["trading", "webhook", "api"],
+  "author": "PriceCipher",
+  "license": "MIT"
+}
