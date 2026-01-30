@@ -26,6 +26,14 @@ try {
   console.log('[Server] Using config.js (default)');
 }
 
+// Override auth with environment variables if set
+if (process.env.CARETAKER_PASSWORD) {
+  config.auth = config.auth || {};
+  config.auth.enabled = true;
+  config.auth.password = process.env.CARETAKER_PASSWORD;
+  console.log('[Server] Auth password set from environment');
+}
+
 const TradeCaretaker = require('./caretaker.js');
 const PositionChecker = require('./position-checker.js');
 
