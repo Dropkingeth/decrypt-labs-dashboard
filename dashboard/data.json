@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2026-01-30T13:00:07Z",
+  "lastUpdated": "2026-01-30T16:55:00Z",
   "aum": {
-    "total": 301975,
+    "total": 301868,
     "milestone": 300000,
     "milestoneLabel": "2x Buyback Power"
   },
@@ -12,7 +12,7 @@
       "status": "online",
       "accountId": "APEX2519120000018",
       "accountSize": 150000,
-      "currentBalance": 150017,
+      "currentBalance": 151296,
       "stats": {
         "power": 75,
         "fuel": 100,
@@ -22,14 +22,14 @@
       "performance": {
         "totalTrades": 5145,
         "winRate": 76.8,
-        "netPnl": 17,
-        "todayPnl": 132.9
+        "netPnl": 1296,
+        "todayPnl": 0
       },
       "eval": {
         "status": "evaluating",
-        "profitTarget": 17,
+        "profitTarget": 1296,
         "profitTargetGoal": 9000,
-        "profitTargetPercent": 0.2,
+        "profitTargetPercent": 14.4,
         "drawdownUsed": 0,
         "drawdownMax": 6000,
         "drawdownPercent": 0,
@@ -55,7 +55,7 @@
       "status": "online",
       "accountId": "APEX2519120000014",
       "accountSize": 150000,
-      "currentBalance": 151958,
+      "currentBalance": 150572,
       "stats": {
         "power": 88,
         "fuel": 102,
@@ -65,14 +65,14 @@
       "performance": {
         "totalTrades": 4771,
         "winRate": 63.2,
-        "netPnl": 1958,
-        "todayPnl": -791
+        "netPnl": 572,
+        "todayPnl": 0
       },
       "eval": {
         "status": "evaluating",
-        "profitTarget": 1958,
+        "profitTarget": 572,
         "profitTargetGoal": 9000,
-        "profitTargetPercent": 21.8,
+        "profitTargetPercent": 6.4,
         "drawdownUsed": 0,
         "drawdownMax": 6000,
         "drawdownPercent": 0,
@@ -99,29 +99,29 @@
     "daily": {
       "leader": "fvg-ifvg-1",
       "scores": {
-        "fvg-ifvg-1": 132.9,
-        "ote-silver-bullet": 0
-      }
-    },
-    "weekly": {
-      "leader": "ote-silver-bullet",
-      "scores": {
         "fvg-ifvg-1": 0,
         "ote-silver-bullet": 0
       }
     },
-    "monthly": {
-      "leader": "ote-silver-bullet",
+    "weekly": {
+      "leader": "fvg-ifvg-1",
       "scores": {
-        "fvg-ifvg-1": 17,
-        "ote-silver-bullet": 1958
+        "fvg-ifvg-1": 1296,
+        "ote-silver-bullet": 572
+      }
+    },
+    "monthly": {
+      "leader": "fvg-ifvg-1",
+      "scores": {
+        "fvg-ifvg-1": 1296,
+        "ote-silver-bullet": 572
       }
     },
     "allTime": {
-      "leader": "ote-silver-bullet",
+      "leader": "fvg-ifvg-1",
       "scores": {
-        "fvg-ifvg-1": 17,
-        "ote-silver-bullet": 1958
+        "fvg-ifvg-1": 1296,
+        "ote-silver-bullet": 572
       }
     }
   },
