@@ -24,31 +24,35 @@ let stats = {
   lastUpdated: new Date().toISOString()
 };
 
-// Account data from Apex (updated via scraper)
+// Account data from Apex (updated via API or scraper)
 let accounts = {
   'ote-silver-bullet': {
-    accountId: 'APEX-251912-14',
+    accountId: 'APEX2519120000014',
     name: 'OTE Silver Bullet',
     product: '150k Tradovate',
-    pnl: 1958,
-    balance: 151958,
+    pnl: 572,
+    balance: 150572,
     target: 159000,
+    profitNeeded: 9000,
+    progress: 6.4,
     drawdown: 0,
     drawdownMax: 6000,
-    days: 33,
+    days: 1,
     status: 'Active',
     lastUpdated: new Date().toISOString()
   },
   'fvg-ifvg': {
-    accountId: 'APEX-251912-18',
+    accountId: 'APEX2519120000018',
     name: 'FVG+IFVG',
     product: '150k Tradovate',
-    pnl: 17,
-    balance: 150017,
+    pnl: 1296,
+    balance: 151296,
     target: 159000,
+    profitNeeded: 9000,
+    progress: 14.4,
     drawdown: 0,
     drawdownMax: 6000,
-    days: 16,
+    days: 1,
     status: 'Active',
     lastUpdated: new Date().toISOString()
   }
