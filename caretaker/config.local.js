@@ -5,6 +5,13 @@
  */
 
 module.exports = {
+  // Dashboard authentication
+  auth: {
+    enabled: true,
+    password: 'decrypt2026!',  // Change this!
+    sessionSecret: 'caretaker-session-' + Math.random().toString(36).slice(2)
+  },
+  
   // TradersPost webhooks per strategy
   tradersPostWebhooks: {
     'ote-silver-bullet': 'https://webhooks.traderspost.io/trading/webhook/f008918a-7923-4a44-8983-734dcb774cf7/fe1f26376964e8b109ed701439fb7a16',

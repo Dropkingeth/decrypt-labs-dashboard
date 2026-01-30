@@ -39,6 +39,158 @@ let lastPositionData = {
   'APEX2519120000018': { position: 0, equity: 0, openPL: 0, lastCheck: null }
 };
 
+// Session storage (in-memory, resets on restart)
+const sessions = new Map();
+
+// Auth helpers
+function generateSessionId() {
+  return 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+}
+
+function parseCookies(cookieHeader) {
+  const cookies = {};
+  if (cookieHeader) {
+    cookieHeader.split(';').forEach(cookie => {
+      const [name, value] = cookie.trim().split('=');
+      cookies[name] = value;
+    });
+  }
+  return cookies;
+}
+
+function isAuthenticated(req) {
+  if (!config.auth?.enabled) return true;
+  const cookies = parseCookies(req.headers.cookie);
+  const sessionId = cookies['caretaker_session'];
+  return sessionId && sessions.has(sessionId);
+}
+
+function getLoginPage(error = '') {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🔐 Bot Caretaker — Login</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'SF Mono', 'Monaco', monospace;
+      background: #0a0a12;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 30% 20%, rgba(0,212,255,0.1) 0%, transparent 50%),
+        radial-gradient(ellipse at 70% 80%, rgba(170,102,255,0.1) 0%, transparent 50%);
+      pointer-events: none;
+    }
+    .login-box {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 40px;
+      width: 100%;
+      max-width: 400px;
+      position: relative;
+    }
+    .logo {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    .logo-icon { font-size: 48px; }
+    .logo-text {
+      font-size: 24px;
+      font-weight: 700;
+      background: linear-gradient(90deg, #00d4ff, #aa66ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-top: 10px;
+    }
+    .form-group { margin-bottom: 20px; }
+    label {
+      display: block;
+      font-size: 12px;
+      color: #88889a;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      background: rgba(0,0,0,0.4);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      color: #fff;
+      font-size: 16px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="password"]:focus {
+      border-color: #00d4ff;
+    }
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(90deg, #00d4ff, #aa66ff);
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    .error {
+      background: rgba(255,68,85,0.1);
+      border: 1px solid rgba(255,68,85,0.3);
+      color: #ff4455;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 11px;
+      color: #88889a;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="logo">
+      <div class="logo-icon">🤖</div>
+      <div class="logo-text">Bot Caretaker</div>
+    </div>
+    ${error ? '<div class="error">' + error + '</div>' : ''}
+    <form method="POST" action="/login">
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Enter access code" autofocus required>
+      </div>
+      <button type="submit">Access Dashboard</button>
+    </form>
+    <div class="footer">🔒 Internal monitoring tool</div>
+  </div>
+</body>
+</html>`;
+}
+
 // Logging
 const LOG_DIR = path.join(__dirname, 'logs');
 fs.mkdirSync(LOG_DIR, { recursive: true });
@@ -182,6 +334,70 @@ const server = http.createServer(async (req, res) => {
   
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
+  
+  // -------------------------------------------------------------------------
+  // LOGIN / LOGOUT
+  // -------------------------------------------------------------------------
+  
+  if (pathname === '/login') {
+    if (req.method === 'GET') {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(getLoginPage());
+      return;
+    }
+    
+    if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        const params = new URLSearchParams(body);
+        const password = params.get('password');
+        
+        if (password === config.auth?.password) {
+          const sessionId = generateSessionId();
+          sessions.set(sessionId, { created: Date.now() });
+          
+          res.writeHead(302, {
+            'Set-Cookie': `caretaker_session=${sessionId}; Path=/; HttpOnly; SameSite=Strict`,
+            'Location': '/'
+          });
+          res.end();
+          log('auth', { event: 'login_success' });
+        } else {
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(getLoginPage('Invalid password'));
+          log('auth', { event: 'login_failed' });
+        }
+      });
+      return;
+    }
+  }
+  
+  if (pathname === '/logout') {
+    const cookies = parseCookies(req.headers.cookie);
+    const sessionId = cookies['caretaker_session'];
+    if (sessionId) sessions.delete(sessionId);
+    
+    res.writeHead(302, {
+      'Set-Cookie': 'caretaker_session=; Path=/; HttpOnly; Max-Age=0',
+      'Location': '/login'
+    });
+    res.end();
+    return;
+  }
+  
+  // -------------------------------------------------------------------------
+  // AUTH CHECK (protect dashboard routes)
+  // -------------------------------------------------------------------------
+  
+  const publicPaths = ['/health', '/webhook/', '/position', '/api/'];
+  const isPublicPath = publicPaths.some(p => pathname.startsWith(p) || pathname === p.replace('/', ''));
+  
+  if (!isPublicPath && !isAuthenticated(req)) {
+    res.writeHead(302, { 'Location': '/login' });
+    res.end();
+    return;
+  }
   
   // -------------------------------------------------------------------------
   // STATUS / HEALTH

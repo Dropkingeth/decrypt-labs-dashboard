@@ -129,6 +129,23 @@
       color: var(--text-secondary);
     }
 
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      text-decoration: none;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,68,85,0.2);
+    }
+
     /* Main Grid */
     .main-grid {
       display: grid;
@@ -489,6 +506,7 @@
         <span>Session Closed</span>
       </div>
       <div class="time-display" id="current-time">--:--:-- ET</div>
+      <a href="/logout" class="logout-btn" title="Logout">🔒</a>
     </div>
   </header>
 
