@@ -49,6 +49,41 @@ function log(type, data) {
   return entry;
 }
 
+// Format signal for dashboard display
+function formatSignalTitle(entry) {
+  if (entry.type === 'webhook') {
+    const alert = entry.alert || {};
+    const direction = alert.direction || alert.side || 'SIGNAL';
+    return `${entry.bot || 'Bot'} — ${direction.toUpperCase()}`;
+  }
+  if (entry.type === 'alert') {
+    return '🚨 Alert';
+  }
+  if (entry.type === 'discrepancy') {
+    return `⚠️ Discrepancy — ${entry.bot || 'Unknown'}`;
+  }
+  return entry.type;
+}
+
+function formatSignalDetails(entry) {
+  if (entry.type === 'webhook') {
+    const alert = entry.alert || {};
+    const parts = [];
+    if (alert.direction) parts.push(alert.direction.toUpperCase());
+    if (alert.size) parts.push(`${alert.size} contracts`);
+    if (alert.price) parts.push(`@ ${alert.price}`);
+    if (alert.symbol) parts.push(alert.symbol);
+    return parts.join(' ') || JSON.stringify(alert).slice(0, 50);
+  }
+  if (entry.type === 'alert') {
+    return entry.message || 'Alert triggered';
+  }
+  if (entry.type === 'discrepancy') {
+    return `Expected: ${entry.expected}, Actual: ${entry.actual}`;
+  }
+  return '';
+}
+
 // ============================================================================
 // TELEGRAM ALERTS
 // ============================================================================
@@ -165,7 +200,15 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   
+  // Serve dashboard
   if (req.method === 'GET' && pathname === '/') {
+    const dashboardPath = path.join(__dirname, 'dashboard', 'index.html');
+    if (fs.existsSync(dashboardPath)) {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(fs.readFileSync(dashboardPath, 'utf8'));
+      return;
+    }
+    // Fallback to basic dashboard
     const sessionActive = caretaker.isSessionActive();
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end(`
@@ -433,6 +476,67 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   
+  // GET /api/signals - Recent signals for dashboard
+  if (req.method === 'GET' && pathname === '/api/signals') {
+    try {
+      const logPath = path.join(LOG_DIR, 'caretaker.jsonl');
+      const signals = [];
+      
+      if (fs.existsSync(logPath)) {
+        const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
+        const recentLines = lines.slice(-100); // Last 100 entries
+        
+        for (const line of recentLines) {
+          try {
+            const entry = JSON.parse(line);
+            if (entry.type === 'webhook' || entry.type === 'alert' || entry.type === 'discrepancy') {
+              signals.push({
+                timestamp: entry.timestamp,
+                type: entry.type,
+                icon: entry.type === 'webhook' ? '📥' : entry.type === 'alert' ? '🚨' : '⚠️',
+                title: formatSignalTitle(entry),
+                details: formatSignalDetails(entry),
+                raw: entry
+              });
+            }
+          } catch (e) {}
+        }
+      }
+      
+      res.writeHead(200, { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.end(JSON.stringify(signals.reverse().slice(0, 50)));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to load signals' }));
+    }
+    return;
+  }
+  
+  // GET /api/positions - Current position status
+  if (req.method === 'GET' && pathname === '/api/positions') {
+    const expected = Array.from(caretaker.expectedPositions?.entries() || []).map(([key, val]) => ({
+      bot: val.bot,
+      symbol: 'MNQ',
+      expected: `${val.side.toUpperCase()} ${val.size}`,
+      actual: lastPositionData[val.account]?.position || 0,
+      verified: val.verified || false
+    }));
+    
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify({
+      accounts: lastPositionData,
+      expected,
+      stats: caretaker.stats
+    }));
+    return;
+  }
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
