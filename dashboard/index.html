@@ -3793,6 +3793,9 @@
             const panel = document.getElementById(`bot${botNum}Panel`);
             if (!panel) return;
             
+            // Ensure stats object exists with defaults
+            botData.stats = botData.stats || { power: 75, fuel: 100, condition: 85, heat: 25 };
+            
             // Update gauges
             const gaugeBars = panel.querySelectorAll('.gauge-fill-bar');
             const gaugeValues = panel.querySelectorAll('.gauge-value-text');
