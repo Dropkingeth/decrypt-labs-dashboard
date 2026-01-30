@@ -3651,9 +3651,15 @@
                         name: fvgIfvg.name || 'FVG+IFVG',
                         subtitle: 'Determining Order Flow',
                         status: fvgIfvg.status?.toLowerCase() || 'online',
-                        accountId: fvgIfvg.accountId || 'APEX-251912-18',
+                        accountId: fvgIfvg.accountId || 'APEX2519120000018',
                         accountSize: 150000,
                         currentBalance: fvgIfvg.balance || 150017,
+                        stats: {
+                            power: 75,
+                            fuel: 100,
+                            condition: 88,
+                            heat: 25
+                        },
                         performance: {
                             netPnl: fvgIfvg.pnl || 0,
                             todayPnl: 0,
@@ -3667,6 +3673,7 @@
                             profitTargetPercent: fvgIfvg.progress || 0,
                             drawdownUsed: fvgIfvg.drawdown || 0,
                             drawdownMax: fvgIfvg.drawdownMax || 6000,
+                            drawdownPercent: 0,
                             daysRemaining: 30 - (fvgIfvg.days || 0),
                             daysTotal: 30
                         }
@@ -3675,9 +3682,15 @@
                         name: oteSB.name || 'OTE Silver Bullet',
                         subtitle: 'Optimal Trade Entry',
                         status: oteSB.status?.toLowerCase() || 'online',
-                        accountId: oteSB.accountId || 'APEX-251912-14',
+                        accountId: oteSB.accountId || 'APEX2519120000014',
                         accountSize: 150000,
-                        currentBalance: oteSB.balance || 151958,
+                        currentBalance: oteSB.balance || 150572,
+                        stats: {
+                            power: 88,
+                            fuel: 102,
+                            condition: 92,
+                            heat: 20
+                        },
                         performance: {
                             netPnl: oteSB.pnl || 0,
                             todayPnl: 0,
@@ -3691,6 +3704,7 @@
                             profitTargetPercent: oteSB.progress || 0,
                             drawdownUsed: oteSB.drawdown || 0,
                             drawdownMax: oteSB.drawdownMax || 6000,
+                            drawdownPercent: 0,
                             daysRemaining: 30 - (oteSB.days || 0),
                             daysTotal: 30
                         }
