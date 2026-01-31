@@ -1569,74 +1569,191 @@
             font-size: 1.05rem;
         }
         
-        .buyback-visual {
-            background: var(--bg-card-glass);
-            border: 1px solid var(--border-subtle);
-            border-radius: 20px;
+        /* Flywheel Visual */
+        .flywheel-visual {
+            margin: 2rem 0;
             padding: 2rem;
-            margin-top: 1.5rem;
-            backdrop-filter: blur(10px);
+            background: rgba(0, 20, 40, 0.5);
+            border-radius: 20px;
+            border: 1px solid rgba(0, 240, 255, 0.1);
         }
         
-        .buyback-visual h4 {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-bottom: 1.5rem;
+        .flywheel-diagram {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
         }
         
-        .buyback-flow {
+        .flywheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 180, 220, 0.1));
+            border: 2px solid rgba(0, 240, 255, 0.4);
+            border-radius: 50%;
             display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 0.5rem;
-        }
-        
-        .flow-step {
-            text-align: center;
-            flex: 1;
-            transition: all 0.3s ease;
-        }
-        
-        .flow-step:hover {
-            transform: translateY(-5px);
-        }
-        
-        .flow-step .icon {
-            width: 56px;
-            height: 56px;
-            background: rgba(0, 240, 255, 0.1);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            border-radius: 14px;
-            display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
+            z-index: 10;
+            animation: centerPulse 3s ease-in-out infinite;
+        }
+        
+        .flywheel-center span:first-child {
             font-size: 1.5rem;
-            margin: 0 auto 0.75rem;
-            transition: all 0.3s ease;
+            margin-bottom: 4px;
         }
         
-        .flow-step:hover .icon {
-            background: rgba(0, 240, 255, 0.15);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+        .flywheel-center span:last-child {
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #00f0ff;
         }
         
-        .flow-step .text {
+        @keyframes centerPulse {
+            0%, 100% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.5); }
+        }
+        
+        .flywheel-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            animation: flywheelSpin 20s linear infinite;
+        }
+        
+        @keyframes flywheelSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .flywheel-step {
+            position: absolute;
+            width: 70px;
+            text-align: center;
+            transform-origin: center;
+        }
+        
+        .flywheel-step:nth-child(1) { top: -10px; left: 50%; transform: translateX(-50%); }
+        .flywheel-step:nth-child(2) { top: 25%; right: -20px; }
+        .flywheel-step:nth-child(3) { bottom: 25%; right: -20px; }
+        .flywheel-step:nth-child(4) { bottom: -10px; left: 50%; transform: translateX(-50%); }
+        .flywheel-step:nth-child(5) { bottom: 25%; left: -20px; }
+        .flywheel-step:nth-child(6) { top: 25%; left: -20px; }
+        
+        .flywheel-step .step-icon {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+            animation: flywheelSpin 20s linear infinite reverse;
+        }
+        
+        .flywheel-step .step-text {
+            font-size: 0.65rem;
+            font-weight: 600;
+            color: rgba(255, 255, 255, 0.8);
+            animation: flywheelSpin 20s linear infinite reverse;
+            white-space: nowrap;
+        }
+        
+        /* Revenue Breakdown */
+        .revenue-breakdown {
+            background: rgba(0, 20, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .revenue-breakdown h4 {
             font-size: 0.8rem;
-            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 1rem;
         }
         
-        .flow-arrow {
-            color: var(--accent-cyan);
-            font-size: 1.25rem;
-            animation: flowPulse 2s ease-in-out infinite;
+        .revenue-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
         
-        @keyframes flowPulse {
-            0%, 100% { opacity: 0.5; transform: translateX(0); }
-            50% { opacity: 1; transform: translateX(3px); }
+        .revenue-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        
+        .revenue-item:hover {
+            background: rgba(255, 255, 255, 0.06);
+        }
+        
+        .revenue-item.primary {
+            background: rgba(255, 100, 50, 0.1);
+            border: 1px solid rgba(255, 100, 50, 0.2);
+        }
+        
+        .revenue-item.primary .rev-name,
+        .revenue-item.primary .rev-pct {
+            color: #ff6432;
+        }
+        
+        .revenue-item.highlight {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+        }
+        
+        .revenue-item.highlight .rev-name,
+        .revenue-item.highlight .rev-pct {
+            color: #00f0ff;
+        }
+        
+        .rev-icon {
+            font-size: 1.1rem;
+        }
+        
+        .rev-name {
+            flex: 1;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .rev-pct {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        /* Distribution updates */
+        .dist-supply {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+        
+        .vesting-note {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 8px;
+            margin-top: 1rem;
+            text-align: center;
+        }
+        
+        .vesting-note strong {
+            color: var(--accent-pink);
         }
         
         /* Premium Distribution Card */
@@ -2434,33 +2551,81 @@
         
         <div class="tokenomics-grid">
             <div class="tokenomics-info">
-                <h3><span class="dl-icon dl-icon-md dl-icon-fire"></span> The Buyback Engine</h3>
+                <h3><span class="dl-icon dl-icon-md dl-icon-fire"></span> The Flywheel</h3>
                 <p>
-                    Here's how it works: I trade. I make profits. <strong>80% of NET profits</strong> 
-                    (after fees, costs, taxes) go directly to buying back and burning $DECRYPT tokens.
-                </p>
-                <p>
-                    Not "we'll do buybacks eventually" — I'm talking <strong>verifiable, on-chain 
-                    transactions</strong> you can track yourself. Every burn gets logged on the dashboard 
-                    with a transaction hash.
+                    This isn't just buybacks — it's a <strong>self-reinforcing growth engine</strong>. 
+                    The more bots profit, the more we buy back AND scale. Scaling means more bots, 
+                    which means more profits, which means more buybacks.
                 </p>
                 
-                <div class="buyback-visual">
-                    <h4>Revenue Flow</h4>
-                    <div class="buyback-flow">
-                        <div class="flow-step">
-                            <div class="icon"><span class="dl-icon dl-icon-lg dl-icon-bot"></span></div>
-                            <div class="text">Bots Trade</div>
+                <div class="flywheel-visual">
+                    <div class="flywheel-diagram">
+                        <div class="flywheel-center">
+                            <span class="dl-icon dl-icon-xl dl-icon-bot"></span>
+                            <span>BOTS TRADE</span>
                         </div>
-                        <div class="flow-arrow">→</div>
-                        <div class="flow-step">
-                            <div class="icon"><span class="dl-icon dl-icon-lg dl-icon-chart"></span></div>
-                            <div class="text">Profits Made</div>
+                        <div class="flywheel-ring">
+                            <div class="flywheel-step" style="--i: 0;">
+                                <div class="step-icon">💰</div>
+                                <div class="step-text">Profits</div>
+                            </div>
+                            <div class="flywheel-step" style="--i: 1;">
+                                <div class="step-icon">🔥</div>
+                                <div class="step-text">40% Buyback</div>
+                            </div>
+                            <div class="flywheel-step" style="--i: 2;">
+                                <div class="step-icon">📈</div>
+                                <div class="step-text">Price Up</div>
+                            </div>
+                            <div class="flywheel-step" style="--i: 3;">
+                                <div class="step-icon">⛽</div>
+                                <div class="step-text">10% Fuel</div>
+                            </div>
+                            <div class="flywheel-step" style="--i: 4;">
+                                <div class="step-icon">🤖</div>
+                                <div class="step-text">New Bots</div>
+                            </div>
+                            <div class="flywheel-step" style="--i: 5;">
+                                <div class="step-icon">💪</div>
+                                <div class="step-text">More AUM</div>
+                            </div>
                         </div>
-                        <div class="flow-arrow">→</div>
-                        <div class="flow-step">
-                            <div class="icon"><span class="dl-icon dl-icon-lg dl-icon-fire"></span></div>
-                            <div class="text">80% Buyback</div>
+                        <div class="flywheel-arrow"></div>
+                    </div>
+                </div>
+                
+                <div class="revenue-breakdown">
+                    <h4>Monthly Profit Allocation</h4>
+                    <div class="revenue-items">
+                        <div class="revenue-item primary">
+                            <span class="rev-icon">🔥</span>
+                            <span class="rev-name">Buyback & Burn</span>
+                            <span class="rev-pct">40%</span>
+                        </div>
+                        <div class="revenue-item">
+                            <span class="rev-icon">🏦</span>
+                            <span class="rev-name">Treasury</span>
+                            <span class="rev-pct">20%</span>
+                        </div>
+                        <div class="revenue-item">
+                            <span class="rev-icon">👨‍🔬</span>
+                            <span class="rev-name">Engineers</span>
+                            <span class="rev-pct">20%</span>
+                        </div>
+                        <div class="revenue-item highlight">
+                            <span class="rev-icon">⛽</span>
+                            <span class="rev-name">Fuel (Scale)</span>
+                            <span class="rev-pct">10%</span>
+                        </div>
+                        <div class="revenue-item">
+                            <span class="rev-icon">🔧</span>
+                            <span class="rev-name">Repairs</span>
+                            <span class="rev-pct">5%</span>
+                        </div>
+                        <div class="revenue-item">
+                            <span class="rev-icon">🛡️</span>
+                            <span class="rev-name">Insurance</span>
+                            <span class="rev-pct">5%</span>
                         </div>
                     </div>
                 </div>
@@ -2468,40 +2633,51 @@
             
             <div class="distribution-card">
                 <h4>Token Distribution</h4>
+                <p class="dist-supply">Total Supply: 1,000,000,000 $DECRYPT</p>
                 
                 <div class="dist-bar">
-                    <div class="segment" style="width: 40%; background: var(--accent-cyan);"></div>
-                    <div class="segment" style="width: 25%; background: var(--accent-green);"></div>
-                    <div class="segment" style="width: 20%; background: var(--accent-orange);"></div>
-                    <div class="segment" style="width: 15%; background: var(--accent-pink);"></div>
+                    <div class="segment" style="width: 30%; background: var(--accent-cyan);" title="Liquidity"></div>
+                    <div class="segment" style="width: 25%; background: var(--accent-green);" title="Community"></div>
+                    <div class="segment" style="width: 20%; background: var(--accent-orange);" title="Treasury"></div>
+                    <div class="segment" style="width: 15%; background: var(--accent-pink);" title="Team"></div>
+                    <div class="segment" style="width: 10%; background: #a855f7;" title="Marketing"></div>
                 </div>
                 
                 <div class="dist-legend">
                     <div class="dist-item">
                         <div class="dot" style="background: var(--accent-cyan);"></div>
-                        <span class="name">Liquidity Pool</span>
-                        <span class="percent">40%</span>
+                        <span class="name">🌊 Liquidity Pool</span>
+                        <span class="percent">30%</span>
                     </div>
                     <div class="dist-item">
                         <div class="dot" style="background: var(--accent-green);"></div>
-                        <span class="name">Community & Growth</span>
+                        <span class="name">🎁 Community</span>
                         <span class="percent">25%</span>
                     </div>
                     <div class="dist-item">
                         <div class="dot" style="background: var(--accent-orange);"></div>
-                        <span class="name">Team (6mo Vest)</span>
+                        <span class="name">🏦 Treasury</span>
                         <span class="percent">20%</span>
                     </div>
                     <div class="dist-item">
                         <div class="dot" style="background: var(--accent-pink);"></div>
-                        <span class="name">Treasury</span>
+                        <span class="name">👨‍🔬 Team (Vested)</span>
                         <span class="percent">15%</span>
+                    </div>
+                    <div class="dist-item">
+                        <div class="dot" style="background: #a855f7;"></div>
+                        <span class="name">📢 Marketing</span>
+                        <span class="percent">10%</span>
                     </div>
                 </div>
                 
+                <div class="vesting-note">
+                    <strong>Team Vesting:</strong> 6-month cliff, then 12-month linear unlock
+                </div>
+                
                 <div class="contract-info">
-                    <div class="label">Contract Address</div>
-                    <div class="value">TBD — Launching on Virtuals</div>
+                    <div class="label">Network</div>
+                    <div class="value">Base • Launching on Virtuals Protocol</div>
                 </div>
             </div>
         </div>
