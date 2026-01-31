@@ -3602,6 +3602,259 @@
             0% { top: 0; }
             100% { top: 100%; }
         }
+        
+        /* ============================================
+           WALLET CONNECT STYLES
+           ============================================ */
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .wallet-section {
+            position: relative;
+        }
+        
+        .wallet-connect-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.1) 0%, rgba(0, 212, 170, 0.05) 100%);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: 10px;
+            color: #00d4aa;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .wallet-connect-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.2) 0%, rgba(0, 212, 170, 0.1) 100%);
+            border-color: rgba(0, 212, 170, 0.5);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 212, 170, 0.2);
+        }
+        
+        .wallet-connect-btn.connected {
+            background: linear-gradient(135deg, rgba(0, 212, 170, 0.15) 0%, rgba(0, 212, 170, 0.08) 100%);
+        }
+        
+        .wallet-icon {
+            width: 18px;
+            height: 18px;
+        }
+        
+        .wallet-panel {
+            display: none;
+            position: absolute;
+            top: calc(100% + 10px);
+            right: 0;
+            width: 300px;
+            background: rgba(10, 14, 23, 0.98);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(20px);
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        
+        .wallet-panel.open {
+            display: block;
+            animation: walletSlideDown 0.3s ease;
+        }
+        
+        @keyframes walletSlideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .wallet-tier-header {
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .wallet-tier-header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.15;
+        }
+        
+        .wallet-tier-header.diamond::before { background: linear-gradient(135deg, #b9f2ff, #4169E1); }
+        .wallet-tier-header.gold::before { background: linear-gradient(135deg, #ffd700, #ff9500); }
+        .wallet-tier-header.silver::before { background: linear-gradient(135deg, #e8e8e8, #a8a8a8); }
+        .wallet-tier-header.bronze::before { background: linear-gradient(135deg, #cd7f32, #8b4513); }
+        .wallet-tier-header.spectator::before { background: linear-gradient(135deg, #666, #444); }
+        
+        .wallet-tier-badge { font-size: 32px; margin-bottom: 8px; }
+        .wallet-tier-label { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 4px; position: relative; }
+        .wallet-balance { font-size: 13px; color: rgba(255,255,255,0.7); position: relative; }
+        .wallet-balance-amount { color: #00d4aa; font-weight: 600; }
+        
+        .wallet-address-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 16px;
+            background: rgba(255,255,255,0.02);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .wallet-address { font-family: 'Space Mono', monospace; font-size: 11px; color: rgba(255,255,255,0.5); }
+        
+        .wallet-copy-btn {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.3);
+            cursor: pointer;
+            padding: 4px;
+            transition: color 0.2s;
+        }
+        .wallet-copy-btn:hover { color: #00d4aa; }
+        
+        .wallet-access-section { padding: 14px 16px; }
+        .wallet-access-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255,255,255,0.4);
+            margin-bottom: 10px;
+        }
+        
+        .wallet-access-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+        }
+        
+        .wallet-access-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 10px;
+            background: rgba(255,255,255,0.03);
+            border-radius: 6px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.6);
+        }
+        
+        .wallet-access-item.unlocked {
+            background: rgba(0, 212, 170, 0.1);
+            color: #00d4aa;
+        }
+        
+        .wallet-access-item.locked { opacity: 0.5; }
+        .access-icon { font-size: 12px; }
+        
+        .wallet-upgrade-section {
+            padding: 14px 16px;
+            background: rgba(255, 215, 0, 0.05);
+            border-top: 1px solid rgba(255, 215, 0, 0.1);
+        }
+        
+        .wallet-upgrade-title { font-size: 11px; color: #ffd700; margin-bottom: 8px; }
+        
+        .wallet-upgrade-progress {
+            height: 5px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+        
+        .wallet-upgrade-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .wallet-upgrade-text { font-size: 10px; color: rgba(255,255,255,0.5); }
+        .wallet-upgrade-text strong { color: #ffd700; }
+        
+        .wallet-actions {
+            padding: 14px 16px;
+            display: flex;
+            gap: 8px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .wallet-action-btn {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+            text-decoration: none;
+            font-family: 'Space Mono', monospace;
+        }
+        
+        .wallet-action-btn.primary {
+            background: linear-gradient(135deg, #00d4aa, #00a884);
+            border: none;
+            color: #000;
+        }
+        
+        .wallet-action-btn.primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+        }
+        
+        .wallet-action-btn.secondary {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: rgba(255,255,255,0.7);
+        }
+        
+        .wallet-action-btn.secondary:hover {
+            border-color: rgba(255,255,255,0.4);
+            color: #fff;
+        }
+        
+        .wallet-disconnect {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: transparent;
+            border: none;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            color: rgba(255, 100, 100, 0.6);
+            font-size: 11px;
+            font-family: 'Space Mono', monospace;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .wallet-disconnect:hover {
+            background: rgba(255, 100, 100, 0.1);
+            color: #ff6b6b;
+        }
+        
+        @media (max-width: 768px) {
+            .wallet-panel {
+                position: fixed;
+                top: auto;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                width: 100%;
+                border-radius: 16px 16px 0 0;
+            }
+            
+            .wallet-connect-btn span { display: none; }
+            .wallet-connect-btn { padding: 10px 12px; }
+        }
     </style>
 </head>
 <body>
@@ -3621,12 +3874,69 @@
     
     <header class="header">
         <a href="index.html" class="logo" style="text-decoration: none;">DECRYPT<span>LABS</span></a>
-        <div class="header-status">
-            <div class="system-status">
-                <div class="status-dot"></div>
-                <span>SYSTEMS NOMINAL</span>
+        <div class="header-right">
+            <!-- Wallet Connect Section -->
+            <div class="wallet-section" id="walletSection">
+                <button class="wallet-connect-btn" id="walletConnectBtn" onclick="handleWalletConnect()">
+                    <svg class="wallet-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="6" width="20" height="12" rx="2"/>
+                        <path d="M22 10H18C16.8954 10 16 10.8954 16 12C16 13.1046 16.8954 14 18 14H22"/>
+                        <circle cx="18" cy="12" r="1" fill="currentColor"/>
+                    </svg>
+                    <span id="walletBtnText">Connect Wallet</span>
+                </button>
+                
+                <!-- Wallet Panel -->
+                <div class="wallet-panel" id="walletPanel">
+                    <div class="wallet-tier-header" id="walletTierHeader">
+                        <div class="wallet-tier-badge" id="walletTierBadge">👀</div>
+                        <div class="wallet-tier-label" id="walletTierLabel">Connect to view tier</div>
+                        <div class="wallet-balance">
+                            <span class="wallet-balance-amount" id="walletBalanceAmount">0</span> $DECRYPT
+                        </div>
+                    </div>
+                    <div class="wallet-address-row">
+                        <span class="wallet-address" id="walletAddress">Not connected</span>
+                        <button class="wallet-copy-btn" onclick="copyAddress()" title="Copy Address">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2"/>
+                                <path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="wallet-access-section">
+                        <div class="wallet-access-title">Your Access</div>
+                        <div class="wallet-access-grid" id="walletAccessGrid">
+                            <div class="wallet-access-item locked"><span class="access-icon">🔒</span><span>Indicator</span></div>
+                            <div class="wallet-access-item locked"><span class="access-icon">🔒</span><span>Strategies</span></div>
+                            <div class="wallet-access-item locked"><span class="access-icon">🔒</span><span>Alerts</span></div>
+                            <div class="wallet-access-item locked"><span class="access-icon">🔒</span><span>Governance</span></div>
+                        </div>
+                    </div>
+                    <div class="wallet-upgrade-section" id="walletUpgradeSection">
+                        <div class="wallet-upgrade-title">⬆️ Get <span id="nextTierLabel">Bronze</span> access</div>
+                        <div class="wallet-upgrade-progress">
+                            <div class="wallet-upgrade-fill" id="upgradeProgressFill" style="width: 0%"></div>
+                        </div>
+                        <div class="wallet-upgrade-text">
+                            Need <strong id="tokensNeeded">10,000</strong> $DECRYPT
+                        </div>
+                    </div>
+                    <div class="wallet-actions">
+                        <a href="#" class="wallet-action-btn primary" id="buyTokenBtn">Buy $DECRYPT</a>
+                        <a href="index.html#tokenomics" class="wallet-action-btn secondary">View Tiers</a>
+                    </div>
+                    <button class="wallet-disconnect" onclick="handleDisconnect()">Disconnect Wallet</button>
+                </div>
             </div>
-            <div class="timestamp" id="currentTime">--:--:-- UTC</div>
+            
+            <div class="header-status">
+                <div class="system-status">
+                    <div class="status-dot"></div>
+                    <span>SYSTEMS NOMINAL</span>
+                </div>
+                <div class="timestamp" id="currentTime">--:--:-- UTC</div>
+            </div>
         </div>
     </header>
     
@@ -5981,6 +6291,206 @@
             updateBatteryVisualization(mockBurned * 2, mockBurned * 100, mockBurned);
         }, 2000);
         */
+        
+        // ============================================
+        // WALLET CONNECT FUNCTIONALITY
+        // ============================================
+        
+        const TIERS = {
+            diamond: { min: 1000000, label: '💎 Diamond', strategies: 4, indicator: true, alerts: true, governance: true },
+            gold: { min: 200000, label: '🥇 Gold', strategies: 4, indicator: true, alerts: true, governance: false },
+            silver: { min: 50000, label: '🥈 Silver', strategies: 2, indicator: true, alerts: 'daily', governance: false },
+            bronze: { min: 10000, label: '🥉 Bronze', strategies: 0, indicator: true, alerts: false, governance: false },
+            spectator: { min: 0, label: '👀 Spectator', strategies: 0, indicator: false, alerts: false, governance: false }
+        };
+        
+        let walletState = {
+            connected: false,
+            address: null,
+            balance: 0,
+            tier: 'spectator'
+        };
+        
+        let walletPanelOpen = false;
+        
+        function getTierFromBalance(balance) {
+            if (balance >= TIERS.diamond.min) return 'diamond';
+            if (balance >= TIERS.gold.min) return 'gold';
+            if (balance >= TIERS.silver.min) return 'silver';
+            if (balance >= TIERS.bronze.min) return 'bronze';
+            return 'spectator';
+        }
+        
+        function toggleWalletPanel() {
+            const panel = document.getElementById('walletPanel');
+            walletPanelOpen = !walletPanelOpen;
+            panel.classList.toggle('open', walletPanelOpen);
+        }
+        
+        async function handleWalletConnect() {
+            if (walletState.connected) {
+                toggleWalletPanel();
+                return;
+            }
+            
+            if (typeof window.ethereum === 'undefined') {
+                alert('Please install MetaMask or Coinbase Wallet to connect.');
+                return;
+            }
+            
+            try {
+                const btn = document.getElementById('walletConnectBtn');
+                const btnText = document.getElementById('walletBtnText');
+                btnText.textContent = 'Connecting...';
+                btn.disabled = true;
+                
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                
+                if (accounts.length === 0) {
+                    throw new Error('No accounts found');
+                }
+                
+                walletState.address = accounts[0];
+                walletState.connected = true;
+                
+                // Check chain (Base = 8453)
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (parseInt(chainId, 16) !== 8453) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x2105' }]
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x2105',
+                                    chainName: 'Base',
+                                    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                    rpcUrls: ['https://mainnet.base.org'],
+                                    blockExplorerUrls: ['https://basescan.org']
+                                }]
+                            });
+                        }
+                    }
+                }
+                
+                // TODO: Get actual token balance when deployed
+                walletState.balance = 0;
+                walletState.tier = getTierFromBalance(walletState.balance);
+                
+                updateWalletUI();
+                btn.classList.add('connected');
+                toggleWalletPanel();
+                
+            } catch (error) {
+                console.error('Wallet connection failed:', error);
+                alert('Failed to connect: ' + error.message);
+                document.getElementById('walletBtnText').textContent = 'Connect Wallet';
+            } finally {
+                document.getElementById('walletConnectBtn').disabled = false;
+            }
+        }
+        
+        function handleDisconnect() {
+            walletState = { connected: false, address: null, balance: 0, tier: 'spectator' };
+            document.getElementById('walletBtnText').textContent = 'Connect Wallet';
+            document.getElementById('walletConnectBtn').classList.remove('connected');
+            toggleWalletPanel();
+        }
+        
+        function copyAddress() {
+            if (walletState.address) {
+                navigator.clipboard.writeText(walletState.address);
+                const copyBtn = document.querySelector('.wallet-copy-btn');
+                copyBtn.innerHTML = '✓';
+                setTimeout(() => {
+                    copyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4C2.89543 15 2 14.1046 2 13V4C2 2.89543 2.89543 2 4 2H13C14.1046 2 15 2.89543 15 4V5"/></svg>';
+                }, 1500);
+            }
+        }
+        
+        function updateWalletUI() {
+            const tier = TIERS[walletState.tier];
+            const address = walletState.address;
+            
+            document.getElementById('walletBtnText').textContent = 
+                address.slice(0, 6) + '...' + address.slice(-4);
+            
+            const header = document.getElementById('walletTierHeader');
+            header.className = 'wallet-tier-header ' + walletState.tier;
+            document.getElementById('walletTierBadge').textContent = tier.label.split(' ')[0];
+            document.getElementById('walletTierLabel').textContent = tier.label.split(' ')[1];
+            document.getElementById('walletBalanceAmount').textContent = walletState.balance.toLocaleString();
+            
+            document.getElementById('walletAddress').textContent = 
+                address.slice(0, 6) + '...' + address.slice(-4);
+            
+            const grid = document.getElementById('walletAccessGrid');
+            grid.innerHTML = `
+                <div class="wallet-access-item ${tier.indicator ? 'unlocked' : 'locked'}">
+                    <span class="access-icon">${tier.indicator ? '✅' : '🔒'}</span>
+                    <span>Indicator</span>
+                </div>
+                <div class="wallet-access-item ${tier.strategies > 0 ? 'unlocked' : 'locked'}">
+                    <span class="access-icon">${tier.strategies > 0 ? '✅' : '🔒'}</span>
+                    <span>Strategies (${tier.strategies})</span>
+                </div>
+                <div class="wallet-access-item ${tier.alerts ? 'unlocked' : 'locked'}">
+                    <span class="access-icon">${tier.alerts ? '✅' : '🔒'}</span>
+                    <span>Alerts</span>
+                </div>
+                <div class="wallet-access-item ${tier.governance ? 'unlocked' : 'locked'}">
+                    <span class="access-icon">${tier.governance ? '✅' : '🔒'}</span>
+                    <span>Governance</span>
+                </div>
+            `;
+            
+            updateUpgradeSection();
+        }
+        
+        function updateUpgradeSection() {
+            const section = document.getElementById('walletUpgradeSection');
+            const tierOrder = ['spectator', 'bronze', 'silver', 'gold', 'diamond'];
+            const currentIndex = tierOrder.indexOf(walletState.tier);
+            
+            if (currentIndex >= tierOrder.length - 1) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            const nextTierKey = tierOrder[currentIndex + 1];
+            const nextTier = TIERS[nextTierKey];
+            const tokensNeeded = nextTier.min - walletState.balance;
+            const progress = Math.min(100, (walletState.balance / nextTier.min) * 100);
+            
+            document.getElementById('nextTierLabel').textContent = nextTier.label.split(' ')[1];
+            document.getElementById('upgradeProgressFill').style.width = progress + '%';
+            document.getElementById('tokensNeeded').textContent = tokensNeeded.toLocaleString();
+        }
+        
+        // Close panel on outside click
+        document.addEventListener('click', (e) => {
+            const section = document.getElementById('walletSection');
+            if (walletPanelOpen && section && !section.contains(e.target)) {
+                toggleWalletPanel();
+            }
+        });
+        
+        // Listen for account changes
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    handleDisconnect();
+                } else if (walletState.connected) {
+                    walletState.address = accounts[0];
+                    updateWalletUI();
+                }
+            });
+        }
     </script>
 </body>
 </html>
