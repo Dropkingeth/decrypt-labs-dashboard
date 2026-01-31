@@ -29,3 +29,13 @@
 {"type":"webhook","timestamp":"2026-01-30T14:59:30.291Z","bot":"ote-refined","alert":{"ticker":"MNQ","action":"cancel","sentiment":"flat"}}
 {"event":"alert_received","timestamp":"2026-01-30T14:59:30.292Z","bot":"ote-refined","alert":{"ticker":"MNQ","action":"cancel","sentiment":"flat"},"symbol":"MNQ"}
 {"type":"auth","timestamp":"2026-01-30T17:24:51.592Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:26:14.168Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:36:41.772Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:36:55.450Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:37:01.525Z","event":"login_failed"}
+{"type":"auth","timestamp":"2026-01-31T13:37:07.287Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:40:15.583Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:47:46.204Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:48:48.682Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:49:34.846Z","event":"login_success"}
+{"type":"auth","timestamp":"2026-01-31T13:51:02.743Z","event":"login_success"}

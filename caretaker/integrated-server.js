@@ -412,12 +412,46 @@ const server = http.createServer(async (req, res) => {
   // -------------------------------------------------------------------------
   
   if (req.method === 'GET' && pathname === '/health') {
+    // Merge stored account data when session not active
+    let positions = lastPositionData;
+    try {
+      const DASHBOARD_DATA_PATH = path.join(__dirname, '../dashboard/data.json');
+      const storedData = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
+      
+      // If session not active, use stored balances
+      if (!caretaker.isSessionActive()) {
+        const fvg = storedData.bots?.['fvg-ifvg-1'] || {};
+        const ote = storedData.bots?.['ote-silver-bullet'] || {};
+        
+        positions = {
+          'APEX2519120000014': {
+            position: positions['APEX2519120000014']?.position || 0,
+            equity: fvg.currentBalance || 0,
+            openPL: 0,
+            lastCheck: storedData.lastUpdated || null,
+            pnl: fvg.performance?.netPnl || 0,
+            progress: fvg.eval?.profitTargetPercent || 0
+          },
+          'APEX2519120000018': {
+            position: positions['APEX2519120000018']?.position || 0,
+            equity: ote.currentBalance || 0,
+            openPL: 0,
+            lastCheck: storedData.lastUpdated || null,
+            pnl: ote.performance?.netPnl || 0,
+            progress: ote.eval?.profitTargetPercent || 0
+          }
+        };
+      }
+    } catch (e) {
+      console.warn('[Health] Could not load stored data:', e.message);
+    }
+    
     res.writeHead(200, { 'Content-Type': 'application/json' });
     res.end(JSON.stringify({
       status: 'ok',
       caretaker: 'active',
       sessionActive: caretaker.isSessionActive(),
-      positions: lastPositionData,
+      positions: positions,
       stats: caretaker.stats,
       timestamp: new Date().toISOString()
     }));

@@ -1,7 +1,7 @@
 {
-  "lastUpdated": "2026-01-30T16:55:00Z",
+  "lastUpdated": "2026-01-31T13:19:00Z",
   "aum": {
-    "total": 301868,
+    "total": 302429.64,
     "milestone": 300000,
     "milestoneLabel": "2x Buyback Power"
   },
@@ -12,7 +12,7 @@
       "status": "online",
       "accountId": "APEX2519120000018",
       "accountSize": 150000,
-      "currentBalance": 151296,
+      "currentBalance": 151133.32,
       "stats": {
         "power": 75,
         "fuel": 100,
@@ -22,14 +22,14 @@
       "performance": {
         "totalTrades": 5145,
         "winRate": 76.8,
-        "netPnl": 1296,
+        "netPnl": 1133.32,
         "todayPnl": 0
       },
       "eval": {
         "status": "evaluating",
-        "profitTarget": 1296,
+        "profitTarget": 1133.32,
         "profitTargetGoal": 9000,
-        "profitTargetPercent": 14.4,
+        "profitTargetPercent": 12.6,
         "drawdownUsed": 0,
         "drawdownMax": 6000,
         "drawdownPercent": 0,
@@ -55,7 +55,7 @@
       "status": "online",
       "accountId": "APEX2519120000014",
       "accountSize": 150000,
-      "currentBalance": 150572,
+      "currentBalance": 151296.32,
       "stats": {
         "power": 88,
         "fuel": 102,
@@ -65,14 +65,14 @@
       "performance": {
         "totalTrades": 4771,
         "winRate": 63.2,
-        "netPnl": 572,
+        "netPnl": 1296.32,
         "todayPnl": 0
       },
       "eval": {
         "status": "evaluating",
-        "profitTarget": 572,
+        "profitTarget": 1296.32,
         "profitTargetGoal": 9000,
-        "profitTargetPercent": 6.4,
+        "profitTargetPercent": 14.4,
         "drawdownUsed": 0,
         "drawdownMax": 6000,
         "drawdownPercent": 0,
