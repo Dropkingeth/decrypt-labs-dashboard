@@ -3604,6 +3604,236 @@
         }
         
         /* ============================================
+           BOT FLEET STYLES
+           ============================================ */
+        
+        .fleet-counter {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #00f0ff;
+            text-shadow: 0 0 20px rgba(0, 240, 255, 0.5);
+        }
+        
+        .fleet-container {
+            display: grid;
+            gap: 20px;
+        }
+        
+        .fleet-status-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+        }
+        
+        .fleet-stat {
+            background: rgba(0, 20, 30, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .fleet-stat.active {
+            border-color: rgba(0, 255, 136, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
+        }
+        .fleet-stat.active .fleet-stat-icon { filter: drop-shadow(0 0 8px #00ff88); }
+        .fleet-stat.active .fleet-stat-value { color: #00ff88; }
+        
+        .fleet-stat.broken {
+            border-color: rgba(255, 100, 100, 0.2);
+        }
+        .fleet-stat.broken .fleet-stat-value { color: #ff6464; }
+        .fleet-stat.broken.has-broken {
+            box-shadow: 0 0 20px rgba(255, 100, 100, 0.1);
+        }
+        
+        .fleet-stat.queued {
+            border-color: rgba(255, 200, 0, 0.2);
+        }
+        .fleet-stat.queued .fleet-stat-value { color: #ffc800; }
+        
+        .fleet-stat.locked {
+            opacity: 0.5;
+            border-color: rgba(255, 255, 255, 0.05);
+        }
+        .fleet-stat.locked .fleet-stat-value { color: rgba(255, 255, 255, 0.4); }
+        
+        .fleet-stat-icon {
+            font-size: 2rem;
+            margin-bottom: 8px;
+        }
+        
+        .fleet-stat-value {
+            font-family: 'Space Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .fleet-stat-label {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* Expansion Progress */
+        .fleet-expansion {
+            background: linear-gradient(135deg, rgba(0, 240, 255, 0.05) 0%, rgba(0, 150, 200, 0.05) 100%);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .expansion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .expansion-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #00f0ff;
+        }
+        
+        .expansion-percent {
+            font-family: 'Space Mono', monospace;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #00f0ff;
+        }
+        
+        .expansion-bar {
+            height: 12px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+        
+        .expansion-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00a0aa, #00f0ff, #00ffaa);
+            border-radius: 6px;
+            transition: width 0.5s ease;
+            box-shadow: 0 0 15px rgba(0, 240, 255, 0.5);
+        }
+        
+        .expansion-details {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 4px;
+        }
+        
+        .expansion-details strong {
+            color: #00f0ff;
+        }
+        
+        .expansion-subtext {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.4);
+            font-style: italic;
+        }
+        
+        /* Capacity Milestones */
+        .fleet-capacity {
+            background: rgba(0, 20, 30, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        
+        .capacity-header {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .capacity-milestones {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .milestone {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        
+        .milestone.unlocked {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid rgba(0, 255, 136, 0.2);
+        }
+        .milestone.unlocked .milestone-text { color: #00ff88; }
+        .milestone.unlocked .milestone-check { color: #00ff88; margin-left: auto; }
+        
+        .milestone.next {
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        .milestone.next .milestone-text { color: #ffd700; }
+        
+        .milestone-progress {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+        
+        .milestone-bar {
+            width: 60px;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .milestone-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            border-radius: 3px;
+        }
+        
+        .milestone-pct {
+            font-family: 'Space Mono', monospace;
+            font-size: 0.75rem;
+            color: #ffd700;
+        }
+        
+        .milestone.future {
+            opacity: 0.4;
+        }
+        .milestone.future .milestone-text { color: rgba(255, 255, 255, 0.6); }
+        
+        .milestone.legendary .milestone-text {
+            background: linear-gradient(90deg, #ff00ff, #00f0ff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        @media (max-width: 768px) {
+            .fleet-status-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .fleet-stat-value { font-size: 1.5rem; }
+            .fleet-counter { font-size: 1.2rem; }
+        }
+        
+        /* ============================================
            WALLET CONNECT STYLES
            ============================================ */
         
@@ -4008,6 +4238,84 @@
                 <div class="stat-card">
                     <div class="stat-value cyan">147</div>
                     <div class="stat-label">Total Trades</div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Bot Fleet Status -->
+        <section class="section animate-in delay-1" id="botFleetSection">
+            <div class="section-header">
+                <h2 class="section-title"><span class="dl-icon dl-icon-md dl-icon-bot"></span> Bot Fleet</h2>
+                <div class="fleet-counter"><span id="activeBotsTotal">2</span>/<span id="maxBotCapacity">30</span></div>
+            </div>
+            
+            <div class="fleet-container">
+                <div class="fleet-status-grid">
+                    <div class="fleet-stat active">
+                        <div class="fleet-stat-icon">⚡</div>
+                        <div class="fleet-stat-value" id="activeBots">2</div>
+                        <div class="fleet-stat-label">ACTIVE</div>
+                    </div>
+                    <div class="fleet-stat broken">
+                        <div class="fleet-stat-icon">💀</div>
+                        <div class="fleet-stat-value" id="brokenBots">0</div>
+                        <div class="fleet-stat-label">BROKEN</div>
+                    </div>
+                    <div class="fleet-stat queued">
+                        <div class="fleet-stat-icon">⏳</div>
+                        <div class="fleet-stat-value" id="queuedBots">0</div>
+                        <div class="fleet-stat-label">QUEUED</div>
+                    </div>
+                    <div class="fleet-stat locked">
+                        <div class="fleet-stat-icon">🔒</div>
+                        <div class="fleet-stat-value" id="lockedSlots">28</div>
+                        <div class="fleet-stat-label">LOCKED</div>
+                    </div>
+                </div>
+                
+                <div class="fleet-expansion">
+                    <div class="expansion-header">
+                        <span class="expansion-title">🚀 NEXT BOT DEPLOYMENT</span>
+                        <span class="expansion-percent" id="expansionPercent">65%</span>
+                    </div>
+                    <div class="expansion-bar">
+                        <div class="expansion-fill" id="expansionFill" style="width: 65%"></div>
+                    </div>
+                    <div class="expansion-details">
+                        <span>Expansion Fund: <strong id="expansionCurrent">$650</strong> / <strong id="expansionTarget">$1,000</strong></span>
+                    </div>
+                    <div class="expansion-subtext">1 more winning week deploys a new bot</div>
+                </div>
+                
+                <div class="fleet-capacity">
+                    <div class="capacity-header">FLEET CAPACITY UNLOCKS</div>
+                    <div class="capacity-milestones">
+                        <div class="milestone unlocked">
+                            <span class="milestone-icon">🔓</span>
+                            <span class="milestone-text">Base Capacity: 30 bots</span>
+                            <span class="milestone-check">✓</span>
+                        </div>
+                        <div class="milestone next">
+                            <span class="milestone-icon">🎯</span>
+                            <span class="milestone-text">$1M MCap → 50 bots</span>
+                            <div class="milestone-progress">
+                                <div class="milestone-bar"><div class="milestone-fill" style="width: 30%"></div></div>
+                                <span class="milestone-pct">30%</span>
+                            </div>
+                        </div>
+                        <div class="milestone future">
+                            <span class="milestone-icon">🔒</span>
+                            <span class="milestone-text">$5M MCap → 100 bots</span>
+                        </div>
+                        <div class="milestone future">
+                            <span class="milestone-icon">🔒</span>
+                            <span class="milestone-text">$10M MCap → 200 bots</span>
+                        </div>
+                        <div class="milestone future legendary">
+                            <span class="milestone-icon">🔒</span>
+                            <span class="milestone-text">$25M MCap → UNLIMITED 🚀</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>

@@ -1444,6 +1444,85 @@
             margin-top: 0.25rem;
         }
         
+        /* Risk Badges */
+        .risk-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            z-index: 10;
+        }
+        
+        .risk-badge.high {
+            background: rgba(255, 80, 80, 0.2);
+            border: 1px solid rgba(255, 80, 80, 0.4);
+            color: #ff5050;
+            box-shadow: 0 0 15px rgba(255, 80, 80, 0.2);
+        }
+        
+        .risk-badge.medium {
+            background: rgba(255, 200, 0, 0.2);
+            border: 1px solid rgba(255, 200, 0, 0.4);
+            color: #ffc800;
+            box-shadow: 0 0 15px rgba(255, 200, 0, 0.2);
+        }
+        
+        .risk-badge.low {
+            background: rgba(0, 255, 136, 0.2);
+            border: 1px solid rgba(0, 255, 136, 0.4);
+            color: #00ff88;
+            box-shadow: 0 0 15px rgba(0, 255, 136, 0.2);
+        }
+        
+        /* Coming Soon Cards */
+        .bot-card.coming-soon {
+            position: relative;
+            opacity: 0.6;
+        }
+        
+        .bot-card.coming-soon::before {
+            background: linear-gradient(135deg, rgba(100, 100, 100, 0.2) 0%, rgba(50, 50, 50, 0.1) 100%);
+        }
+        
+        .bot-card.coming-soon:hover {
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .coming-soon-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            z-index: 20;
+            text-transform: uppercase;
+        }
+        
+        .bot-status.locked {
+            background: rgba(100, 100, 100, 0.15);
+            border-color: rgba(100, 100, 100, 0.3);
+            color: rgba(255, 255, 255, 0.4);
+        }
+        
+        .bot-status.locked .dot {
+            background: rgba(100, 100, 100, 0.5);
+            animation: none;
+            box-shadow: none;
+        }
+        
         /* Tokenomics Section */
         .tokenomics-section {
             padding: 8rem 2rem;
@@ -2193,12 +2272,13 @@
         
         <div class="bots-grid">
             <div class="bot-card">
+                <div class="risk-badge high">🔴 HIGH RISK</div>
                 <div class="bot-header">
                     <div class="bot-header-top">
                         <div class="bot-icon"><span class="dl-icon dl-icon-xl dl-icon-target"></span></div>
                         <div class="bot-meta">
                             <h3>OTE Silver Bullet</h3>
-                            <div class="strategy">Optimal Trade Entry • 10 AM Session</div>
+                            <div class="strategy">Aggressive • Killzone Sniper</div>
                         </div>
                     </div>
                     <div class="bot-status">
@@ -2230,12 +2310,13 @@
             </div>
             
             <div class="bot-card">
+                <div class="risk-badge medium">🟡 MEDIUM RISK</div>
                 <div class="bot-header">
                     <div class="bot-header-top">
                         <div class="bot-icon"><span class="dl-icon dl-icon-xl dl-icon-chart"></span></div>
                         <div class="bot-meta">
                             <h3>FVG + IFVG</h3>
-                            <div class="strategy">Fair Value Gaps • Multi-Session</div>
+                            <div class="strategy">Balanced • Gap Hunter</div>
                         </div>
                     </div>
                     <div class="bot-status">
@@ -2260,6 +2341,83 @@
                         </div>
                         <div class="bot-stat">
                             <div class="value">14.4%</div>
+                            <div class="label">To Payout</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Coming Soon Bot Cards -->
+            <div class="bot-card coming-soon">
+                <div class="coming-soon-overlay">COMING SOON</div>
+                <div class="risk-badge low">🟢 LOW RISK</div>
+                <div class="bot-header">
+                    <div class="bot-header-top">
+                        <div class="bot-icon"><span class="dl-icon dl-icon-xl dl-icon-shield"></span></div>
+                        <div class="bot-meta">
+                            <h3>Capital Guard</h3>
+                            <div class="strategy">Conservative • Swing Trader</div>
+                        </div>
+                    </div>
+                    <div class="bot-status locked">
+                        <span class="dot"></span>
+                        Locked
+                    </div>
+                </div>
+                <div class="bot-body">
+                    <p class="bot-description">
+                        The patient one. Waits for high-probability setups with tight risk management.
+                        Lower frequency, smaller position sizes, focused on capital preservation.
+                    </p>
+                    <div class="bot-stats">
+                        <div class="bot-stat">
+                            <div class="value">--</div>
+                            <div class="label">Win Rate</div>
+                        </div>
+                        <div class="bot-stat">
+                            <div class="value">$150K</div>
+                            <div class="label">Account</div>
+                        </div>
+                        <div class="bot-stat">
+                            <div class="value">--</div>
+                            <div class="label">To Payout</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bot-card coming-soon">
+                <div class="coming-soon-overlay">COMING SOON</div>
+                <div class="risk-badge high">🔴 HIGH RISK</div>
+                <div class="bot-header">
+                    <div class="bot-header-top">
+                        <div class="bot-icon"><span class="dl-icon dl-icon-xl dl-icon-lightning"></span></div>
+                        <div class="bot-meta">
+                            <h3>Scalp Hunter</h3>
+                            <div class="strategy">Aggressive • High Frequency</div>
+                        </div>
+                    </div>
+                    <div class="bot-status locked">
+                        <span class="dot"></span>
+                        Locked
+                    </div>
+                </div>
+                <div class="bot-body">
+                    <p class="bot-description">
+                        Speed demon. Catches quick moves during volatile sessions with rapid-fire entries.
+                        High trade count, tight stops, designed for maximum market exposure.
+                    </p>
+                    <div class="bot-stats">
+                        <div class="bot-stat">
+                            <div class="value">--</div>
+                            <div class="label">Win Rate</div>
+                        </div>
+                        <div class="bot-stat">
+                            <div class="value">$150K</div>
+                            <div class="label">Account</div>
+                        </div>
+                        <div class="bot-stat">
+                            <div class="value">--</div>
                             <div class="label">To Payout</div>
                         </div>
                     </div>
