@@ -14,26 +14,35 @@ Bots Trade → Profits Generated → Maintenance Fees Extracted → 40% → Buyb
 
 ---
 
-## Token Distribution
+## Token Distribution (Virtuals Unicorn Launch)
 
 **Total Supply:** 1,000,000,000 (1 Billion)
 
+**Launch Type:** Virtuals Protocol Unicorn Launch
+- Bonding curve until 42k $VIRTUAL accumulated
+- Auto-graduation to Uniswap V2
+- 99% trading tax at TGE, decays 1% per minute until 1%
+
 | Allocation | Tokens | % | Purpose |
 |------------|--------|---|---------|
-| 🌊 Liquidity Pool | 300,000,000 | 30% | Initial DEX liquidity on Base |
-| 🎁 Community/Airdrops | 250,000,000 | 25% | Holder incentives, rewards, growth |
-| 🏦 Treasury | 200,000,000 | 20% | Buyback reserve + operations |
-| 👨‍🔬 Team | 150,000,000 | 15% | Engineers keeping the machines running |
-| 📢 Marketing | 100,000,000 | 10% | Partnerships, influencers, growth |
+| 💧 Liquidity Pool | 450,000,000 | 45% | DEX liquidity (locked) |
+| 👨‍🔬 Team | 250,000,000 | 25% | Engineers — vested via bonding curve |
+| 📈 Capital Formation | 250,000,000 | 25% | Automated funding (2M-160M FDV range) |
+| 🎁 Airdrops | 50,000,000 | 5% | 2% veVIRTUAL holders, 3% ACP users |
 
 ### Visual Breakdown
 ```
-Liquidity Pool ████████████████████████████████  30%
-Community      ██████████████████████████         25%
-Treasury       ████████████████████               20%
-Team           ███████████████                    15%
-Marketing      ██████████                         10%
+Liquidity Pool █████████████████████████████████████████████  45%
+Team           █████████████████████████                      25%
+Capital Form.  █████████████████████████                      25%
+Airdrops       █████                                           5%
 ```
+
+### Why Virtuals Unicorn?
+- **Conviction-driven** — Early believers get asymmetric upside
+- **Aligned incentives** — Team tokens vest based on performance
+- **Clean price discovery** — Bonding curve prevents manipulation
+- **Real funding** — Capital Formation provides operational runway
 
 ---
 

@@ -1569,20 +1569,102 @@
             font-size: 1.05rem;
         }
         
-        /* Flywheel Visual */
+        /* Flywheel Visual - Enhanced */
         .flywheel-visual {
             margin: 2rem 0;
             padding: 2rem;
-            background: rgba(0, 20, 40, 0.5);
-            border-radius: 20px;
-            border: 1px solid rgba(0, 240, 255, 0.1);
+            background: radial-gradient(ellipse at center, rgba(0, 240, 255, 0.05) 0%, rgba(0, 20, 40, 0.8) 70%);
+            border-radius: 24px;
+            border: 1px solid rgba(0, 240, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .flywheel-visual::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(0, 240, 255, 0.03), transparent, rgba(255, 0, 170, 0.03), transparent);
+            animation: flywheelGlow 10s linear infinite;
+        }
+        
+        @keyframes flywheelGlow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
         
         .flywheel-diagram {
             position: relative;
-            width: 280px;
-            height: 280px;
+            width: 320px;
+            height: 320px;
             margin: 0 auto;
+        }
+        
+        /* Outer ring glow */
+        .flywheel-outer-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(0, 240, 255, 0.2);
+            border-radius: 50%;
+            animation: ringPulse 4s ease-in-out infinite;
+        }
+        
+        .flywheel-outer-ring::before {
+            content: '';
+            position: absolute;
+            top: -5px;
+            left: -5px;
+            right: -5px;
+            bottom: -5px;
+            border: 1px solid rgba(0, 240, 255, 0.1);
+            border-radius: 50%;
+        }
+        
+        @keyframes ringPulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(0, 240, 255, 0.2), inset 0 0 20px rgba(0, 240, 255, 0.1);
+            }
+            50% { 
+                box-shadow: 0 0 40px rgba(0, 240, 255, 0.4), inset 0 0 30px rgba(0, 240, 255, 0.2);
+            }
+        }
+        
+        /* Energy flow arrows */
+        .flywheel-flow {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            animation: flywheelSpin 15s linear infinite;
+        }
+        
+        .flow-particle {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #00f0ff;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00f0ff, 0 0 20px #00f0ff;
+            animation: particlePulse 2s ease-in-out infinite;
+        }
+        
+        .flow-particle:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+        .flow-particle:nth-child(2) { top: 25%; right: 10%; animation-delay: 0.5s; }
+        .flow-particle:nth-child(3) { bottom: 25%; right: 10%; animation-delay: 1s; }
+        .flow-particle:nth-child(4) { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 1.5s; }
+        .flow-particle:nth-child(5) { bottom: 25%; left: 10%; animation-delay: 2s; }
+        .flow-particle:nth-child(6) { top: 25%; left: 10%; animation-delay: 2.5s; }
+        
+        @keyframes particlePulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.5); opacity: 1; }
         }
         
         .flywheel-center {
@@ -1590,10 +1672,10 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 100px;
-            height: 100px;
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(0, 180, 220, 0.1));
-            border: 2px solid rgba(0, 240, 255, 0.4);
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, rgba(0, 20, 40, 0.9) 70%);
+            border: 2px solid rgba(0, 240, 255, 0.5);
             border-radius: 50%;
             display: flex;
             flex-direction: column;
@@ -1601,23 +1683,31 @@
             justify-content: center;
             z-index: 10;
             animation: centerPulse 3s ease-in-out infinite;
+            box-shadow: 0 0 30px rgba(0, 240, 255, 0.3), inset 0 0 30px rgba(0, 240, 255, 0.1);
         }
         
         .flywheel-center span:first-child {
-            font-size: 1.5rem;
+            font-size: 2rem;
             margin-bottom: 4px;
+            animation: botFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes botFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
         }
         
         .flywheel-center span:last-child {
-            font-size: 0.6rem;
+            font-size: 0.7rem;
             font-weight: 700;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
             color: #00f0ff;
+            text-shadow: 0 0 10px #00f0ff;
         }
         
         @keyframes centerPulse {
-            0%, 100% { box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
-            50% { box-shadow: 0 0 40px rgba(0, 240, 255, 0.5); }
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 240, 255, 0.3), inset 0 0 30px rgba(0, 240, 255, 0.1); }
+            50% { box-shadow: 0 0 50px rgba(0, 240, 255, 0.5), inset 0 0 40px rgba(0, 240, 255, 0.2); }
         }
         
         .flywheel-ring {
@@ -1634,30 +1724,54 @@
         
         .flywheel-step {
             position: absolute;
-            width: 70px;
+            width: 80px;
             text-align: center;
-            transform-origin: center;
+            transition: all 0.3s ease;
         }
         
-        .flywheel-step:nth-child(1) { top: -10px; left: 50%; transform: translateX(-50%); }
-        .flywheel-step:nth-child(2) { top: 25%; right: -20px; }
-        .flywheel-step:nth-child(3) { bottom: 25%; right: -20px; }
-        .flywheel-step:nth-child(4) { bottom: -10px; left: 50%; transform: translateX(-50%); }
-        .flywheel-step:nth-child(5) { bottom: 25%; left: -20px; }
-        .flywheel-step:nth-child(6) { top: 25%; left: -20px; }
+        .flywheel-step:nth-child(1) { top: -15px; left: 50%; transform: translateX(-50%); }
+        .flywheel-step:nth-child(2) { top: 20%; right: -25px; }
+        .flywheel-step:nth-child(3) { bottom: 20%; right: -25px; }
+        .flywheel-step:nth-child(4) { bottom: -15px; left: 50%; transform: translateX(-50%); }
+        .flywheel-step:nth-child(5) { bottom: 20%; left: -25px; }
+        .flywheel-step:nth-child(6) { top: 20%; left: -25px; }
         
         .flywheel-step .step-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 1px solid rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-size: 1.5rem;
-            margin-bottom: 4px;
+            margin: 0 auto 6px;
             animation: flywheelSpin 20s linear infinite reverse;
+            transition: all 0.3s ease;
+        }
+        
+        .flywheel-step:hover .step-icon {
+            border-color: #00f0ff;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+            transform: scale(1.1);
         }
         
         .flywheel-step .step-text {
-            font-size: 0.65rem;
+            font-size: 0.7rem;
             font-weight: 600;
-            color: rgba(255, 255, 255, 0.8);
+            color: rgba(255, 255, 255, 0.9);
             animation: flywheelSpin 20s linear infinite reverse;
             white-space: nowrap;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+        }
+        
+        .flywheel-caption {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+            font-style: italic;
         }
         
         /* Revenue Breakdown */
@@ -1738,8 +1852,35 @@
         .dist-supply {
             font-size: 0.8rem;
             color: rgba(255, 255, 255, 0.5);
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
             text-align: center;
+        }
+        
+        /* Pie Chart */
+        .pie-chart-container {
+            display: flex;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+        
+        .pie-chart {
+            width: 200px;
+            height: 200px;
+            transform: rotate(-90deg);
+            filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.3));
+        }
+        
+        .pie-segment {
+            transition: all 0.3s ease;
+        }
+        
+        .pie-chart:hover .pie-segment {
+            filter: brightness(1.2);
+        }
+        
+        .pie-chart text {
+            transform: rotate(90deg);
+            transform-origin: 100px 100px;
         }
         
         .vesting-note {
@@ -1753,7 +1894,7 @@
         }
         
         .vesting-note strong {
-            color: var(--accent-pink);
+            color: #00f0ff;
         }
         
         /* Premium Distribution Card */
@@ -2560,38 +2701,47 @@
                 
                 <div class="flywheel-visual">
                     <div class="flywheel-diagram">
+                        <div class="flywheel-outer-ring"></div>
+                        <div class="flywheel-flow">
+                            <div class="flow-particle"></div>
+                            <div class="flow-particle"></div>
+                            <div class="flow-particle"></div>
+                            <div class="flow-particle"></div>
+                            <div class="flow-particle"></div>
+                            <div class="flow-particle"></div>
+                        </div>
                         <div class="flywheel-center">
-                            <span class="dl-icon dl-icon-xl dl-icon-bot"></span>
+                            <span>🤖</span>
                             <span>BOTS TRADE</span>
                         </div>
                         <div class="flywheel-ring">
-                            <div class="flywheel-step" style="--i: 0;">
+                            <div class="flywheel-step">
                                 <div class="step-icon">💰</div>
                                 <div class="step-text">Profits</div>
                             </div>
-                            <div class="flywheel-step" style="--i: 1;">
+                            <div class="flywheel-step">
                                 <div class="step-icon">🔥</div>
-                                <div class="step-text">40% Buyback</div>
+                                <div class="step-text">40% Burn</div>
                             </div>
-                            <div class="flywheel-step" style="--i: 2;">
+                            <div class="flywheel-step">
                                 <div class="step-icon">📈</div>
                                 <div class="step-text">Price Up</div>
                             </div>
-                            <div class="flywheel-step" style="--i: 3;">
+                            <div class="flywheel-step">
                                 <div class="step-icon">⛽</div>
                                 <div class="step-text">10% Fuel</div>
                             </div>
-                            <div class="flywheel-step" style="--i: 4;">
+                            <div class="flywheel-step">
                                 <div class="step-icon">🤖</div>
                                 <div class="step-text">New Bots</div>
                             </div>
-                            <div class="flywheel-step" style="--i: 5;">
+                            <div class="flywheel-step">
                                 <div class="step-icon">💪</div>
                                 <div class="step-text">More AUM</div>
                             </div>
                         </div>
-                        <div class="flywheel-arrow"></div>
                     </div>
+                    <p class="flywheel-caption">The more bots profit → the more we buy back AND scale → more bots → more profits → ∞</p>
                 </div>
                 
                 <div class="revenue-breakdown">
@@ -2635,49 +2785,84 @@
                 <h4>Token Distribution</h4>
                 <p class="dist-supply">Total Supply: 1,000,000,000 $DECRYPT</p>
                 
-                <div class="dist-bar">
-                    <div class="segment" style="width: 30%; background: var(--accent-cyan);" title="Liquidity"></div>
-                    <div class="segment" style="width: 25%; background: var(--accent-green);" title="Community"></div>
-                    <div class="segment" style="width: 20%; background: var(--accent-orange);" title="Treasury"></div>
-                    <div class="segment" style="width: 15%; background: var(--accent-pink);" title="Team"></div>
-                    <div class="segment" style="width: 10%; background: #a855f7;" title="Marketing"></div>
+                <!-- Pie Chart -->
+                <div class="pie-chart-container">
+                    <svg class="pie-chart" viewBox="0 0 200 200">
+                        <defs>
+                            <filter id="glow">
+                                <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                                <feMerge>
+                                    <feMergeNode in="coloredBlur"/>
+                                    <feMergeNode in="SourceGraphic"/>
+                                </feMerge>
+                            </filter>
+                        </defs>
+                        <!-- 45% Liquidity - Cyan -->
+                        <circle class="pie-segment" cx="100" cy="100" r="80" 
+                            stroke="#00f0ff" 
+                            stroke-width="40" 
+                            stroke-dasharray="226.2 502.65" 
+                            stroke-dashoffset="0"
+                            fill="none"
+                            filter="url(#glow)"/>
+                        <!-- 25% Team - Pink -->
+                        <circle class="pie-segment" cx="100" cy="100" r="80" 
+                            stroke="#ff00aa" 
+                            stroke-width="40" 
+                            stroke-dasharray="125.66 502.65" 
+                            stroke-dashoffset="-226.2"
+                            fill="none"/>
+                        <!-- 25% ACF - Green -->
+                        <circle class="pie-segment" cx="100" cy="100" r="80" 
+                            stroke="#00ff88" 
+                            stroke-width="40" 
+                            stroke-dasharray="125.66 502.65" 
+                            stroke-dashoffset="-351.86"
+                            fill="none"/>
+                        <!-- 5% Airdrops - Orange -->
+                        <circle class="pie-segment" cx="100" cy="100" r="80" 
+                            stroke="#ff9500" 
+                            stroke-width="40" 
+                            stroke-dasharray="25.13 502.65" 
+                            stroke-dashoffset="-477.52"
+                            fill="none"/>
+                        <!-- Center circle -->
+                        <circle cx="100" cy="100" r="55" fill="#0a0e17"/>
+                        <text x="100" y="95" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold">$DECRYPT</text>
+                        <text x="100" y="115" text-anchor="middle" fill="#00f0ff" font-size="10">1B Supply</text>
+                    </svg>
                 </div>
                 
                 <div class="dist-legend">
                     <div class="dist-item">
-                        <div class="dot" style="background: var(--accent-cyan);"></div>
-                        <span class="name">🌊 Liquidity Pool</span>
-                        <span class="percent">30%</span>
+                        <div class="dot" style="background: #00f0ff;"></div>
+                        <span class="name">💧 Liquidity Pool</span>
+                        <span class="percent">45%</span>
                     </div>
                     <div class="dist-item">
-                        <div class="dot" style="background: var(--accent-green);"></div>
-                        <span class="name">🎁 Community</span>
+                        <div class="dot" style="background: #ff00aa;"></div>
+                        <span class="name">👨‍🔬 Team (Vested)</span>
                         <span class="percent">25%</span>
                     </div>
                     <div class="dist-item">
-                        <div class="dot" style="background: var(--accent-orange);"></div>
-                        <span class="name">🏦 Treasury</span>
-                        <span class="percent">20%</span>
+                        <div class="dot" style="background: #00ff88;"></div>
+                        <span class="name">📈 Capital Formation</span>
+                        <span class="percent">25%</span>
                     </div>
                     <div class="dist-item">
-                        <div class="dot" style="background: var(--accent-pink);"></div>
-                        <span class="name">👨‍🔬 Team (Vested)</span>
-                        <span class="percent">15%</span>
-                    </div>
-                    <div class="dist-item">
-                        <div class="dot" style="background: #a855f7;"></div>
-                        <span class="name">📢 Marketing</span>
-                        <span class="percent">10%</span>
+                        <div class="dot" style="background: #ff9500;"></div>
+                        <span class="name">🎁 Airdrops</span>
+                        <span class="percent">5%</span>
                     </div>
                 </div>
                 
                 <div class="vesting-note">
-                    <strong>Team Vesting:</strong> 6-month cliff, then 12-month linear unlock
+                    <strong>Virtuals Unicorn Launch</strong> — Team tokens vest via bonding curve mechanism
                 </div>
                 
                 <div class="contract-info">
                     <div class="label">Network</div>
-                    <div class="value">Base • Launching on Virtuals Protocol</div>
+                    <div class="value">Base • Virtuals Protocol</div>
                 </div>
             </div>
         </div>
