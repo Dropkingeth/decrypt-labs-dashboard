@@ -1,0 +1,138 @@
+{
+  "lastUpdated": "2026-01-30T13:00:07Z",
+  "aum": {
+    "total": 301975,
+    "milestone": 300000,
+    "milestoneLabel": "2x Buyback Power"
+  },
+  "bots": {
+    "fvg-ifvg-1": {
+      "name": "FVG+IFVG #1",
+      "subtitle": "Determining Order Flow",
+      "status": "online",
+      "accountId": "APEX2519120000018",
+      "accountSize": 150000,
+      "currentBalance": 150017,
+      "stats": {
+        "power": 75,
+        "fuel": 100,
+        "condition": 88,
+        "heat": 25
+      },
+      "performance": {
+        "totalTrades": 5145,
+        "winRate": 76.8,
+        "netPnl": 17,
+        "todayPnl": 132.9
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": 17,
+        "profitTargetGoal": 9000,
+        "profitTargetPercent": 0.2,
+        "drawdownUsed": 0,
+        "drawdownMax": 6000,
+        "drawdownPercent": 0,
+        "daysRemaining": 14,
+        "daysTotal": 30
+      },
+      "lastTrade": {
+        "id": 5145,
+        "bot": "fvg-ifvg-1",
+        "timestamp": "2026-01-29T11:00:00-0500",
+        "symbol": "MNQH2026",
+        "side": "long",
+        "entry": 25580.5,
+        "exit": 25593.85,
+        "size": 1,
+        "pnl": 26.7,
+        "signal": "tp1"
+      }
+    },
+    "ote-silver-bullet": {
+      "name": "OTE Silver Bullet",
+      "subtitle": "Optimal Trade Entry",
+      "status": "online",
+      "accountId": "APEX2519120000014",
+      "accountSize": 150000,
+      "currentBalance": 151958,
+      "stats": {
+        "power": 88,
+        "fuel": 102,
+        "condition": 92,
+        "heat": 20
+      },
+      "performance": {
+        "totalTrades": 4771,
+        "winRate": 63.2,
+        "netPnl": 1958,
+        "todayPnl": -791
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": 1958,
+        "profitTargetGoal": 9000,
+        "profitTargetPercent": 21.8,
+        "drawdownUsed": 0,
+        "drawdownMax": 6000,
+        "drawdownPercent": 0,
+        "daysRemaining": 0,
+        "daysTotal": 30
+      },
+      "lastTrade": {
+        "id": 4771,
+        "bot": "ote-silver-bullet",
+        "timestamp": "2026-01-29T15:37:30-0500",
+        "symbol": "MNQH2026",
+        "side": "short",
+        "entry": 25869.5,
+        "exit": 25886,
+        "size": 12,
+        "pnl": -396,
+        "signal": "sl"
+      }
+    }
+  },
+  "trades": [],
+  "buybacks": [],
+  "racing": {
+    "daily": {
+      "leader": "fvg-ifvg-1",
+      "scores": {
+        "fvg-ifvg-1": 132.9,
+        "ote-silver-bullet": 0
+      }
+    },
+    "weekly": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 0,
+        "ote-silver-bullet": 0
+      }
+    },
+    "monthly": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 17,
+        "ote-silver-bullet": 1958
+      }
+    },
+    "allTime": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 17,
+        "ote-silver-bullet": 1958
+      }
+    }
+  },
+  "hallOfFame": [],
+  "notices": [
+    {
+      "id": "reset-2026-01-29",
+      "type": "info",
+      "title": "Account Reset Notice",
+      "message": "Bot malfunction — AI babysitter was sipping martinis and skipped a beat. 🍸 Stoploss fix applied. Accounts reset. Fresh start, tighter risk management. Bots need supervision, and we learned that lesson!",
+      "date": "2026-01-29"
+    }
+  ]
+}

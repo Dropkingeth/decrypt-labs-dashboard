@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Bot Caretaker — Mission Control</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+  <style>
+    :root {
+      --bg-dark: #0a0a12;
+      --bg-card: rgba(255,255,255,0.03);
+      --bg-card-hover: rgba(255,255,255,0.06);
+      --accent-cyan: #00d4ff;
+      --accent-green: #00ff88;
+      --accent-red: #ff4455;
+      --accent-orange: #ffaa00;
+      --accent-purple: #aa66ff;
+      --text-primary: #ffffff;
+      --text-secondary: #88889a;
+      --border-color: rgba(255,255,255,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated background */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(0,212,255,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(170,102,255,0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-active {
+      background: rgba(0,255,136,0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(0,255,136,0.3);
+    }
+
+    .status-inactive {
+      background: rgba(255,170,0,0.15);
+      color: var(--accent-orange);
+      border: 1px solid rgba(255,170,0,0.3);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    .status-active .status-dot { background: var(--accent-green); }
+    .status-inactive .status-dot { background: var(--accent-orange); }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .time-display {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.05);
+      text-decoration: none;
+      font-size: 16px;
+      transition: background 0.2s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255,68,85,0.2);
+    }
+
+    /* Main Grid */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 20px;
+      padding: 20px 30px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    @media (max-width: 1200px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* Bot Cards */
+    .bots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .bot-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .bot-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+
+    .bot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .bot-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .bot-id {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: monospace;
+    }
+
+    .bot-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .bot-status.online {
+      background: rgba(0,255,136,0.15);
+      color: var(--accent-green);
+    }
+
+    .bot-status.offline {
+      background: rgba(255,68,85,0.15);
+      color: var(--accent-red);
+    }
+
+    .bot-status.waiting {
+      background: rgba(255,170,0,0.15);
+      color: var(--accent-orange);
+    }
+
+    .bot-position {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .position-direction {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .position-direction.long { color: var(--accent-green); }
+    .position-direction.short { color: var(--accent-red); }
+    .position-direction.flat { color: var(--text-secondary); }
+
+    .position-details {
+      flex: 1;
+    }
+
+    .position-size {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .position-symbol {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .bot-equity {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .equity-label { color: var(--text-secondary); }
+    .equity-value { font-weight: 600; }
+    .equity-value.positive { color: var(--accent-green); }
+    .equity-value.negative { color: var(--accent-red); }
+
+    /* Signal Feed */
+    .signal-feed {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .signal-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.2s;
+    }
+
+    .signal-item:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .signal-time {
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      min-width: 70px;
+    }
+
+    .signal-icon {
+      font-size: 16px;
+      min-width: 24px;
+      text-align: center;
+    }
+
+    .signal-content {
+      flex: 1;
+    }
+
+    .signal-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .signal-details {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .signal-badge {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .signal-badge.entry { background: rgba(0,212,255,0.2); color: var(--accent-cyan); }
+    .signal-badge.exit { background: rgba(170,102,255,0.2); color: var(--accent-purple); }
+    .signal-badge.alert { background: rgba(255,68,85,0.2); color: var(--accent-red); }
+    .signal-badge.retry { background: rgba(255,170,0,0.2); color: var(--accent-orange); }
+
+    /* Expected vs Actual */
+    .position-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .position-table th {
+      text-align: left;
+      padding: 10px 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .position-table td {
+      padding: 12px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .position-match { color: var(--accent-green); }
+    .position-mismatch { color: var(--accent-red); }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* Retry Queue */
+    .retry-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background: rgba(255,170,0,0.05);
+      border: 1px solid rgba(255,170,0,0.2);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .retry-info {
+      flex: 1;
+    }
+
+    .retry-bot {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .retry-details {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .retry-attempt {
+      padding: 4px 10px;
+      background: rgba(255,170,0,0.2);
+      color: var(--accent-orange);
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Performance Grid */
+    .performance-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .perf-account {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .perf-account-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .perf-account-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    .perf-account-balance {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .perf-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .perf-stat {
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .perf-stat-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .perf-stat-value.positive {
+      color: var(--accent-green);
+    }
+
+    .perf-stat-value.negative {
+      color: var(--accent-red);
+    }
+
+    .perf-stat-value.neutral {
+      color: var(--text-secondary);
+    }
+
+    .perf-stat-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .perf-progress {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .perf-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .perf-progress-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .perf-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    @media (max-width: 768px) {
+      .performance-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      border-top: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">🤖</span>
+      <span class="logo-text">Bot Caretaker</span>
+    </div>
+    <div class="status-bar">
+      <div id="session-status" class="status-indicator status-inactive">
+        <span class="status-dot"></span>
+        <span>Session Closed</span>
+      </div>
+      <div class="time-display" id="current-time">--:--:-- ET</div>
+      <a href="/logout" class="logout-btn" title="Logout">🔒</a>
+    </div>
+  </header>
+
+  <main class="main-grid">
+    <div class="left-column">
+      <!-- Stats Row -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-signals">0</div>
+          <div class="stat-label">Signals Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-orders">0</div>
+          <div class="stat-label">Orders Tracked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-retries">0</div>
+          <div class="stat-label">Retries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-alerts">0</div>
+          <div class="stat-label">Alerts</div>
+        </div>
+      </div>
+
+      <!-- Bot Cards -->
+      <div class="bots-grid" id="bots-container">
+        <!-- Bot cards populated by JS -->
+      </div>
+
+      <!-- Account Performance Section -->
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div class="card-title">
+            <span>💰</span>
+            Account Performance
+          </div>
+          <span style="font-size: 11px; color: var(--text-secondary);" id="perf-last-updated">--</span>
+        </div>
+        <div class="card-body">
+          <div class="performance-grid" id="performance-grid">
+            <!-- Performance cards populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Position Verification -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📊</span>
+            Expected vs Actual Positions
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="position-table">
+            <thead>
+              <tr>
+                <th>Bot</th>
+                <th>Symbol</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="positions-table">
+              <tr>
+                <td colspan="5" class="empty-state">No active positions</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="right-column">
+      <!-- Signal Feed -->
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="card-header">
+          <div class="card-title">
+            <span>📡</span>
+            Live Signal Feed
+          </div>
+          <span style="font-size: 11px; color: var(--text-secondary);">Auto-refresh: 5s</span>
+        </div>
+        <div class="card-body signal-feed" id="signal-feed">
+          <div class="empty-state">
+            <div class="empty-state-icon">📡</div>
+            <div>Waiting for signals...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Retry Queue -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">
+            <span>🔄</span>
+            Retry Queue
+          </div>
+        </div>
+        <div class="card-body" id="retry-queue">
+          <div class="empty-state">
+            <div class="empty-state-icon">✅</div>
+            <div>No pending retries</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    🤖 Bot Caretaker — Internal Monitoring Tool | Auto-refresh every 5 seconds
+  </footer>
+
+  <script>
+    // Configuration
+    // Railway API - permanent URL
+    const API_BASE = 'https://stunning-appreciation-production-ea66.up.railway.app';
+    const REFRESH_INTERVAL = 5000;
+
+    // State
+    let signalHistory = [];
+    let lastData = null;
+
+    // Update time display
+    function updateTime() {
+      const now = new Date();
+      const options = { 
+        timeZone: 'America/New_York', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit',
+        hour12: true 
+      };
+      document.getElementById('current-time').textContent = 
+        now.toLocaleTimeString('en-US', options) + ' ET';
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Fetch data from Railway API
+    async function fetchData() {
+      try {
+        // Get health status
+        const healthRes = await fetch(`${API_BASE}/health`);
+        const health = await healthRes.json();
+        
+        // Get dashboard data (accounts + trades)
+        const dashRes = await fetch(`${API_BASE}/api/dashboard`);
+        const dashboard = await dashRes.json();
+        
+        // Get recent trades
+        const tradesRes = await fetch(`${API_BASE}/api/trades`);
+        const trades = await tradesRes.json();
+        
+        // Build data structure that Caretaker dashboard expects
+        const data = {
+          sessionActive: health.status === 'ok',
+          stats: {
+            ordersMonitored: health.trades || 0,
+            retriesAttempted: 0,
+            alertsSent: 0
+          },
+          positions: {
+            'APEX2519120000014': {
+              position: 0, // Would need real position data from Tradovate
+              equity: dashboard.accounts?.['ote-silver-bullet']?.balance || 150000,
+              openPL: dashboard.accounts?.['ote-silver-bullet']?.pnl || 0,
+              lastCheck: new Date().toISOString()
+            },
+            'APEX2519120000018': {
+              position: 0,
+              equity: dashboard.accounts?.['fvg-ifvg']?.balance || 150000,
+              openPL: dashboard.accounts?.['fvg-ifvg']?.pnl || 0,
+              lastCheck: new Date().toISOString()
+            }
+          },
+          accounts: dashboard.accounts || {},
+          recentTrades: trades.slice(0, 20)
+        };
+        
+        updateDashboard(data);
+        lastData = data;
+      } catch (err) {
+        console.error('Failed to fetch data:', err);
+      }
+    }
+
+    // Update dashboard with data
+    function updateDashboard(data) {
+      // Session status
+      const statusEl = document.getElementById('session-status');
+      if (data.sessionActive) {
+        statusEl.className = 'status-indicator status-active';
+        statusEl.innerHTML = '<span class="status-dot"></span><span>Session Active</span>';
+      } else {
+        statusEl.className = 'status-indicator status-inactive';
+        statusEl.innerHTML = '<span class="status-dot"></span><span>Session Closed</span>';
+      }
+
+      // Stats
+      document.getElementById('stat-orders').textContent = data.stats?.ordersMonitored || 0;
+      document.getElementById('stat-retries').textContent = data.stats?.retriesAttempted || 0;
+      document.getElementById('stat-alerts').textContent = data.stats?.alertsSent || 0;
+
+      // Bot cards
+      updateBotCards(data.positions);
+
+      // Account Performance
+      updatePerformanceGrid(data.accounts);
+
+      // Positions table
+      updatePositionsTable(data);
+    }
+
+    // Update Account Performance Grid
+    function updatePerformanceGrid(accounts) {
+      const grid = document.getElementById('performance-grid');
+      const lastUpdated = document.getElementById('perf-last-updated');
+      
+      if (!accounts) {
+        grid.innerHTML = '<div style="text-align: center; color: var(--text-secondary); padding: 20px;">Loading account data...</div>';
+        return;
+      }
+
+      const accountList = [
+        { key: 'ote-silver-bullet', name: 'OTE Silver Bullet' },
+        { key: 'fvg-ifvg', name: 'FVG+IFVG #1' }
+      ];
+
+      grid.innerHTML = accountList.map(acc => {
+        const data = accounts[acc.key] || {};
+        const balance = data.balance || 150000;
+        const pnl = data.pnl || 0;
+        const progress = data.progress || 0;
+        const profitNeeded = data.profitNeeded || 9000;
+        const drawdownMax = data.drawdownMax || 5000;
+        
+        // Trailing Drawdown tracking (critical for Apex)
+        const peakBalance = data.peakBalance || balance;
+        const trailingThreshold = data.trailingThreshold || (peakBalance - drawdownMax);
+        const drawdownUsed = data.drawdown || Math.max(0, peakBalance - balance);
+        const drawdownRemaining = data.drawdownRemaining || (balance - trailingThreshold);
+        const drawdownPercent = (drawdownUsed / drawdownMax) * 100;
+        
+        // Calculate period P&L (for now using total, API can be extended)
+        const todayPnl = data.todayPnl || 0;
+        const weekPnl = data.weekPnl || pnl; // Use total as fallback
+        const monthPnl = data.monthPnl || pnl;
+        
+        const formatPnl = (val) => {
+          const sign = val >= 0 ? '+' : '';
+          return `${sign}$${Math.abs(val).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+        };
+        
+        const pnlClass = (val) => val > 0 ? 'positive' : val < 0 ? 'negative' : 'neutral';
+        
+        // Drawdown danger level colors
+        const ddColor = drawdownPercent > 80 ? 'var(--accent-red)' : 
+                        drawdownPercent > 50 ? 'var(--accent-orange)' : 
+                        drawdownPercent > 25 ? 'var(--accent-orange)' : 'var(--accent-green)';
+
+        return `
+          <div class="perf-account">
+            <div class="perf-account-header">
+              <div class="perf-account-name">${acc.name}</div>
+              <div class="perf-account-balance">$${balance.toLocaleString(undefined, {minimumFractionDigits: 2})}</div>
+            </div>
+            
+            <!-- P&L Stats -->
+            <div class="perf-stats">
+              <div class="perf-stat">
+                <div class="perf-stat-value ${pnlClass(todayPnl)}">${formatPnl(todayPnl)}</div>
+                <div class="perf-stat-label">Today</div>
+              </div>
+              <div class="perf-stat">
+                <div class="perf-stat-value ${pnlClass(weekPnl)}">${formatPnl(weekPnl)}</div>
+                <div class="perf-stat-label">This Week</div>
+              </div>
+              <div class="perf-stat">
+                <div class="perf-stat-value ${pnlClass(monthPnl)}">${formatPnl(monthPnl)}</div>
+                <div class="perf-stat-label">This Month</div>
+              </div>
+              <div class="perf-stat">
+                <div class="perf-stat-value positive">${formatPnl(pnl)}</div>
+                <div class="perf-stat-label">Total P&L</div>
+              </div>
+            </div>
+            
+            <!-- TRAILING DRAWDOWN SECTION (Critical!) -->
+            <div style="margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid ${ddColor}40;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <span style="font-size: 11px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px;">⚠️ Trailing Drawdown</span>
+                <span style="font-size: 12px; font-weight: 600; color: ${ddColor};">$${drawdownRemaining.toLocaleString(undefined, {minimumFractionDigits: 2})} left</span>
+              </div>
+              <div class="perf-progress-bar" style="height: 8px; margin-bottom: 8px;">
+                <div style="height: 100%; width: ${drawdownPercent}%; background: ${ddColor}; border-radius: 4px; transition: width 0.5s;"></div>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; font-size: 10px;">
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">Peak Balance:</span>
+                  <span style="color: var(--accent-cyan);">$${peakBalance.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">Liquidation:</span>
+                  <span style="color: var(--accent-red);">$${trailingThreshold.toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">DD Used:</span>
+                  <span style="color: ${ddColor};">$${drawdownUsed.toLocaleString(undefined, {minimumFractionDigits: 2})} / $${drawdownMax.toLocaleString()}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--text-secondary);">Buffer:</span>
+                  <span style="color: ${ddColor};">${(100 - drawdownPercent).toFixed(1)}%</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Progress to Funded -->
+            <div class="perf-progress" style="margin-top: 12px;">
+              <div class="perf-progress-label">
+                <span>Progress to Funded</span>
+                <span>${progress.toFixed(1)}%</span>
+              </div>
+              <div class="perf-progress-bar">
+                <div class="perf-progress-fill" style="width: ${Math.min(100, progress)}%"></div>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 10px; color: var(--text-secondary); margin-top: 4px;">
+                <span>$${pnl.toLocaleString()} / $${profitNeeded.toLocaleString()}</span>
+                <span>Target: $159,000</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // Update last updated timestamp
+      const now = new Date();
+      lastUpdated.textContent = `Updated: ${now.toLocaleTimeString()}`;
+    }
+
+    // Update bot cards
+    function updateBotCards(positions) {
+      const container = document.getElementById('bots-container');
+      
+      const bots = [
+        { 
+          id: 'ote-silver-bullet', 
+          name: 'OTE Silver Bullet', 
+          account: 'APEX2519120000014',
+          data: positions?.['APEX2519120000014'] || {}
+        },
+        { 
+          id: 'fvg-ifvg-1', 
+          name: 'FVG+IFVG #1', 
+          account: 'APEX2519120000018',
+          data: positions?.['APEX2519120000018'] || {}
+        }
+      ];
+
+      container.innerHTML = bots.map(bot => {
+        const pos = bot.data.position || 0;
+        const equity = bot.data.equity || 0;
+        const openPL = bot.data.openPL || 0;
+        const lastCheck = bot.data.lastCheck;
+        
+        const direction = pos > 0 ? 'long' : pos < 0 ? 'short' : 'flat';
+        const directionText = pos > 0 ? 'LONG' : pos < 0 ? 'SHORT' : 'FLAT';
+        const size = Math.abs(pos);
+        const status = lastCheck ? 'online' : 'waiting';
+
+        return `
+          <div class="bot-card">
+            <div class="bot-header">
+              <div>
+                <div class="bot-name">${bot.name}</div>
+                <div class="bot-id">${bot.account}</div>
+              </div>
+              <span class="bot-status ${status}">${status}</span>
+            </div>
+            <div class="bot-position">
+              <div class="position-direction ${direction}">${pos > 0 ? '▲' : pos < 0 ? '▼' : '●'}</div>
+              <div class="position-details">
+                <div class="position-size">${directionText} ${size > 0 ? size : ''}</div>
+                <div class="position-symbol">MNQ</div>
+              </div>
+            </div>
+            <div class="bot-equity">
+              <span class="equity-label">Equity</span>
+              <span class="equity-value">$${equity.toLocaleString()}</span>
+            </div>
+            <div class="bot-equity" style="margin-top: 4px;">
+              <span class="equity-label">Open P/L</span>
+              <span class="equity-value ${openPL >= 0 ? 'positive' : 'negative'}">
+                ${openPL >= 0 ? '+' : ''}$${openPL.toFixed(2)}
+              </span>
+            </div>
+            ${lastCheck ? `<div style="font-size: 10px; color: var(--text-secondary); margin-top: 8px;">
+              Last check: ${new Date(lastCheck).toLocaleTimeString()}
+            </div>` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update positions table
+    function updatePositionsTable(data) {
+      const tbody = document.getElementById('positions-table');
+      
+      // For now, show a placeholder - this will be populated by caretaker data
+      const positions = []; // data.expectedPositions would go here
+      
+      if (positions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary); padding: 20px;">No active positions being tracked</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = positions.map(p => `
+        <tr>
+          <td>${p.bot}</td>
+          <td>MNQ</td>
+          <td>${p.expected}</td>
+          <td>${p.actual}</td>
+          <td class="${p.match ? 'position-match' : 'position-mismatch'}">${p.match ? '✅ Match' : '⚠️ Mismatch'}</td>
+        </tr>
+      `).join('');
+    }
+
+    // Add signal to feed
+    function addSignal(signal) {
+      const feed = document.getElementById('signal-feed');
+      
+      // Remove empty state if exists
+      const emptyState = feed.querySelector('.empty-state');
+      if (emptyState) emptyState.remove();
+
+      const time = new Date().toLocaleTimeString('en-US', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false 
+      });
+
+      const signalEl = document.createElement('div');
+      signalEl.className = 'signal-item';
+      signalEl.innerHTML = `
+        <div class="signal-time">${time}</div>
+        <div class="signal-icon">${signal.icon || '📥'}</div>
+        <div class="signal-content">
+          <div class="signal-title">${signal.title}</div>
+          <div class="signal-details">${signal.details}</div>
+        </div>
+        <span class="signal-badge ${signal.type}">${signal.type}</span>
+      `;
+
+      feed.insertBefore(signalEl, feed.firstChild);
+
+      // Keep only last 50 signals
+      while (feed.children.length > 50) {
+        feed.removeChild(feed.lastChild);
+      }
+
+      // Update signal count
+      const countEl = document.getElementById('stat-signals');
+      countEl.textContent = parseInt(countEl.textContent) + 1;
+    }
+
+    // Poll for new signals from Railway API trades endpoint
+    let lastTradeTime = Date.now() - 60000;
+    async function pollSignals() {
+      try {
+        const response = await fetch(`${API_BASE}/api/trades`);
+        if (response.ok) {
+          const trades = await response.json();
+          // Filter to only new trades since last check
+          const newTrades = trades.filter(t => new Date(t.receivedAt).getTime() > lastTradeTime);
+          if (newTrades.length > 0) {
+            lastTradeTime = Date.now();
+            // Convert trades to signal format
+            newTrades.slice(0, 5).forEach(trade => {
+              const signal = {
+                icon: trade.action === 'entry' ? '📥' : trade.action === 'sl' ? '🛑' : trade.action?.includes('tp') ? '✅' : '📊',
+                title: `${trade.bot || trade.strategy || 'Signal'} — ${(trade.action || trade.direction || 'ALERT').toUpperCase()}`,
+                details: `${trade.side?.toUpperCase() || ''} ${trade.symbol || 'MNQ'} @ ${trade.price || trade.entryPrice || '—'}${trade.pnl ? ' | ' + (trade.pnl >= 0 ? '+' : '') + '$' + trade.pnl : ''}`,
+                type: trade.action === 'entry' ? 'entry' : trade.action === 'sl' ? 'retry' : 'exit'
+              };
+              addSignal(signal);
+            });
+          }
+        }
+      } catch (err) {
+        console.log('Signal poll error:', err.message);
+      }
+    }
+
+    // Demo signals for testing
+    function addDemoSignal() {
+      const demoSignals = [
+        { icon: '📥', title: 'OTE Silver Bullet — ENTRY', details: 'LONG 3 MNQ @ 25780.50', type: 'entry' },
+        { icon: '📤', title: 'FVG+IFVG #1 — EXIT', details: 'Closed LONG @ 25795.25 | +$147', type: 'exit' },
+        { icon: '✅', title: 'Position Verified', details: 'APEX2519120000014 — LONG 3 confirmed', type: 'entry' },
+        { icon: '🔄', title: 'Retry Attempted', details: 'OTE Silver Bullet — Order retry #1', type: 'retry' },
+      ];
+      const signal = demoSignals[Math.floor(Math.random() * demoSignals.length)];
+      addSignal(signal);
+    }
+
+    // Initialize
+    fetchData();
+    setInterval(fetchData, REFRESH_INTERVAL);
+
+    // Uncomment for demo mode:
+    // setInterval(addDemoSignal, 8000);
+  </script>
+</body>
+</html>

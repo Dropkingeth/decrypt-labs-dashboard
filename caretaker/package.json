@@ -1,0 +1,12 @@
+{
+  "name": "decrypt-labs-caretaker",
+  "version": "1.0.0",
+  "description": "Bot Caretaker - Signal monitoring dashboard",
+  "main": "integrated-server.js",
+  "scripts": {
+    "start": "node integrated-server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Decrypt Labs — Whitepaper</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+    <style>
+        :root {
+            --bg-dark: #0a0a12;
+            --bg-card: rgba(255,255,255,0.03);
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-purple: #aa66ff;
+            --text-primary: #ffffff;
+            --text-secondary: #88889a;
+            --border-color: rgba(255,255,255,0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1rem 2rem;
+            background: rgba(10,10,18,0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-links a { color: var(--text-secondary); text-decoration: none; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--accent-cyan); }
+        .main { max-width: 900px; margin: 0 auto; padding: 100px 2rem 4rem; }
+        .hero { text-align: center; padding: 4rem 0; border-bottom: 1px solid var(--border-color); margin-bottom: 3rem; }
+        .hero h1 { font-size: 3rem; margin-bottom: 1rem; background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero .subtitle { font-size: 1.25rem; color: var(--text-secondary); margin-bottom: 2rem; }
+        .hero .version { display: inline-block; padding: 0.5rem 1rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 20px; font-size: 0.875rem; color: var(--accent-cyan); }
+        .toc { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 2rem; margin-bottom: 3rem; }
+        .toc h2 { font-size: 1.25rem; margin-bottom: 1rem; color: var(--accent-cyan); }
+        .toc ul { list-style: none; display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
+        .toc a { color: var(--text-secondary); text-decoration: none; transition: color 0.3s; }
+        .toc a:hover { color: var(--accent-cyan); }
+        .section { margin-bottom: 4rem; }
+        .section h2 { font-size: 2rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 2px solid var(--accent-cyan); display: inline-block; }
+        .section h3 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--accent-purple); }
+        .section p { margin-bottom: 1rem; color: var(--text-secondary); }
+        table { width: 100%; border-collapse: collapse; margin: 1.5rem 0; background: var(--bg-card); border-radius: 8px; overflow: hidden; }
+        th, td { padding: 1rem; text-align: left; border-bottom: 1px solid var(--border-color); }
+        th { background: rgba(0,212,255,0.1); color: var(--accent-cyan); font-weight: 600; }
+        tr:last-child td { border-bottom: none; }
+        .highlight { background: linear-gradient(135deg, rgba(0,212,255,0.1), rgba(170,102,255,0.1)); border: 1px solid var(--accent-cyan); border-radius: 12px; padding: 1.5rem; margin: 1.5rem 0; }
+        .highlight h4 { margin-top: 0; color: var(--accent-cyan); }
+        ul, ol { margin: 1rem 0 1rem 2rem; color: var(--text-secondary); }
+        li { margin-bottom: 0.5rem; }
+        .footer { text-align: center; padding: 3rem 2rem; border-top: 1px solid var(--border-color); color: var(--text-secondary); }
+        .footer-links { display: flex; justify-content: center; gap: 2rem; margin-top: 1rem; }
+        .footer-links a { color: var(--accent-cyan); text-decoration: none; }
+        @media (max-width: 768px) { .hero h1 { font-size: 2rem; } .toc ul { grid-template-columns: 1fr; } .nav-links { display: none; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="logo">🧪 Decrypt Labs</div>
+        <nav class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="whitepaper.html">Whitepaper</a>
+        </nav>
+    </header>
+
+    <main class="main">
+        <section class="hero">
+            <h1>Whitepaper</h1>
+            <p class="subtitle">Autonomous Trading Bot Fleet — Powered by $CIPHER</p>
+            <span class="version">Version 1.1 • February 2026</span>
+        </section>
+
+        <nav class="toc">
+            <h2>📑 Table of Contents</h2>
+            <ul>
+                <li><a href="#summary">1. Executive Summary</a></li>
+                <li><a href="#problem">2. The Problem</a></li>
+                <li><a href="#solution">3. Our Solution</a></li>
+                <li><a href="#fleet">4. Bot Fleet System</a></li>
+                <li><a href="#nft">5. NFT Structure</a></li>
+                <li><a href="#token">6. $CIPHER Token</a></li>
+                <li><a href="#fuel">7. Fuel System</a></li>
+                <li><a href="#rewards">8. Rewards Distribution</a></li>
+                <li><a href="#tiers">9. Token Holder Tiers</a></li>
+                <li><a href="#tech">10. Technical Architecture</a></li>
+                <li><a href="#roadmap">11. Roadmap</a></li>
+                <li><a href="#risks">12. Risk Disclosure</a></li>
+            </ul>
+        </nav>
+
+        <section class="section" id="summary">
+            <h2>Executive Summary</h2>
+            <p>Decrypt Labs introduces a revolutionary approach to algorithmic trading through a decentralized Bot Fleet system. Users can deploy autonomous trading bots by minting Bot NFTs, with all transactions and rewards powered by the $CIPHER token.</p>
+            <div class="highlight">
+                <h4>🔑 Key Highlights</h4>
+                <ul>
+                    <li>🤖 <strong>20 Bot Fleet</strong> — Limited supply creates scarcity and value</li>
+                    <li>🎯 <strong>4 Proven Strategies</strong> — ICT-based algorithms with 9,900+ backtested trades</li>
+                    <li>🪙 <strong>$CIPHER Powered</strong> — All payments and rewards in native token</li>
+                    <li>📊 <strong>Full Transparency</strong> — Real-time dashboard tracking</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section" id="problem">
+            <h2>The Problem</h2>
+            <h3>Traditional Trading Challenges</h3>
+            <table>
+                <tr><th>Challenge</th><th>Description</th></tr>
+                <tr><td>Skill Gap</td><td>Most retail traders lack the expertise to trade profitably</td></tr>
+                <tr><td>Time Commitment</td><td>Active trading requires constant market monitoring</td></tr>
+                <tr><td>Emotional Trading</td><td>Fear and greed lead to poor decisions</td></tr>
+                <tr><td>High Barriers</td><td>Professional trading tools are expensive and complex</td></tr>
+            </table>
+        </section>
+
+        <section class="section" id="solution">
+            <h2>Our Solution</h2>
+            <h3>The Bot Fleet Model</h3>
+            <p>Decrypt Labs operates a fleet of <strong>20 autonomous trading bots</strong>, each owned by an NFT holder.</p>
+            <ul>
+                <li><strong>Ownership is clear</strong> — NFT proves you own a bot slot</li>
+                <li><strong>Performance is transparent</strong> — Dashboard shows all trades</li>
+                <li><strong>Incentives are aligned</strong> — Everyone benefits from bot success</li>
+                <li><strong>Scarcity creates value</strong> — Only 20 slots available</li>
+            </ul>
+        </section>
+
+        <section class="section" id="fleet">
+            <h2>Bot Fleet System</h2>
+            <table>
+                <tr><th>Specification</th><th>Details</th></tr>
+                <tr><td>Total Bots</td><td>20 (max capacity)</td></tr>
+                <tr><td>Strategies</td><td>4 available</td></tr>
+                <tr><td>Trading Venue</td><td>Futures (MNQ/MES)</td></tr>
+                <tr><td>Platform</td><td>Apex Trader Funding</td></tr>
+            </table>
+        </section>
+
+        <section class="section" id="nft">
+            <h2>NFT Structure</h2>
+            <h3>What You Get</h3>
+            <table>
+                <tr><th>Benefit</th><th>Description</th></tr>
+                <tr><td>🤖 Bot Slot</td><td>Your personal bot in the fleet</td></tr>
+                <tr><td>🎯 Strategy Choice</td><td>Pick 1 of 4 proven strategies</td></tr>
+                <tr><td>📊 Dashboard Access</td><td>Real-time tracking of your bot</td></tr>
+                <tr><td>🪙 Token Rewards</td><td>Claim $CIPHER when bot performs</td></tr>
+                <tr><td>👥 Community</td><td>Exclusive holder access</td></tr>
+            </table>
+            <h3>Available Strategies</h3>
+            <table>
+                <tr><th>#</th><th>Strategy</th><th>Risk Level</th><th>Description</th></tr>
+                <tr><td>1</td><td><strong>OTE Silver Bullet</strong></td><td>Medium</td><td>Trades all valid OTE setups during kill zones</td></tr>
+                <tr><td>2</td><td><strong>FVG+IFVG</strong></td><td>Medium</td><td>Fair Value Gaps + Inverse FVG confirmation</td></tr>
+                <tr><td>3</td><td><strong>OTE Refined (High Risk)</strong></td><td>High</td><td>Selective days, higher size on proven setups</td></tr>
+                <tr><td>4</td><td><strong>OTE Refined (Low Risk)</strong></td><td>Low</td><td>Selective days, conservative position sizing</td></tr>
+            </table>
+        </section>
+
+        <section class="section" id="token">
+            <h2>$CIPHER Token</h2>
+            <h3>Token Utility</h3>
+            <table>
+                <tr><th>Use Case</th><th>Description</th></tr>
+                <tr><td>Mint NFT</td><td>Purchase Bot NFT with $CIPHER</td></tr>
+                <tr><td>Monthly Fuel</td><td>Pay for bot operation</td></tr>
+                <tr><td>Indicator Access</td><td>Hold tokens to unlock PriceCipher indicator</td></tr>
+                <tr><td>Strategy Access</td><td>Higher tiers unlock more strategies</td></tr>
+                <tr><td>Rewards</td><td>Receive bot performance rewards</td></tr>
+            </table>
+        </section>
+
+        <section class="section" id="fuel">
+            <h2>Fuel System</h2>
+            <p>Fuel is the monthly payment required to keep your bot active. It covers Apex Trader Funding account subscription, server infrastructure, and bot maintenance.</p>
+            <table>
+                <tr><th>Item</th><th>Cost</th><th>Paid In</th></tr>
+                <tr><td>Monthly Fuel</td><td>~$175 equivalent</td><td>$CIPHER</td></tr>
+            </table>
+            <p><strong>Grace Period:</strong> 7 days after fuel expires before bot becomes BROKEN.</p>
+        </section>
+
+        <section class="section" id="rewards">
+            <h2>Rewards Distribution</h2>
+            <p>Rewards are distributed <strong>only after a bot completes its evaluation</strong> and becomes a funded Performance Account (PA).</p>
+            <h3>Distribution Split</h3>
+            <table>
+                <tr><th>Recipient</th><th>Share</th><th>Purpose</th></tr>
+                <tr><td>NFT Holder</td><td>80%</td><td>Reward for ownership</td></tr>
+                <tr><td>Decrypt Labs</td><td>20%</td><td>Operations & development</td></tr>
+            </table>
+            <p><strong>Minimum claim:</strong> $10 equivalent in $CIPHER</p>
+        </section>
+
+        <section class="section" id="tiers">
+            <h2>Token Holder Tiers</h2>
+            <p>The more $CIPHER you hold, the more tools you unlock:</p>
+            <table>
+                <tr><th>Tier</th><th>$CIPHER Required</th><th>Access Level</th></tr>
+                <tr><td>🥉 Bronze</td><td>100,000 tokens</td><td>PriceCipher Indicator only</td></tr>
+                <tr><td>🥇 Gold</td><td>500,000 tokens</td><td>Indicator + 1 Strategy</td></tr>
+                <tr><td>💎 Diamond</td><td>1,300,000 tokens</td><td>Indicator + All 4 Strategies</td></tr>
+            </table>
+            <p><em>Thresholds may be adjusted based on market cap changes</em></p>
+        </section>
+
+        <section class="section" id="tech">
+            <h2>Technical Architecture</h2>
+            <h3>Blockchain: Base</h3>
+            <p>All Decrypt Labs smart contracts and tokens are deployed on <strong>Base</strong> (Coinbase L2).</p>
+            <h3>Token Launch: Virtuals Protocol</h3>
+            <p>$CIPHER launches via <strong>Virtuals Protocol</strong> (virtuals.io) with fair launch mechanics.</p>
+            <h3>Smart Contracts</h3>
+            <table>
+                <tr><th>Contract</th><th>Purpose</th><th>Chain</th></tr>
+                <tr><td>$CIPHER Token</td><td>ERC-20 via Virtuals</td><td>Base</td></tr>
+                <tr><td>BotNFT.sol</td><td>ERC-721 NFT minting</td><td>Base</td></tr>
+                <tr><td>BotFleet.sol</td><td>Slot management</td><td>Base</td></tr>
+                <tr><td>FuelManager.sol</td><td>Monthly payment tracking</td><td>Base</td></tr>
+                <tr><td>RewardsDistributor.sol</td><td>Distribution & claims</td><td>Base</td></tr>
+                <tr><td>TierGate.sol</td><td>Token holder verification</td><td>Base</td></tr>
+            </table>
+        </section>
+
+        <section class="section" id="roadmap">
+            <h2>Roadmap</h2>
+            <table>
+                <tr><th>Phase</th><th>Status</th><th>Milestones</th></tr>
+                <tr><td>Phase 1: Foundation</td><td>✅</td><td>Bot development, Dashboard, Backtesting (9,900+ trades), Whitepaper</td></tr>
+                <tr><td>Phase 2: Token Launch (Virtuals)</td><td>🔄</td><td>$CIPHER on Virtuals Protocol, Base chain, Token tiers</td></tr>
+                <tr><td>Phase 3: NFT Launch</td><td>📋</td><td>Bot NFT contracts (Base), Audit, Mint event</td></tr>
+                <tr><td>Phase 4: Expansion</td><td>🚀</td><td>TradingView integration, Strategy guides, Mobile dashboard</td></tr>
+            </table>
+        </section>
+
+        <section class="section" id="risks">
+            <h2>Risk Disclosure</h2>
+            <div class="highlight" style="border-color: #ffaa00; background: linear-gradient(135deg, rgba(255,170,0,0.1), rgba(255,68,85,0.1));">
+                <h4 style="color: #ffaa00;">⚠️ Important Disclaimers</h4>
+                <ul>
+                    <li><strong>Trading Risk:</strong> Algorithmic trading involves substantial risk. Past performance does not guarantee future results.</li>
+                    <li><strong>No Guarantees:</strong> Decrypt Labs makes no guarantees about bot performance, token rewards, or investment returns.</li>
+                    <li><strong>Not Financial Advice:</strong> Nothing in this whitepaper constitutes financial, investment, or trading advice.</li>
+                    <li><strong>Smart Contract Risk:</strong> While contracts will be audited, bugs can exist. Users interact at their own risk.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <p><strong>Join the Fleet. Trade the Future.</strong></p>
+        <div class="footer-links">
+            <a href="index.html">Home</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="https://twitter.com/PriceCipherHQ">Twitter</a>
+        </div>
+        <p style="margin-top: 2rem; font-size: 0.875rem;">© 2026 Decrypt Labs. All rights reserved.</p>
+    </footer>
+</body>
+</html>

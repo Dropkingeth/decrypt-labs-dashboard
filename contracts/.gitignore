@@ -1,0 +1,15 @@
+# Environment (NEVER commit private keys!)
+.env
+.env.local
+.env.*.local
+
+# Foundry
+cache/
+out/
+broadcast/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store

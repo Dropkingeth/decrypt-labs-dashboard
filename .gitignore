@@ -1,0 +1,17 @@
+
+# === SENSITIVE - DO NOT COMMIT ===
+# PineScript strategies
+*.pine
+webhook/*.pine
+
+# Logs and data
+*.log
+*.jsonl
+webhook/stats.json
+webhook/trades.jsonl
+
+# Local configs
+*.local.js
+config.local.js
+caretaker/config.local.js
+caretaker/logs/
