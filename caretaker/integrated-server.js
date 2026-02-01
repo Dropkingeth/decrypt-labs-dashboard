@@ -495,6 +495,20 @@ const server = http.createServer(async (req, res) => {
       res.end(fs.readFileSync(dashboardPath, 'utf8'));
       return;
     }
+  }
+  
+  // Serve admin page
+  if (req.method === 'GET' && (pathname === '/admin' || pathname === '/admin/')) {
+    const adminPath = path.join(__dirname, 'dashboard', 'admin', 'index.html');
+    if (fs.existsSync(adminPath)) {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(fs.readFileSync(adminPath, 'utf8'));
+      return;
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Admin page not found');
+      return;
+    }
     // Fallback to basic dashboard
     const sessionActive = caretaker.isSessionActive();
     res.writeHead(200, { 'Content-Type': 'text/html' });

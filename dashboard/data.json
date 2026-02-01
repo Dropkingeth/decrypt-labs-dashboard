@@ -1,0 +1,120 @@
+{
+  "lastUpdated": "2026-02-01T22:30:09Z",
+  "aum": {
+    "total": 302430,
+    "milestone": 300000,
+    "milestoneLabel": "2x Buyback Power"
+  },
+  "bots": {
+    "fvg-ifvg-1": {
+      "name": "FVG+IFVG #1",
+      "subtitle": "Determining Order Flow",
+      "status": "online",
+      "accountId": "APEX2519120000018",
+      "accountSize": 150000,
+      "currentBalance": 151133.32,
+      "stats": {
+        "power": 75,
+        "fuel": 100,
+        "condition": 88,
+        "heat": 25
+      },
+      "performance": {
+        "totalTrades": 5200,
+        "winRate": 76.8,
+        "netPnl": 1133.32,
+        "todayPnl": 0
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": 1133.32,
+        "profitTargetGoal": 9000,
+        "profitTargetPercent": 12.6,
+        "drawdownUsed": 0,
+        "drawdownMax": 5000,
+        "drawdownPercent": 0,
+        "daysRemaining": 14,
+        "daysTotal": 30
+      },
+      "trailing": {
+        "peakBalance": 151133.32,
+        "liquidation": 146133.32,
+        "ddUsed": 0,
+        "ddMax": 5000,
+        "buffer": 100
+      }
+    },
+    "ote-silver-bullet": {
+      "name": "OTE Silver Bullet",
+      "subtitle": "Optimal Trade Entry",
+      "status": "online",
+      "accountId": "APEX2519120000014",
+      "accountSize": 150000,
+      "currentBalance": 151296.32,
+      "stats": {
+        "power": 88,
+        "fuel": 102,
+        "condition": 92,
+        "heat": 20
+      },
+      "performance": {
+        "totalTrades": 4900,
+        "winRate": 63.2,
+        "netPnl": 1296.32,
+        "todayPnl": 0
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": 1296.32,
+        "profitTargetGoal": 9000,
+        "profitTargetPercent": 14.4,
+        "drawdownUsed": 0,
+        "drawdownMax": 5000,
+        "drawdownPercent": 0,
+        "daysRemaining": 0,
+        "daysTotal": 30
+      },
+      "trailing": {
+        "peakBalance": 151296.32,
+        "liquidation": 146296.32,
+        "ddUsed": 0,
+        "ddMax": 5000,
+        "buffer": 100
+      }
+    }
+  },
+  "trades": [],
+  "buybacks": [],
+  "racing": {
+    "daily": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 0,
+        "ote-silver-bullet": 0
+      }
+    },
+    "weekly": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 1133.32,
+        "ote-silver-bullet": 1296.32
+      }
+    },
+    "monthly": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 1133.32,
+        "ote-silver-bullet": 1296.32
+      }
+    },
+    "allTime": {
+      "leader": "ote-silver-bullet",
+      "scores": {
+        "fvg-ifvg-1": 1133.32,
+        "ote-silver-bullet": 1296.32
+      }
+    }
+  },
+  "hallOfFame": [],
+  "notices": []
+}
