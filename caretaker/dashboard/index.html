@@ -773,6 +773,11 @@
         const trades = await tradesRes.json();
         
         // Build data structure that Caretaker dashboard expects
+        // API returns 'bots' key with account data
+        const bots = dashboard.bots || {};
+        const oteSB = bots['ote-silver-bullet'] || {};
+        const fvgIfvg = bots['fvg-ifvg-1'] || {};
+        
         const data = {
           sessionActive: health.status === 'ok',
           stats: {
@@ -782,19 +787,52 @@
           },
           positions: {
             'APEX2519120000014': {
-              position: 0, // Would need real position data from Tradovate
-              equity: dashboard.accounts?.['ote-silver-bullet']?.balance || 150000,
-              openPL: dashboard.accounts?.['ote-silver-bullet']?.pnl || 0,
+              position: 0,
+              equity: oteSB.currentBalance || 150000,
+              openPL: oteSB.performance?.netPnl || (oteSB.currentBalance - 150000) || 0,
               lastCheck: new Date().toISOString()
             },
             'APEX2519120000018': {
               position: 0,
-              equity: dashboard.accounts?.['fvg-ifvg']?.balance || 150000,
-              openPL: dashboard.accounts?.['fvg-ifvg']?.pnl || 0,
+              equity: fvgIfvg.currentBalance || 150000,
+              openPL: fvgIfvg.performance?.netPnl || (fvgIfvg.currentBalance - 150000) || 0,
               lastCheck: new Date().toISOString()
             }
           },
-          accounts: dashboard.accounts || {},
+          accounts: {
+            'ote-silver-bullet': {
+              name: oteSB.name || 'OTE Silver Bullet',
+              balance: oteSB.currentBalance || 150000,
+              pnl: oteSB.performance?.netPnl || (oteSB.currentBalance - 150000) || 0,
+              todayPnl: oteSB.performance?.todayPnl || 0,
+              weekPnl: oteSB.performance?.netPnl || 0,
+              monthPnl: oteSB.performance?.netPnl || 0,
+              peakBalance: oteSB.trailing?.peakBalance || oteSB.currentBalance || 150000,
+              liquidation: oteSB.trailing?.liquidation || ((oteSB.currentBalance || 150000) - 5000),
+              ddUsed: oteSB.trailing?.ddUsed || 0,
+              ddMax: 5000,
+              buffer: oteSB.trailing?.buffer || 100,
+              progress: oteSB.eval?.profitTargetPercent || 0,
+              profitTarget: 9000,
+              target: 159000
+            },
+            'fvg-ifvg': {
+              name: fvgIfvg.name || 'FVG+IFVG #1',
+              balance: fvgIfvg.currentBalance || 150000,
+              pnl: fvgIfvg.performance?.netPnl || (fvgIfvg.currentBalance - 150000) || 0,
+              todayPnl: fvgIfvg.performance?.todayPnl || 0,
+              weekPnl: fvgIfvg.performance?.netPnl || 0,
+              monthPnl: fvgIfvg.performance?.netPnl || 0,
+              peakBalance: fvgIfvg.trailing?.peakBalance || fvgIfvg.currentBalance || 150000,
+              liquidation: fvgIfvg.trailing?.liquidation || ((fvgIfvg.currentBalance || 150000) - 5000),
+              ddUsed: fvgIfvg.trailing?.ddUsed || 0,
+              ddMax: 5000,
+              buffer: fvgIfvg.trailing?.buffer || 100,
+              progress: fvgIfvg.eval?.profitTargetPercent || 0,
+              profitTarget: 9000,
+              target: 159000
+            }
+          },
           recentTrades: trades.slice(0, 20)
         };
         
