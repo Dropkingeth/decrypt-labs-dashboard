@@ -12,6 +12,7 @@
             --bg-dark: #0a0b1e;
             --bg-card: #12132d;
             --bg-hover: #1a1b3a;
+            --bg-input: #1a1b3a;
             --accent: #6366f1;
             --accent-light: #818cf8;
             --success: #10b981;
@@ -288,6 +289,130 @@
             text-decoration: underline;
         }
         
+        .request-access-btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .request-access-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .request-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .request-modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .modal-desc {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .form-hint a {
+            color: var(--accent-light);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .success-state {
+            text-align: center;
+            padding: 1rem;
+        }
+        
+        .success-state h3 {
+            color: var(--success);
+            margin-bottom: 0.5rem;
+        }
+        
         @media (max-width: 768px) {
             .container { padding: 1rem; }
             .hero h1 { font-size: 1.75rem; }
@@ -526,6 +651,29 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Request Access Modal -->
+        <div class="request-modal" id="requestModal">
+            <div class="modal-content">
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+                <h2 class="modal-title" id="modalTitle">🎯 Request Strategy Access</h2>
+                <p class="modal-desc" id="modalDesc">Enter your TradingView username to get access to this strategy.</p>
+                
+                <div id="requestForm">
+                    <div class="form-group">
+                        <label class="form-label">TradingView Username</label>
+                        <input type="text" class="form-input" id="tvUsername" placeholder="e.g. your_username">
+                        <p class="form-hint">Find your username at <a href="https://www.tradingview.com/u/" target="_blank">tradingview.com/u/</a></p>
+                    </div>
+                    <button class="submit-btn" id="submitBtn" onclick="submitRequest()">Request Access</button>
+                </div>
+                
+                <div class="success-state" id="successState" style="display: none;">
+                    <h3>✅ Request Submitted!</h3>
+                    <p style="color: var(--text-dim);">We'll add you to the strategy within 24 hours. Check your TradingView notifications.</p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -597,6 +745,93 @@
                 document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('locked'));
             }
         }
+        
+        let selectedStrategy = null;
+        const API_URL = "https://stunning-appreciation-production-ea66.up.railway.app/api";
+        
+        function openRequestModal(strategyId) {
+            const stratNames = ['OTE Silver Bullet', 'FVG + IFVG', 'OTE Refined (Aggressive)', 'OTE Refined (Conservative)'];
+            selectedStrategy = strategyId;
+            document.getElementById('modalTitle').textContent = `🎯 Request: ${stratNames[strategyId]}`;
+            document.getElementById('requestForm').style.display = 'block';
+            document.getElementById('successState').style.display = 'none';
+            document.getElementById('requestModal').classList.add('active');
+        }
+        
+        function closeModal() {
+            document.getElementById('requestModal').classList.remove('active');
+        }
+        
+        async function submitRequest() {
+            const username = document.getElementById('tvUsername').value.trim();
+            if (!username || selectedStrategy === null) return;
+            
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            
+            try {
+                const request = {
+                    wallet: userAddress,
+                    tvUsername: username,
+                    type: 'strategy',
+                    strategyId: selectedStrategy,
+                    timestamp: Date.now()
+                };
+                
+                try {
+                    await fetch(`${API_URL}/access-requests`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(request)
+                    });
+                } catch (e) {
+                    console.log('Backend not available, storing locally');
+                }
+                
+                localStorage.setItem(`strategy_request_${userAddress}_${selectedStrategy}`, JSON.stringify(request));
+                
+                document.getElementById('requestForm').style.display = 'none';
+                document.getElementById('successState').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert('Failed to submit. Please try again.');
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Request Access';
+        }
+        
+        function addRequestButtons() {
+            document.querySelectorAll('.strategy-card:not(.locked)').forEach(card => {
+                const stratId = parseInt(card.id.replace('strat', ''));
+                const existing = card.querySelector('.request-access-btn');
+                if (!existing) {
+                    const details = card.querySelector('.strategy-details');
+                    const btn = document.createElement('button');
+                    btn.className = 'request-access-btn';
+                    btn.textContent = '🔓 Request TradingView Access';
+                    btn.onclick = () => openRequestModal(stratId);
+                    
+                    // Check if already requested
+                    if (localStorage.getItem(`strategy_request_${userAddress}_${stratId}`)) {
+                        btn.textContent = '⏳ Request Pending';
+                        btn.disabled = true;
+                        btn.style.opacity = '0.6';
+                    }
+                    
+                    details.appendChild(btn);
+                }
+            });
+        }
+        
+        // Override checkAccess to add buttons
+        const originalCheckAccess = checkAccess;
+        checkAccess = async function() {
+            await originalCheckAccess();
+            setTimeout(addRequestButtons, 100);
+        };
         
         document.getElementById('connectBtn').addEventListener('click', connectWallet);
         

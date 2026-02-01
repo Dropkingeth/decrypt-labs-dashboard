@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PriceCipher Indicator - Decrypt Labs</title>
+    <title>PriceCipher Indicator Access - Decrypt Labs</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -11,15 +11,17 @@
         :root {
             --bg-dark: #0a0b1e;
             --bg-card: #12132d;
-            --bg-code: #0d0e1f;
+            --bg-input: #1a1b3a;
             --accent: #6366f1;
+            --accent-light: #818cf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
             --bronze: #cd7f32;
             --gold: #ffd700;
             --diamond: #b9f2ff;
-            --text: #e2e8f0;
-            --text-dim: #94a3b8;
-            --success: #10b981;
-            --error: #ef4444;
         }
         
         body {
@@ -33,7 +35,7 @@
         }
         
         .container {
-            max-width: 900px;
+            max-width: 700px;
             margin: 0 auto;
             padding: 2rem;
         }
@@ -47,26 +49,6 @@
             gap: 1rem;
         }
         
-        .nav-left {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-        
-        .back-link {
-            color: var(--text-dim);
-            text-decoration: none;
-            font-size: 0.875rem;
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-            transition: color 0.2s;
-        }
-        
-        .back-link:hover {
-            color: var(--text);
-        }
-        
         .logo {
             font-size: 1.5rem;
             font-weight: 700;
@@ -74,6 +56,12 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-decoration: none;
+        }
+        
+        .back-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.875rem;
         }
         
         .connect-btn {
@@ -92,506 +80,375 @@
             box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
         }
         
-        .connect-btn.connected {
-            background: var(--bg-card);
-            border: 1px solid var(--accent);
-        }
-        
         .hero {
             text-align: center;
-            padding: 2rem 0 3rem;
+            padding: 2rem 0;
         }
         
         .hero h1 {
-            font-size: 2.25rem;
-            margin-bottom: 0.75rem;
-            background: linear-gradient(135deg, #fff, #94a3b8);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
         
         .hero p {
             color: var(--text-dim);
-            font-size: 1.125rem;
-            max-width: 600px;
-            margin: 0 auto;
         }
         
-        /* Gated Content States */
-        .gated-section {
-            display: none;
-        }
-        
-        .gated-section.active {
-            display: block;
-        }
-        
-        /* Connect Prompt */
-        .connect-prompt {
-            text-align: center;
-            padding: 4rem 2rem;
+        .card {
             background: var(--bg-card);
-            border-radius: 24px;
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
             border: 1px solid rgba(99, 102, 241, 0.2);
         }
         
-        .connect-prompt .icon {
-            font-size: 4rem;
-            margin-bottom: 1.5rem;
+        .card.success {
+            border-color: var(--success);
         }
         
-        .connect-prompt h2 {
-            font-size: 1.5rem;
-            margin-bottom: 0.75rem;
+        .card.warning {
+            border-color: var(--danger);
         }
         
-        .connect-prompt p {
+        .tier-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tier-bronze { background: rgba(205, 127, 50, 0.2); color: var(--bronze); }
+        .tier-gold { background: rgba(255, 215, 0, 0.2); color: var(--gold); }
+        .tier-diamond { background: rgba(185, 242, 255, 0.2); color: var(--diamond); }
+        .tier-locked { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .card-desc {
             color: var(--text-dim);
             margin-bottom: 1.5rem;
+            line-height: 1.6;
         }
         
-        /* Access Denied */
-        .access-denied {
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg-input);
+            border: 2px solid rgba(99, 102, 241, 0.2);
+            border-radius: 12px;
+            color: var(--text);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .form-input::placeholder {
+            color: var(--text-dim);
+        }
+        
+        .form-hint {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            margin-top: 0.5rem;
+        }
+        
+        .form-hint a {
+            color: var(--accent-light);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .success-message {
+            display: none;
             text-align: center;
-            padding: 4rem 2rem;
-            background: var(--bg-card);
-            border-radius: 24px;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 2rem;
         }
         
-        .access-denied .icon {
+        .success-message.show {
+            display: block;
+        }
+        
+        .success-icon {
             font-size: 4rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 1rem;
         }
         
-        .access-denied h2 {
+        .success-title {
             font-size: 1.5rem;
-            margin-bottom: 0.75rem;
-            color: var(--error);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--success);
         }
         
-        .access-denied p {
+        .success-desc {
             color: var(--text-dim);
-            margin-bottom: 1.5rem;
+            line-height: 1.6;
         }
         
-        .tier-needed {
-            display: inline-flex;
+        .info-box {
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            margin-top: 1.5rem;
+        }
+        
+        .info-box h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
             align-items: center;
             gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: rgba(205, 127, 50, 0.2);
-            border: 1px solid var(--bronze);
-            border-radius: 50px;
-            color: var(--bronze);
-            font-weight: 600;
+        }
+        
+        .info-box p {
+            font-size: 0.85rem;
+            color: var(--text-dim);
+        }
+        
+        .locked-content {
+            text-align: center;
+        }
+        
+        .locked-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .locked-content p {
+            color: var(--text-dim);
             margin-bottom: 1.5rem;
+        }
+        
+        .tier-requirements {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tier-req {
+            padding: 0.75rem 1.5rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .tier-req-amount {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--bronze);
+        }
+        
+        .tier-req-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
         }
         
         .buy-link {
             display: inline-flex;
             align-items: center;
             gap: 0.5rem;
-            background: linear-gradient(135deg, var(--accent), #8b5cf6);
             padding: 0.75rem 1.5rem;
+            background: rgba(99, 102, 241, 0.2);
             border-radius: 12px;
-            color: white;
+            color: var(--accent-light);
             text-decoration: none;
             font-weight: 600;
-            transition: transform 0.2s;
-        }
-        
-        .buy-link:hover {
-            transform: translateY(-2px);
-        }
-        
-        /* Download Section */
-        .download-section {
-            background: var(--bg-card);
-            border-radius: 24px;
-            padding: 2rem;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-        
-        .tier-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-        }
-        
-        .tier-bronze { background: rgba(205, 127, 50, 0.2); color: var(--bronze); border: 1px solid var(--bronze); }
-        .tier-gold { background: rgba(255, 215, 0, 0.2); color: var(--gold); border: 1px solid var(--gold); }
-        .tier-diamond { background: rgba(185, 242, 255, 0.2); color: var(--diamond); border: 1px solid var(--diamond); }
-        
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .section-title .check {
-            color: var(--success);
-        }
-        
-        /* Code Block */
-        .code-container {
-            margin: 1.5rem 0;
-            border-radius: 16px;
-            overflow: hidden;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-        }
-        
-        .code-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.75rem 1rem;
-            background: rgba(99, 102, 241, 0.1);
-            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
-        }
-        
-        .code-lang {
-            font-size: 0.75rem;
-            color: var(--accent);
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        .copy-btn {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.5rem 1rem;
-            background: var(--accent);
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-size: 0.875rem;
-            font-weight: 600;
-            cursor: pointer;
             transition: all 0.2s;
         }
         
-        .copy-btn:hover {
-            background: #818cf8;
+        .buy-link:hover {
+            background: rgba(99, 102, 241, 0.3);
         }
         
-        .copy-btn.copied {
-            background: var(--success);
-        }
-        
-        .code-block {
-            background: var(--bg-code);
+        .pending-status {
+            display: none;
             padding: 1.5rem;
-            overflow-x: auto;
-            max-height: 400px;
-        }
-        
-        .code-block pre {
-            margin: 0;
-            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-            font-size: 0.875rem;
-            line-height: 1.6;
-            color: var(--text);
-        }
-        
-        /* Syntax Highlighting */
-        .code-block .comment { color: #6b7280; font-style: italic; }
-        .code-block .keyword { color: #c084fc; }
-        .code-block .string { color: #34d399; }
-        .code-block .function { color: #60a5fa; }
-        .code-block .number { color: #fbbf24; }
-        .code-block .variable { color: #f472b6; }
-        
-        /* Instructions */
-        .instructions {
-            margin-top: 2rem;
-        }
-        
-        .instructions h3 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-        }
-        
-        .steps {
-            list-style: none;
-            counter-reset: step;
-        }
-        
-        .steps li {
-            position: relative;
-            padding: 1rem 1rem 1rem 3.5rem;
-            margin-bottom: 0.75rem;
-            background: rgba(99, 102, 241, 0.05);
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
             border-radius: 12px;
-            border: 1px solid rgba(99, 102, 241, 0.1);
-            counter-increment: step;
-        }
-        
-        .steps li::before {
-            content: counter(step);
-            position: absolute;
-            left: 1rem;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 1.75rem;
-            height: 1.75rem;
-            background: var(--accent);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 0.875rem;
-        }
-        
-        .steps li strong {
-            color: var(--text);
-        }
-        
-        .steps li span {
-            color: var(--text-dim);
-        }
-        
-        /* Video Section */
-        .video-section {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(99, 102, 241, 0.2);
-        }
-        
-        .video-section h3 {
-            font-size: 1.25rem;
-            margin-bottom: 1rem;
-        }
-        
-        .video-placeholder {
-            aspect-ratio: 16/9;
-            background: var(--bg-code);
-            border-radius: 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            border: 2px dashed rgba(99, 102, 241, 0.3);
-            color: var(--text-dim);
-        }
-        
-        .video-placeholder .icon {
-            font-size: 3rem;
-            margin-bottom: 0.5rem;
-            opacity: 0.5;
-        }
-        
-        /* Footer Note */
-        .footer-note {
-            margin-top: 2rem;
-            padding: 1rem;
-            background: rgba(99, 102, 241, 0.1);
-            border-radius: 12px;
-            font-size: 0.875rem;
-            color: var(--text-dim);
             text-align: center;
         }
         
-        .footer-note a {
-            color: var(--accent);
-            text-decoration: none;
+        .pending-status.show {
+            display: block;
         }
         
-        .footer-note a:hover {
-            text-decoration: underline;
+        .pending-status h4 {
+            color: var(--warning);
+            margin-bottom: 0.5rem;
         }
         
-        /* Loading State */
-        .loading {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            padding: 4rem;
+        .pending-status p {
             color: var(--text-dim);
+            font-size: 0.9rem;
         }
         
-        .spinner {
-            width: 24px;
-            height: 24px;
-            border: 3px solid rgba(99, 102, 241, 0.2);
-            border-top-color: var(--accent);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 640px) {
             .container { padding: 1rem; }
-            .hero h1 { font-size: 1.75rem; }
-            .hero { padding: 1.5rem 0 2rem; }
-            .download-section { padding: 1.5rem; }
-            .code-block { padding: 1rem; }
-            .code-block pre { font-size: 0.75rem; }
-            header { flex-direction: column; align-items: stretch; }
-            .nav-left { justify-content: center; }
-            .connect-btn { width: 100%; text-align: center; }
+            .hero h1 { font-size: 1.5rem; }
+            header { flex-direction: column; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
-            <div class="nav-left">
-                <a href="/access/" class="back-link">← Back to Access</a>
-                <a href="/" class="logo">🔐 Decrypt Labs</a>
-            </div>
+            <a href="/" class="logo">🔐 Decrypt Labs</a>
+            <a href="/access/" class="back-link">← Back to Access</a>
             <button class="connect-btn" id="connectBtn">Connect Wallet</button>
         </header>
         
         <div class="hero">
             <h1>📊 PriceCipher Indicator</h1>
-            <p>Download the PriceCipher TradingView indicator — available exclusively to Bronze tier and above</p>
+            <p>Request access to the private TradingView indicator</p>
         </div>
         
         <!-- Loading State -->
-        <div class="gated-section active" id="loadingState">
-            <div class="loading">
-                <div class="spinner"></div>
-                <span>Checking access...</span>
+        <div class="card" id="loadingCard" style="display: none;">
+            <div style="text-align: center; padding: 2rem;">
+                <p>Checking your tier status...</p>
             </div>
         </div>
         
-        <!-- Connect Wallet Prompt -->
-        <div class="gated-section" id="connectPrompt">
-            <div class="connect-prompt">
-                <div class="icon">🔌</div>
-                <h2>Connect Your Wallet</h2>
-                <p>Connect your wallet to verify your $CIPHER holdings and access the indicator.</p>
+        <!-- Connect Wallet State -->
+        <div class="card" id="connectCard">
+            <div class="locked-content">
+                <h3>👋 Connect Your Wallet</h3>
+                <p>Connect your wallet to check if you have Bronze tier or higher</p>
                 <button class="connect-btn" onclick="connectWallet()">Connect Wallet</button>
             </div>
         </div>
         
-        <!-- Access Denied -->
-        <div class="gated-section" id="accessDenied">
-            <div class="access-denied">
-                <div class="icon">🔒</div>
-                <h2>Bronze Tier Required</h2>
-                <p>You need to hold at least 100,000 $CIPHER to access the PriceCipher indicator.</p>
-                <div class="tier-needed">
-                    <span>🥉</span>
-                    <span>100,000 $CIPHER needed</span>
+        <!-- Not Qualified State -->
+        <div class="card warning" id="lockedCard" style="display: none;">
+            <div class="locked-content">
+                <span class="tier-badge tier-locked">🔒 Access Denied</span>
+                <h3>Bronze Tier Required</h3>
+                <p>You need to hold at least 100,000 $CIPHER to access the indicator</p>
+                
+                <div class="tier-requirements">
+                    <div class="tier-req">
+                        <div class="tier-req-amount">100,000</div>
+                        <div class="tier-req-label">$CIPHER Required</div>
+                    </div>
+                    <div class="tier-req">
+                        <div class="tier-req-amount" id="userBalance">0</div>
+                        <div class="tier-req-label">Your Balance</div>
+                    </div>
                 </div>
-                <br>
-                <p id="currentBalance" style="margin-bottom: 1.5rem;"></p>
-                <a href="https://app.uniswap.org/swap?outputCurrency=0x85075b6E79FEB545F30e60151f467ff17FD3E8BB&chain=base" target="_blank" class="buy-link">
-                    🛒 Buy $CIPHER on Uniswap
+                
+                <a href="https://app.uniswap.org" target="_blank" class="buy-link">
+                    🦄 Buy $CIPHER on Uniswap
                 </a>
             </div>
         </div>
         
-        <!-- Download Section (Unlocked) -->
-        <div class="gated-section" id="downloadSection">
-            <div class="download-section">
-                <div class="tier-badge tier-bronze" id="userTierBadge">🥉 Bronze Access</div>
+        <!-- Qualified State - Request Form -->
+        <div class="card success" id="accessCard" style="display: none;">
+            <span class="tier-badge" id="tierBadge">🥉 Bronze</span>
+            <h3 class="card-title">Request Indicator Access</h3>
+            <p class="card-desc">
+                Enter your TradingView username below. Once verified, we'll add you to the private 
+                PriceCipher indicator within 24 hours.
+            </p>
+            
+            <form id="accessForm">
+                <div class="form-group">
+                    <label class="form-label">TradingView Username</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="tvUsername" 
+                        placeholder="e.g. your_username"
+                        required
+                    >
+                    <p class="form-hint">
+                        Find your username at <a href="https://www.tradingview.com/u/" target="_blank">tradingview.com/u/</a>
+                    </p>
+                </div>
                 
-                <h2 class="section-title">
-                    <span class="check">✓</span>
-                    PriceCipher Indicator — PineScript
-                </h2>
-                <p style="color: var(--text-dim); margin-bottom: 1rem;">
-                    Copy the code below and add it to TradingView as a custom indicator.
+                <button type="submit" class="submit-btn" id="submitBtn">
+                    Request Access
+                </button>
+            </form>
+            
+            <div class="info-box">
+                <h4>ℹ️ How it works</h4>
+                <p>
+                    We manually verify your wallet and add your TradingView account to our private indicator. 
+                    You'll receive an invite notification on TradingView once approved.
                 </p>
-                
-                <div class="code-container">
-                    <div class="code-header">
-                        <span class="code-lang">PineScript v5</span>
-                        <button class="copy-btn" id="copyBtn" onclick="copyCode()">
-                            <span id="copyIcon">📋</span>
-                            <span id="copyText">Copy Code</span>
-                        </button>
-                    </div>
-                    <div class="code-block">
-                        <pre id="codeContent"><span class="comment">// PriceCipher Indicator v1.0</span>
-<span class="comment">// © Decrypt Labs - decryptlabs.io</span>
-<span class="comment">// For Bronze tier and above holders only</span>
-
-<span class="comment">//@version=5</span>
-<span class="keyword">indicator</span>(<span class="string">"PriceCipher"</span>, overlay=<span class="keyword">true</span>)
-
-<span class="comment">// ═══════════════════════════════════════════════════════</span>
-<span class="comment">//                    COMING SOON</span>
-<span class="comment">// ═══════════════════════════════════════════════════════</span>
-<span class="comment">//</span>
-<span class="comment">// The full PriceCipher indicator code will be released</span>
-<span class="comment">// upon the official launch of Decrypt Labs.</span>
-<span class="comment">//</span>
-<span class="comment">// Features include:</span>
-<span class="comment">//   • Order Block Detection</span>
-<span class="comment">//   • Fair Value Gap (FVG) Identification</span>
-<span class="comment">//   • Liquidity Sweep Alerts</span>
-<span class="comment">//   • Optimal Trade Entry (OTE) Zones</span>
-<span class="comment">//   • Multi-timeframe Analysis</span>
-<span class="comment">//</span>
-<span class="comment">// Stay tuned for updates!</span>
-<span class="comment">// ═══════════════════════════════════════════════════════</span>
-
-<span class="comment">// Placeholder plot</span>
-<span class="function">plot</span>(<span class="function">close</span>, <span class="string">"Price"</span>, <span class="variable">color.new</span>(<span class="variable">color.blue</span>, <span class="number">100</span>))</pre>
-                    </div>
-                </div>
-                
-                <div class="instructions">
-                    <h3>📝 Installation Instructions</h3>
-                    <ol class="steps">
-                        <li>
-                            <strong>Open TradingView</strong><br>
-                            <span>Go to <a href="https://tradingview.com" target="_blank" style="color: var(--accent);">tradingview.com</a> and log into your account</span>
-                        </li>
-                        <li>
-                            <strong>Open Pine Editor</strong><br>
-                            <span>Click the "Pine Editor" tab at the bottom of the chart</span>
-                        </li>
-                        <li>
-                            <strong>Create New Indicator</strong><br>
-                            <span>Click "Open" → "New blank indicator" to start fresh</span>
-                        </li>
-                        <li>
-                            <strong>Paste the Code</strong><br>
-                            <span>Delete the default code and paste the PriceCipher code from above</span>
-                        </li>
-                        <li>
-                            <strong>Save & Add to Chart</strong><br>
-                            <span>Click "Save" (name it "PriceCipher"), then "Add to chart"</span>
-                        </li>
-                        <li>
-                            <strong>Configure Settings</strong><br>
-                            <span>Double-click the indicator on chart to customize colors and parameters</span>
-                        </li>
-                    </ol>
-                </div>
-                
-                <div class="video-section">
-                    <h3>🎬 Video Tutorial</h3>
-                    <div class="video-placeholder">
-                        <div class="icon">▶️</div>
-                        <span>Video tutorial coming soon</span>
-                    </div>
-                </div>
-                
-                <div class="footer-note">
-                    Need help? Join our <a href="https://discord.gg/decryptlabs" target="_blank">Discord community</a> for support.
-                </div>
             </div>
+        </div>
+        
+        <!-- Success State -->
+        <div class="card" id="successCard" style="display: none;">
+            <div class="success-message show">
+                <div class="success-icon">✅</div>
+                <h3 class="success-title">Request Submitted!</h3>
+                <p class="success-desc">
+                    We'll verify your wallet holdings and add you to the PriceCipher indicator within 24 hours. 
+                    Check your TradingView notifications for the invite.
+                </p>
+            </div>
+            
+            <div class="info-box">
+                <h4>📧 What's next?</h4>
+                <p>
+                    Once approved, you'll see PriceCipher in your TradingView Indicators under "Invite-only scripts". 
+                    Add it to any chart to start identifying setups.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Pending State (already requested) -->
+        <div class="pending-status" id="pendingStatus">
+            <h4>⏳ Request Pending</h4>
+            <p>You've already submitted a request. We'll add you to the indicator within 24 hours.</p>
         </div>
     </div>
 
@@ -604,150 +461,141 @@
         const ERC20_ABI = ["function balanceOf(address) view returns (uint256)"];
         const TIERGATE_ABI = ["function getUserTier(address) view returns (uint8)"];
         
-        let provider, signer, userAddress;
+        // Backend API for storing requests (replace with your actual endpoint)
+        const API_URL = "https://stunning-appreciation-production-ea66.up.railway.app/api";
         
-        function showSection(sectionId) {
-            document.querySelectorAll('.gated-section').forEach(s => s.classList.remove('active'));
-            document.getElementById(sectionId).classList.add('active');
-        }
+        let provider, signer, userAddress;
         
         async function connectWallet() {
             if (!window.ethereum) {
-                alert('Please install MetaMask or another Web3 wallet!');
+                alert('Please install MetaMask!');
                 return;
             }
             
             try {
-                showSection('loadingState');
+                document.getElementById('connectCard').style.display = 'none';
+                document.getElementById('loadingCard').style.display = 'block';
                 
                 provider = new ethers.BrowserProvider(window.ethereum);
                 await provider.send("eth_requestAccounts", []);
                 signer = await provider.getSigner();
                 userAddress = await signer.getAddress();
                 
-                // Check network (Base Sepolia = 84532)
                 const network = await provider.getNetwork();
                 if (network.chainId !== 84532n) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x14a34' }]
-                        });
-                    } catch (switchError) {
-                        // If chain not added, add it
-                        if (switchError.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [{
-                                    chainId: '0x14a34',
-                                    chainName: 'Base Sepolia',
-                                    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                                    rpcUrls: ['https://sepolia.base.org'],
-                                    blockExplorerUrls: ['https://sepolia.basescan.org']
-                                }]
-                            });
-                        }
-                    }
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x14a34' }]
+                    });
                 }
                 
-                // Update connect button
-                const btn = document.getElementById('connectBtn');
-                btn.textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
-                btn.classList.add('connected');
+                document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 
                 await checkAccess();
             } catch (error) {
                 console.error('Connection error:', error);
-                showSection('connectPrompt');
+                document.getElementById('loadingCard').style.display = 'none';
+                document.getElementById('connectCard').style.display = 'block';
             }
         }
         
         async function checkAccess() {
-            try {
-                const cipher = new ethers.Contract(CONTRACTS.cipher, ERC20_ABI, provider);
-                const tierGate = new ethers.Contract(CONTRACTS.tierGate, TIERGATE_ABI, provider);
+            const tierGate = new ethers.Contract(CONTRACTS.tierGate, TIERGATE_ABI, provider);
+            const cipher = new ethers.Contract(CONTRACTS.cipher, ERC20_ABI, provider);
+            
+            const tier = await tierGate.getUserTier(userAddress);
+            const balance = await cipher.balanceOf(userAddress);
+            
+            const tierNum = Number(tier);
+            const balanceFormatted = Number(ethers.formatEther(balance)).toLocaleString();
+            
+            document.getElementById('loadingCard').style.display = 'none';
+            
+            if (tierNum >= 1) {
+                // Has access
+                document.getElementById('accessCard').style.display = 'block';
                 
-                const balance = await cipher.balanceOf(userAddress);
-                const tier = await tierGate.getUserTier(userAddress);
-                
-                const balanceFormatted = Number(ethers.formatEther(balance)).toLocaleString();
-                
-                if (tier >= 1) {
-                    // Bronze or higher - show download section
-                    const tierBadge = document.getElementById('userTierBadge');
-                    const tierNames = ['', '🥉 Bronze Access', '🥇 Gold Access', '💎 Diamond Access'];
-                    const tierClasses = ['', 'tier-bronze', 'tier-gold', 'tier-diamond'];
-                    
-                    tierBadge.textContent = tierNames[tier];
-                    tierBadge.className = 'tier-badge ' + tierClasses[tier];
-                    
-                    showSection('downloadSection');
-                } else {
-                    // No tier - show access denied
-                    document.getElementById('currentBalance').innerHTML = 
-                        `You currently hold <strong>${balanceFormatted} $CIPHER</strong>`;
-                    showSection('accessDenied');
+                // Update tier badge
+                const badge = document.getElementById('tierBadge');
+                if (tierNum === 1) {
+                    badge.textContent = '🥉 Bronze';
+                    badge.className = 'tier-badge tier-bronze';
+                } else if (tierNum === 2) {
+                    badge.textContent = '🥇 Gold';
+                    badge.className = 'tier-badge tier-gold';
+                } else if (tierNum === 3) {
+                    badge.textContent = '💎 Diamond';
+                    badge.className = 'tier-badge tier-diamond';
                 }
-            } catch (error) {
-                console.error('Access check error:', error);
-                showSection('connectPrompt');
+                
+                // Check if already requested
+                checkPendingRequest();
+            } else {
+                // Locked
+                document.getElementById('lockedCard').style.display = 'block';
+                document.getElementById('userBalance').textContent = balanceFormatted;
             }
         }
         
-        function copyCode() {
-            // Get raw code (without HTML tags)
-            const rawCode = `// PriceCipher Indicator v1.0
-// © Decrypt Labs - decryptlabs.io
-// For Bronze tier and above holders only
-
-//@version=5
-indicator("PriceCipher", overlay=true)
-
-// ═══════════════════════════════════════════════════════
-//                    COMING SOON
-// ═══════════════════════════════════════════════════════
-//
-// The full PriceCipher indicator code will be released
-// upon the official launch of Decrypt Labs.
-//
-// Features include:
-//   • Order Block Detection
-//   • Fair Value Gap (FVG) Identification
-//   • Liquidity Sweep Alerts
-//   • Optimal Trade Entry (OTE) Zones
-//   • Multi-timeframe Analysis
-//
-// Stay tuned for updates!
-// ═══════════════════════════════════════════════════════
-
-// Placeholder plot
-plot(close, "Price", color.new(color.blue, 100))`;
-            
-            navigator.clipboard.writeText(rawCode).then(() => {
-                const btn = document.getElementById('copyBtn');
-                const icon = document.getElementById('copyIcon');
-                const text = document.getElementById('copyText');
-                
-                btn.classList.add('copied');
-                icon.textContent = '✓';
-                text.textContent = 'Copied!';
-                
-                setTimeout(() => {
-                    btn.classList.remove('copied');
-                    icon.textContent = '📋';
-                    text.textContent = 'Copy Code';
-                }, 2000);
-            });
+        async function checkPendingRequest() {
+            // Check localStorage for pending request
+            const pendingRequest = localStorage.getItem(`indicator_request_${userAddress}`);
+            if (pendingRequest) {
+                document.getElementById('accessCard').querySelector('form').style.display = 'none';
+                document.getElementById('pendingStatus').classList.add('show');
+            }
         }
         
-        // Initialize
-        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        async function submitRequest(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('tvUsername').value.trim();
+            if (!username) return;
+            
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+            
+            try {
+                // Store the request (in production, send to your backend)
+                const request = {
+                    wallet: userAddress,
+                    tvUsername: username,
+                    type: 'indicator',
+                    timestamp: Date.now()
+                };
+                
+                // Try to send to backend
+                try {
+                    await fetch(`${API_URL}/access-requests`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(request)
+                    });
+                } catch (e) {
+                    console.log('Backend not available, storing locally');
+                }
+                
+                // Store in localStorage as backup
+                localStorage.setItem(`indicator_request_${userAddress}`, JSON.stringify(request));
+                
+                // Show success
+                document.getElementById('accessCard').style.display = 'none';
+                document.getElementById('successCard').style.display = 'block';
+                
+            } catch (error) {
+                console.error('Submit error:', error);
+                alert('Failed to submit request. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Request Access';
+            }
+        }
         
-        // Check if already connected
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        document.getElementById('accessForm').addEventListener('submit', submitRequest);
+        
         if (window.ethereum?.selectedAddress) {
             connectWallet();
-        } else {
-            showSection('connectPrompt');
         }
     </script>
 </body>
