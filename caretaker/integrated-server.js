@@ -76,6 +76,7 @@ function saveAccessRequests() {
 
 // Load access requests on startup
 loadAccessRequests();
+console.log('[DEPLOY] 🚀 NEW CODE ACTIVE - Build Feb 1 2026 3:00pm');
 
 // Auth helpers
 function generateSessionId() {
@@ -369,6 +370,7 @@ const server = http.createServer(async (req, res) => {
   
   const parsedUrl = url.parse(req.url, true);
   const pathname = parsedUrl.pathname;
+  console.log(`[REQ] ${req.method} ${pathname}`);
   
   // -------------------------------------------------------------------------
   // LOGIN / LOGOUT
@@ -827,7 +829,9 @@ const server = http.createServer(async (req, res) => {
   // ============================================================================
   
   // GET /api/access-requests - Get all access requests
+  console.log(`[DEBUG] Checking access-requests: method=${req.method}, pathname=${pathname}`);
   if (req.method === 'GET' && pathname === '/api/access-requests') {
+    console.log('[DEBUG] ✅ Matched /api/access-requests');
     res.writeHead(200, { 
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*'
