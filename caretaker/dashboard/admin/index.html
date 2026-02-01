@@ -1287,14 +1287,37 @@
           statusEl.innerHTML = '<span class="status-dot"></span><span>Online</span>';
         }
         
-        updateBotCards(dashboard);
-        updatePerformanceGrid(dashboard.accounts);
+        // Transform bots data to accounts format expected by UI
+        const bots = dashboard.bots || {};
+        const accounts = {
+          'ote-silver-bullet': transformBot(bots['ote-silver-bullet']),
+          'fvg-ifvg': transformBot(bots['fvg-ifvg-1'])
+        };
+        
+        updateBotCards(accounts);
+        updatePerformanceGrid(accounts);
       } catch (e) {
         console.log('Fetch error:', e);
       }
     }
+    
+    function transformBot(bot) {
+      if (!bot) return { balance: 150000, pnl: 0, progress: 0 };
+      return {
+        name: bot.name,
+        balance: bot.currentBalance || 150000,
+        pnl: bot.performance?.netPnl || (bot.currentBalance - 150000) || 0,
+        todayPnl: bot.performance?.todayPnl || 0,
+        progress: bot.eval?.profitTargetPercent || 0,
+        peakBalance: bot.trailing?.peakBalance || bot.currentBalance || 150000,
+        liquidation: bot.trailing?.liquidation || ((bot.currentBalance || 150000) - 5000),
+        ddUsed: bot.trailing?.ddUsed || 0,
+        ddMax: 5000,
+        buffer: bot.trailing?.buffer || 100
+      };
+    }
 
-    function updateBotCards(data) {
+    function updateBotCards(accounts) {
       const container = document.getElementById('bots-container');
       const bots = [
         { name: 'OTE Silver Bullet', account: 'APEX-251912-14', key: 'ote-silver-bullet' },
@@ -1302,7 +1325,7 @@
       ];
 
       container.innerHTML = bots.map(bot => {
-        const acc = data?.accounts?.[bot.key] || {};
+        const acc = accounts?.[bot.key] || {};
         return `
           <div class="bot-card">
             <div class="bot-header">
