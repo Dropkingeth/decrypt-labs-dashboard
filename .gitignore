@@ -1,17 +1,86 @@
+# ================================================
+# 🔐 DECRYPT LABS - GITIGNORE
+# ================================================
+# NEVER commit sensitive files. This file protects you.
+# ================================================
 
-# === SENSITIVE - DO NOT COMMIT ===
-# PineScript strategies
+# ============ SECRETS & KEYS ============
+# Private keys, env files, credentials
+.env
+.env.*
+*.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+*private*key*
+*secret*
+credentials.json
+secrets.json
+
+# ============ TRADING STRATEGIES ============
+# PineScript files - YOUR SECRET SAUCE
 *.pine
+*.pinescript
 webhook/*.pine
+strategies/*.pine
+**/strategies/**
+*indicator*.pine
+*webhook*.pine
 
-# Logs and data
-*.log
+# ============ TRADE DATA & LOGS ============
+# Your trading history and performance
 *.jsonl
-webhook/stats.json
-webhook/trades.jsonl
+*.log
+trades.json
+trades.jsonl
+stats.json
+positions.json
+**/logs/
+**/*.log
 
-# Local configs
+# ============ LOCAL CONFIG ============
+# Machine-specific settings
 *.local.js
-config.local.js
+*.local.ts
+*.local.json
+config.local.*
 caretaker/config.local.js
-caretaker/logs/
+
+# ============ FOUNDRY / SOLIDITY ============
+# Build artifacts (can be regenerated)
+cache/
+out/
+broadcast/
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+
+# ============ NODE / NPM ============
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# ============ OS FILES ============
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# ============ IDE ============
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ============ MISC ============
+*.bak
+*.backup
+*.tmp
+*.temp
