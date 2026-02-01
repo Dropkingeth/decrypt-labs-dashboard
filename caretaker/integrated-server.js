@@ -759,6 +759,63 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   
+  // GET /api/accounts - Account data for public dashboard
+  if (req.method === 'GET' && pathname === '/api/accounts') {
+    try {
+      const data = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
+      const bots = data.bots || {};
+      
+      // Transform to expected format for decryptlabs.io
+      const accounts = {};
+      
+      if (bots['ote-silver-bullet']) {
+        const bot = bots['ote-silver-bullet'];
+        accounts['ote-silver-bullet'] = {
+          name: bot.name || 'OTE Silver Bullet',
+          status: bot.status || 'online',
+          accountId: bot.accountId || 'APEX-251912-14',
+          balance: bot.currentBalance || 150000,
+          pnl: bot.performance?.netPnl || (bot.currentBalance - 150000) || 0,
+          profitNeeded: 9000,
+          progress: bot.eval?.profitTargetPercent || ((bot.currentBalance - 150000) / 9000 * 100) || 0,
+          drawdown: bot.trailing?.ddUsed || bot.eval?.drawdownUsed || 0,
+          drawdownMax: 5000,
+          drawdownRemaining: bot.trailing?.buffer ? (bot.trailing.ddMax * bot.trailing.buffer / 100) : 5000,
+          peakBalance: bot.trailing?.peakBalance || bot.currentBalance || 150000,
+          trailingThreshold: bot.trailing?.liquidation || ((bot.currentBalance || 150000) - 5000)
+        };
+      }
+      
+      if (bots['fvg-ifvg-1']) {
+        const bot = bots['fvg-ifvg-1'];
+        accounts['fvg-ifvg'] = {
+          name: bot.name || 'FVG+IFVG',
+          status: bot.status || 'online',
+          accountId: bot.accountId || 'APEX-251912-18',
+          balance: bot.currentBalance || 150000,
+          pnl: bot.performance?.netPnl || (bot.currentBalance - 150000) || 0,
+          profitNeeded: 9000,
+          progress: bot.eval?.profitTargetPercent || ((bot.currentBalance - 150000) / 9000 * 100) || 0,
+          drawdown: bot.trailing?.ddUsed || bot.eval?.drawdownUsed || 0,
+          drawdownMax: 5000,
+          drawdownRemaining: bot.trailing?.buffer ? (bot.trailing.ddMax * bot.trailing.buffer / 100) : 5000,
+          peakBalance: bot.trailing?.peakBalance || bot.currentBalance || 150000,
+          trailingThreshold: bot.trailing?.liquidation || ((bot.currentBalance || 150000) - 5000)
+        };
+      }
+      
+      res.writeHead(200, { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.end(JSON.stringify(accounts));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to load accounts' }));
+    }
+    return;
+  }
+  
   // GET /api/trades - Recent trades
   if (req.method === 'GET' && pathname === '/api/trades') {
     try {
