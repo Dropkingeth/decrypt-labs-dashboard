@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$CIPHER Tokenomics | Decrypt Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-primary: #0a0b14;
+      --bg-secondary: #12141f;
+      --bg-card: #181a28;
+      --bg-hover: #1f2235;
+      --accent-purple: #8b5cf6;
+      --accent-purple-light: #a78bfa;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      --accent-pink: #ec4899;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: rgba(139, 92, 246, 0.2);
+      --glow-purple: rgba(139, 92, 246, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background Effects */
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(59, 130, 246, 0.1), transparent),
+        radial-gradient(ellipse 40% 30% at 10% 80%, rgba(6, 182, 212, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      background: rgba(10, 11, 20, 0.8);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    nav a {
+      padding: 0.6rem 1.2rem;
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      border-radius: 10px;
+      transition: all 0.2s ease;
+    }
+
+    nav a:hover {
+      color: var(--text-primary);
+      background: var(--bg-hover);
+    }
+
+    nav a.active {
+      color: var(--accent-purple-light);
+      background: rgba(139, 92, 246, 0.15);
+    }
+
+    /* Main Container */
+    main {
+      position: relative;
+      z-index: 10;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 4rem;
+    }
+
+    .token-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px solid var(--border-color);
+      border-radius: 50px;
+      margin-bottom: 1.5rem;
+      font-size: 0.85rem;
+      color: var(--accent-purple-light);
+    }
+
+    .token-badge .pulse {
+      width: 8px;
+      height: 8px;
+      background: var(--accent-green);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-purple-light), var(--accent-cyan));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      line-height: 1.1;
+    }
+
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 2rem;
+      line-height: 1.6;
+    }
+
+    /* Token Stats */
+    .token-stats {
+      display: flex;
+      justify-content: center;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+
+    .stat-item {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Contract Address */
+    .contract-address {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 1.5rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .contract-address:hover {
+      border-color: var(--accent-purple);
+      background: var(--bg-hover);
+    }
+
+    .contract-address .network-tag {
+      padding: 0.25rem 0.5rem;
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-orange);
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .contract-address .copy-icon {
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .contract-address:hover .copy-icon {
+      opacity: 1;
+    }
+
+    /* Section Titles */
+    .section-header {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-header h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .section-header p {
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Distribution Section */
+    .distribution-section {
+      margin-bottom: 5rem;
+    }
+
+    .distribution-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3rem;
+      align-items: center;
+    }
+
+    /* Animated Pie Chart */
+    .pie-chart-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .pie-chart {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: conic-gradient(
+        var(--accent-cyan) 0deg 144deg,
+        var(--accent-purple) 144deg 234deg,
+        var(--accent-blue) 234deg 288deg,
+        var(--accent-orange) 288deg 324deg,
+        var(--accent-green) 324deg 360deg
+      );
+      animation: rotateIn 1.5s ease-out;
+      box-shadow: 
+        0 0 60px rgba(139, 92, 246, 0.3),
+        0 0 120px rgba(6, 182, 212, 0.2);
+    }
+
+    @keyframes rotateIn {
+      from {
+        transform: rotate(-90deg) scale(0.8);
+        opacity: 0;
+      }
+      to {
+        transform: rotate(0deg) scale(1);
+        opacity: 1;
+      }
+    }
+
+    .pie-chart::before {
+      content: '';
+      position: absolute;
+      inset: 40px;
+      background: var(--bg-primary);
+      border-radius: 50%;
+      z-index: 1;
+    }
+
+    .pie-chart::after {
+      content: '$CIPHER';
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      z-index: 2;
+    }
+
+    /* Pie Segments Animation */
+    .pie-segment {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+    }
+
+    /* Distribution Legend */
+    .distribution-legend {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      transition: all 0.3s ease;
+      animation: slideIn 0.5s ease-out backwards;
+    }
+
+    .legend-item:nth-child(1) { animation-delay: 0.1s; }
+    .legend-item:nth-child(2) { animation-delay: 0.2s; }
+    .legend-item:nth-child(3) { animation-delay: 0.3s; }
+    .legend-item:nth-child(4) { animation-delay: 0.4s; }
+    .legend-item:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    .legend-item:hover {
+      transform: translateX(8px);
+      border-color: var(--accent-purple);
+      background: var(--bg-hover);
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+
+    .legend-info {
+      flex: 1;
+    }
+
+    .legend-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .legend-detail {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .legend-percent {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+    }
+
+    .legend-amount {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Utility Section */
+    .utility-section {
+      margin-bottom: 5rem;
+    }
+
+    .utility-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .utility-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .utility-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--card-accent), transparent);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .utility-card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-purple);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .utility-card:hover::before {
+      opacity: 1;
+    }
+
+    .utility-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, var(--card-accent), transparent);
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .utility-card h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .utility-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .utility-price {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: rgba(139, 92, 246, 0.1);
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--accent-purple-light);
+    }
+
+    /* Tier Section */
+    .tier-section {
+      margin-bottom: 5rem;
+    }
+
+    .tier-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+
+    .tier-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 24px;
+      padding: 2rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .tier-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 100px;
+      background: var(--tier-color);
+      filter: blur(60px);
+      opacity: 0.3;
+    }
+
+    .tier-card:hover {
+      transform: translateY(-8px);
+      border-color: var(--tier-color);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    }
+
+    .tier-card.featured {
+      transform: scale(1.05);
+      border-color: var(--tier-color);
+    }
+
+    .tier-card.featured:hover {
+      transform: scale(1.05) translateY(-8px);
+    }
+
+    .tier-badge {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      padding: 0.35rem 0.75rem;
+      background: var(--tier-color);
+      color: var(--bg-primary);
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-radius: 6px;
+    }
+
+    .tier-icon {
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 1.5rem;
+      background: linear-gradient(135deg, var(--tier-color), transparent);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tier-card h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 0.5rem;
+      color: var(--tier-color);
+    }
+
+    .tier-requirement {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .tier-requirement span {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .tier-benefits {
+      text-align: left;
+      list-style: none;
+    }
+
+    .tier-benefits li {
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .tier-benefits li:last-child {
+      border-bottom: none;
+    }
+
+    .tier-benefits .check {
+      color: var(--tier-color);
+      font-weight: bold;
+    }
+
+    /* Roadmap Teaser */
+    .roadmap-teaser {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .roadmap-teaser::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(139, 92, 246, 0.05), transparent, rgba(6, 182, 212, 0.05));
+      pointer-events: none;
+    }
+
+    .roadmap-teaser h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .roadmap-teaser p {
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto 2rem;
+    }
+
+    .coming-soon-badges {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .coming-badge {
+      padding: 0.75rem 1.5rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 50px;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .coming-badge span {
+      opacity: 0.6;
+    }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    footer a {
+      color: var(--accent-purple-light);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .distribution-container {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+
+      .pie-chart {
+        width: 260px;
+        height: 260px;
+      }
+
+      .tier-grid {
+        grid-template-columns: 1fr;
+        max-width: 400px;
+        margin: 0 auto;
+      }
+
+      .tier-card.featured {
+        transform: none;
+      }
+
+      .tier-card.featured:hover {
+        transform: translateY(-8px);
+      }
+    }
+
+    @media (max-width: 640px) {
+      header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      nav {
+        width: 100%;
+        justify-content: center;
+      }
+
+      main {
+        padding: 2rem 1rem 3rem;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .token-stats {
+        gap: 2rem;
+      }
+
+      .stat-value {
+        font-size: 1.5rem;
+      }
+
+      .contract-address {
+        flex-wrap: wrap;
+        justify-content: center;
+        font-size: 0.7rem;
+      }
+
+      .section-header h2 {
+        font-size: 1.5rem;
+      }
+
+      .pie-chart {
+        width: 220px;
+        height: 220px;
+      }
+
+      .pie-chart::before {
+        inset: 35px;
+      }
+
+      .pie-chart::after {
+        font-size: 1.1rem;
+      }
+
+      .legend-item {
+        padding: 0.75rem 1rem;
+      }
+
+      .legend-percent {
+        font-size: 1rem;
+      }
+
+      .utility-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .roadmap-teaser {
+        padding: 2rem 1.5rem;
+      }
+
+      .coming-soon-badges {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+    /* Floating Particles */
+    .particles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: var(--accent-purple);
+      border-radius: 50%;
+      opacity: 0.3;
+      animation: float 15s infinite;
+    }
+
+    .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; }
+    .particle:nth-child(2) { left: 20%; top: 80%; animation-delay: 2s; }
+    .particle:nth-child(3) { left: 60%; top: 30%; animation-delay: 4s; }
+    .particle:nth-child(4) { left: 80%; top: 70%; animation-delay: 6s; }
+    .particle:nth-child(5) { left: 40%; top: 50%; animation-delay: 8s; }
+    .particle:nth-child(6) { left: 90%; top: 10%; animation-delay: 10s; }
+
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        opacity: 0.3;
+      }
+      50% {
+        transform: translateY(-100px) scale(1.5);
+        opacity: 0.6;
+      }
+    }
+
+    /* Copy feedback */
+    .copy-feedback {
+      position: fixed;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      padding: 0.75rem 1.5rem;
+      background: var(--accent-green);
+      color: var(--bg-primary);
+      font-weight: 600;
+      border-radius: 12px;
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .copy-feedback.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+  <div class="particles">
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+    <div class="particle"></div>
+  </div>
+
+  <header>
+    <a href="/" class="logo">
+      <div class="logo-icon">🤖</div>
+      <span>Decrypt Labs</span>
+    </a>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/mint">Mint</a>
+      <a href="/tokenomics" class="active">Tokenomics</a>
+      <a href="/dashboard">Dashboard</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero">
+      <div class="token-badge">
+        <div class="pulse"></div>
+        <span>Live on Base Sepolia Testnet</span>
+      </div>
+      <h1>$CIPHER Tokenomics</h1>
+      <p>The utility token powering the Decrypt Labs ecosystem. Mint bots, pay fuel, unlock tiers, and govern the future.</p>
+      
+      <div class="token-stats">
+        <div class="stat-item">
+          <div class="stat-value">100M</div>
+          <div class="stat-label">Total Supply</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">ERC-20</div>
+          <div class="stat-label">Token Standard</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value">Base</div>
+          <div class="stat-label">Network</div>
+        </div>
+      </div>
+
+      <div class="contract-address" onclick="copyAddress()">
+        <span class="network-tag">Testnet</span>
+        <span id="contractAddr">0x85075b6E79FEB545F30e60151f467ff17FD3E8BB</span>
+        <span class="copy-icon">📋</span>
+      </div>
+    </section>
+
+    <!-- Distribution -->
+    <section class="distribution-section">
+      <div class="section-header">
+        <h2>Token Distribution</h2>
+        <p>Fair launch with community-first allocation</p>
+      </div>
+
+      <div class="distribution-container">
+        <div class="pie-chart-container">
+          <div class="pie-chart"></div>
+        </div>
+
+        <div class="distribution-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background: var(--accent-cyan);"></div>
+            <div class="legend-info">
+              <div class="legend-name">Community / Public Sale</div>
+              <div class="legend-detail">Fair launch, no pre-sale discounts</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="legend-percent">40%</div>
+              <div class="legend-amount">40,000,000</div>
+            </div>
+          </div>
+
+          <div class="legend-item">
+            <div class="legend-color" style="background: var(--accent-purple);"></div>
+            <div class="legend-info">
+              <div class="legend-name">Ecosystem & Rewards</div>
+              <div class="legend-detail">Staking, airdrops, incentives</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="legend-percent">25%</div>
+              <div class="legend-amount">25,000,000</div>
+            </div>
+          </div>
+
+          <div class="legend-item">
+            <div class="legend-color" style="background: var(--accent-blue);"></div>
+            <div class="legend-info">
+              <div class="legend-name">Team</div>
+              <div class="legend-detail">2-year linear vesting</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="legend-percent">15%</div>
+              <div class="legend-amount">15,000,000</div>
+            </div>
+          </div>
+
+          <div class="legend-item">
+            <div class="legend-color" style="background: var(--accent-orange);"></div>
+            <div class="legend-info">
+              <div class="legend-name">Treasury</div>
+              <div class="legend-detail">DAO-controlled reserve</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="legend-percent">10%</div>
+              <div class="legend-amount">10,000,000</div>
+            </div>
+          </div>
+
+          <div class="legend-item">
+            <div class="legend-color" style="background: var(--accent-green);"></div>
+            <div class="legend-info">
+              <div class="legend-name">Liquidity</div>
+              <div class="legend-detail">DEX pools & market making</div>
+            </div>
+            <div style="text-align: right;">
+              <div class="legend-percent">10%</div>
+              <div class="legend-amount">10,000,000</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Utility -->
+    <section class="utility-section">
+      <div class="section-header">
+        <h2>Token Utility</h2>
+        <p>Multiple ways to use $CIPHER in the ecosystem</p>
+      </div>
+
+      <div class="utility-grid">
+        <div class="utility-card" style="--card-accent: var(--accent-purple);">
+          <div class="utility-icon" style="--card-accent: var(--accent-purple);">🤖</div>
+          <h3>Mint Bot NFTs</h3>
+          <p>Claim ownership of an AI-powered trading bot with unique strategy assignments and profit sharing rights.</p>
+          <div class="utility-price">300 CIPHER / mint</div>
+        </div>
+
+        <div class="utility-card" style="--card-accent: var(--accent-cyan);">
+          <div class="utility-icon" style="--card-accent: var(--accent-cyan);">⛽</div>
+          <h3>Monthly Fuel</h3>
+          <p>Keep your bot running with monthly fuel payments. No fuel = no trades. Simple as that.</p>
+          <div class="utility-price">175 CIPHER / month</div>
+        </div>
+
+        <div class="utility-card" style="--card-accent: var(--accent-orange);">
+          <div class="utility-icon" style="--card-accent: var(--accent-orange);">🏆</div>
+          <h3>Tier Access</h3>
+          <p>Hold CIPHER to unlock exclusive tiers with boosted rewards, priority features, and reduced fees.</p>
+          <div class="utility-price">100K+ CIPHER</div>
+        </div>
+
+        <div class="utility-card" style="--card-accent: var(--accent-green);">
+          <div class="utility-icon" style="--card-accent: var(--accent-green);">🗳️</div>
+          <h3>Governance</h3>
+          <p>Vote on protocol upgrades, fee structures, new strategies, and treasury allocations.</p>
+          <div class="utility-price">Coming Soon</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tiers -->
+    <section class="tier-section">
+      <div class="section-header">
+        <h2>Holder Tiers</h2>
+        <p>Stack CIPHER to unlock exclusive benefits</p>
+      </div>
+
+      <div class="tier-grid">
+        <div class="tier-card" style="--tier-color: #cd7f32;">
+          <div class="tier-icon">🥉</div>
+          <h3>Bronze</h3>
+          <div class="tier-requirement">100,000 <span>CIPHER</span></div>
+          <ul class="tier-benefits">
+            <li><span class="check">✓</span> Basic dashboard access</li>
+            <li><span class="check">✓</span> Community Discord role</li>
+            <li><span class="check">✓</span> Weekly performance reports</li>
+            <li><span class="check">✓</span> Standard support</li>
+          </ul>
+        </div>
+
+        <div class="tier-card featured" style="--tier-color: #ffd700;">
+          <div class="tier-badge">Popular</div>
+          <div class="tier-icon">🥇</div>
+          <h3>Gold</h3>
+          <div class="tier-requirement">500,000 <span>CIPHER</span></div>
+          <ul class="tier-benefits">
+            <li><span class="check">✓</span> Advanced analytics</li>
+            <li><span class="check">✓</span> Priority bot allocation</li>
+            <li><span class="check">✓</span> 10% fuel discount</li>
+            <li><span class="check">✓</span> Early strategy access</li>
+            <li><span class="check">✓</span> Priority support</li>
+          </ul>
+        </div>
+
+        <div class="tier-card" style="--tier-color: #b9f2ff;">
+          <div class="tier-icon">💎</div>
+          <h3>Diamond</h3>
+          <div class="tier-requirement">1,300,000 <span>CIPHER</span></div>
+          <ul class="tier-benefits">
+            <li><span class="check">✓</span> All Gold benefits</li>
+            <li><span class="check">✓</span> 25% fuel discount</li>
+            <li><span class="check">✓</span> Custom strategy requests</li>
+            <li><span class="check">✓</span> Revenue share boost</li>
+            <li><span class="check">✓</span> Direct founder access</li>
+            <li><span class="check">✓</span> Governance multiplier</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Roadmap Teaser -->
+    <section class="roadmap-teaser">
+      <h3>🚀 What's Coming</h3>
+      <p>We're building more utility for $CIPHER. Vote on what comes next.</p>
+      <div class="coming-soon-badges">
+        <div class="coming-badge">
+          <span>🔒</span> Staking Pools
+        </div>
+        <div class="coming-badge">
+          <span>🗳️</span> DAO Governance
+        </div>
+        <div class="coming-badge">
+          <span>🎁</span> NFT Marketplace
+        </div>
+        <div class="coming-badge">
+          <span>⚡</span> Strategy Marketplace
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <p>
+      <a href="https://sepolia.basescan.org/address/0x85075b6E79FEB545F30e60151f467ff17FD3E8BB" target="_blank">View Token Contract</a>
+      &nbsp;•&nbsp;
+      <a href="/mint">Mint a Bot</a>
+      &nbsp;•&nbsp;
+      <a href="https://decryptlabs.io">decryptlabs.io</a>
+    </p>
+  </footer>
+
+  <div class="copy-feedback" id="copyFeedback">✓ Address copied!</div>
+
+  <script>
+    function copyAddress() {
+      const addr = document.getElementById('contractAddr').textContent;
+      navigator.clipboard.writeText(addr).then(() => {
+        const feedback = document.getElementById('copyFeedback');
+        feedback.classList.add('show');
+        setTimeout(() => feedback.classList.remove('show'), 2000);
+      });
+    }
+
+    // Animate elements on scroll
+    const observerOptions = {
+      threshold: 0.1,
+      rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.style.opacity = '1';
+          entry.target.style.transform = 'translateY(0)';
+        }
+      });
+    }, observerOptions);
+
+    document.querySelectorAll('.utility-card, .tier-card').forEach(card => {
+      card.style.opacity = '0';
+      card.style.transform = 'translateY(30px)';
+      card.style.transition = 'all 0.6s ease';
+      observer.observe(card);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Settings - Decrypt Labs</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-dark: #0a0b1e;
+            --bg-card: #12132d;
+            --bg-input: #1a1b3a;
+            --accent: #6366f1;
+            --accent-light: #818cf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.875rem;
+        }
+        
+        .back-link:hover {
+            color: var(--text);
+        }
+        
+        .connect-btn {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+        
+        .no-bots {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .bot-selector {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .bot-tab {
+            padding: 0.75rem 1.25rem;
+            background: var(--bg-card);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            color: var(--text-dim);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .bot-tab:hover {
+            background: var(--bg-input);
+            color: var(--text);
+        }
+        
+        .bot-tab.active {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--text);
+        }
+        
+        .settings-panel {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            overflow: hidden;
+        }
+        
+        .settings-section {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+        }
+        
+        .settings-section:last-child {
+            border-bottom: none;
+        }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .section-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-desc {
+            color: var(--text-dim);
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+        
+        .setting-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .setting-row:last-child {
+            border-bottom: none;
+        }
+        
+        .setting-info h4 {
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .setting-info p {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+        
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 28px;
+            background: var(--bg-input);
+            border-radius: 14px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        
+        .toggle.active {
+            background: var(--success);
+        }
+        
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+        
+        .toggle.active::after {
+            transform: translateX(22px);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        
+        .number-input {
+            width: 80px;
+            padding: 0.5rem;
+            background: var(--bg-input);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+            text-align: center;
+        }
+        
+        .number-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+        
+        .input-suffix {
+            color: var(--text-dim);
+            font-size: 0.875rem;
+        }
+        
+        .time-inputs {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .time-input {
+            width: 100px;
+            padding: 0.5rem;
+            background: var(--bg-input);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+        }
+        
+        .select-input {
+            padding: 0.5rem 1rem;
+            background: var(--bg-input);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        
+        .days-selector {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .day-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            background: transparent;
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.75rem;
+            transition: all 0.2s;
+        }
+        
+        .day-btn.active {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+        
+        .save-section {
+            padding: 1.5rem;
+            background: rgba(99, 102, 241, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .save-note {
+            color: var(--text-dim);
+            font-size: 0.875rem;
+        }
+        
+        .save-btn {
+            padding: 0.75rem 2rem;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        .save-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .status-paused {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .webhook-display {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--bg-input);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 8px;
+            color: var(--text-dim);
+            font-family: monospace;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            word-break: break-all;
+        }
+        
+        .copy-btn {
+            padding: 0.5rem 1rem;
+            background: rgba(99, 102, 241, 0.2);
+            border: none;
+            border-radius: 8px;
+            color: var(--accent-light);
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+        
+        .copy-btn:hover {
+            background: rgba(99, 102, 241, 0.3);
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .setting-row { flex-direction: column; align-items: flex-start; gap: 0.75rem; }
+            .days-selector { flex-wrap: wrap; }
+            .save-section { flex-direction: column; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="logo">🔐 Decrypt Labs</a>
+            <div class="header-right">
+                <a href="/manage/" class="back-link">← Back to Bots</a>
+                <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+            </div>
+        </header>
+        
+        <h1 class="page-title">Bot Settings</h1>
+        <p class="page-subtitle">Configure your trading bot parameters</p>
+        
+        <div id="noWallet" class="no-bots">
+            <h3>👋 Connect Your Wallet</h3>
+            <p style="color: var(--text-dim); margin-top: 0.5rem;">Connect your wallet to configure your bots</p>
+        </div>
+        
+        <div id="noBots" class="no-bots" style="display: none;">
+            <h3>🤖 No Bots Found</h3>
+            <p style="color: var(--text-dim); margin-top: 0.5rem;">You don't own any Bot NFTs</p>
+            <a href="/mint/" class="connect-btn" style="display: inline-block; text-decoration: none; margin-top: 1rem;">Mint a Bot</a>
+        </div>
+        
+        <div id="settingsContainer" style="display: none;">
+            <div class="bot-selector" id="botSelector"></div>
+            
+            <div class="settings-panel">
+                <!-- Trading Status -->
+                <div class="settings-section">
+                    <div class="section-header">
+                        <span class="section-title">⚡ Trading Status</span>
+                        <span class="status-badge status-active" id="botStatus">Active</span>
+                    </div>
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Enable Trading</h4>
+                            <p>Turn on/off automated trading for this bot</p>
+                        </div>
+                        <div class="toggle active" id="tradingToggle" onclick="toggleSetting('trading')"></div>
+                    </div>
+                </div>
+                
+                <!-- Risk Management -->
+                <div class="settings-section">
+                    <div class="section-title">🛡️ Risk Management</div>
+                    <p class="section-desc">Configure position sizing and risk limits</p>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Max Daily Loss</h4>
+                            <p>Stop trading if daily loss exceeds this amount</p>
+                        </div>
+                        <div class="input-group">
+                            <input type="number" class="number-input" id="maxDailyLoss" value="500">
+                            <span class="input-suffix">USD</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Max Position Size</h4>
+                            <p>Maximum contracts per trade</p>
+                        </div>
+                        <div class="input-group">
+                            <input type="number" class="number-input" id="maxPosition" value="2">
+                            <span class="input-suffix">contracts</span>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Risk Per Trade</h4>
+                            <p>Percentage of account per trade</p>
+                        </div>
+                        <div class="input-group">
+                            <input type="number" class="number-input" id="riskPercent" value="1" step="0.5">
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Trading Schedule -->
+                <div class="settings-section">
+                    <div class="section-title">📅 Trading Schedule</div>
+                    <p class="section-desc">Set when your bot is allowed to trade</p>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Trading Days</h4>
+                            <p>Select which days to trade</p>
+                        </div>
+                        <div class="days-selector">
+                            <button class="day-btn" data-day="0">S</button>
+                            <button class="day-btn active" data-day="1">M</button>
+                            <button class="day-btn active" data-day="2">T</button>
+                            <button class="day-btn active" data-day="3">W</button>
+                            <button class="day-btn active" data-day="4">T</button>
+                            <button class="day-btn active" data-day="5">F</button>
+                            <button class="day-btn" data-day="6">S</button>
+                        </div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Kill Zone - NY AM</h4>
+                            <p>New York morning session</p>
+                        </div>
+                        <div class="toggle active" id="nyamToggle" onclick="toggleSetting('nyam')"></div>
+                    </div>
+                    
+                    <div class="setting-row">
+                        <div class="setting-info">
+                            <h4>Kill Zone - London</h4>
+                            <p>London session</p>
+                        </div>
+                        <div class="toggle" id="londonToggle" onclick="toggleSetting('london')"></div>
+                    </div>
+                </div>
+                
+                <!-- Webhook -->
+                <div class="settings-section">
+                    <div class="section-title">🔗 TradersPost Webhook</div>
+                    <p class="section-desc">Use this URL in TradersPost to connect your bot</p>
+                    
+                    <div class="webhook-display" id="webhookUrl">Connect wallet to see webhook URL</div>
+                    <button class="copy-btn" onclick="copyWebhook()">📋 Copy Webhook URL</button>
+                </div>
+                
+                <!-- Save -->
+                <div class="save-section">
+                    <span class="save-note">⚠️ Settings are stored off-chain and synced with your bot</span>
+                    <button class="save-btn" id="saveBtn" onclick="saveSettings()">Save Settings</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONTRACTS = {
+            botNFT: "0xc267113C4E6f4421B28e51093583eABeC9E201c8"
+        };
+        
+        const BOTNFT_ABI = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+            "function ownerOf(uint256 tokenId) view returns (address)",
+            "function getStrategy(uint256 tokenId) view returns (uint8)",
+            "function totalSupply() view returns (uint256)"
+        ];
+        
+        const STRATEGIES = ['OTE Silver Bullet', 'FVG+IFVG', 'OTE Aggressive', 'OTE Conservative'];
+        
+        let provider, signer, userAddress;
+        let userBots = [];
+        let selectedBot = null;
+        
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert('Please install MetaMask!');
+                return;
+            }
+            
+            try {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                const network = await provider.getNetwork();
+                if (network.chainId !== 84532n) {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x14a34' }]
+                    });
+                }
+                
+                document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                
+                await loadUserBots();
+            } catch (error) {
+                console.error('Connection error:', error);
+            }
+        }
+        
+        async function loadUserBots() {
+            document.getElementById('noWallet').style.display = 'none';
+            
+            const botNFT = new ethers.Contract(CONTRACTS.botNFT, BOTNFT_ABI, provider);
+            const totalSupply = await botNFT.totalSupply();
+            userBots = [];
+            
+            for (let i = 0; i < totalSupply; i++) {
+                try {
+                    const owner = await botNFT.ownerOf(i);
+                    if (owner.toLowerCase() === userAddress.toLowerCase()) {
+                        const strategy = await botNFT.getStrategy(i);
+                        userBots.push({ tokenId: i, strategy: Number(strategy) });
+                    }
+                } catch (e) {}
+            }
+            
+            if (userBots.length === 0) {
+                document.getElementById('noBots').style.display = 'block';
+            } else {
+                document.getElementById('settingsContainer').style.display = 'block';
+                renderBotSelector();
+                selectBot(userBots[0].tokenId);
+            }
+        }
+        
+        function renderBotSelector() {
+            const selector = document.getElementById('botSelector');
+            selector.innerHTML = userBots.map((bot, i) => `
+                <div class="bot-tab ${i === 0 ? 'active' : ''}" onclick="selectBot(${bot.tokenId})">
+                    🤖 Bot #${bot.tokenId} — ${STRATEGIES[bot.strategy]}
+                </div>
+            `).join('');
+        }
+        
+        function selectBot(tokenId) {
+            selectedBot = tokenId;
+            document.querySelectorAll('.bot-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.textContent.includes(`#${tokenId}`));
+            });
+            
+            // Update webhook URL
+            document.getElementById('webhookUrl').textContent = 
+                `https://api.decryptlabs.io/webhook/${tokenId}/${userAddress.slice(0, 10)}`;
+            
+            // Load settings for this bot (would come from backend)
+            loadBotSettings(tokenId);
+        }
+        
+        function loadBotSettings(tokenId) {
+            // Placeholder - would fetch from backend
+            console.log('Loading settings for bot', tokenId);
+        }
+        
+        function toggleSetting(setting) {
+            const toggle = document.getElementById(setting + 'Toggle');
+            toggle.classList.toggle('active');
+        }
+        
+        function copyWebhook() {
+            const url = document.getElementById('webhookUrl').textContent;
+            navigator.clipboard.writeText(url);
+            alert('Webhook URL copied!');
+        }
+        
+        async function saveSettings() {
+            const btn = document.getElementById('saveBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            
+            // Would send to backend
+            const settings = {
+                tokenId: selectedBot,
+                trading: document.getElementById('tradingToggle').classList.contains('active'),
+                maxDailyLoss: document.getElementById('maxDailyLoss').value,
+                maxPosition: document.getElementById('maxPosition').value,
+                riskPercent: document.getElementById('riskPercent').value,
+                nyam: document.getElementById('nyamToggle').classList.contains('active'),
+                london: document.getElementById('londonToggle').classList.contains('active'),
+                days: Array.from(document.querySelectorAll('.day-btn.active')).map(b => b.dataset.day)
+            };
+            
+            console.log('Saving settings:', settings);
+            
+            // Simulate save
+            await new Promise(r => setTimeout(r, 1000));
+            
+            btn.disabled = false;
+            btn.textContent = 'Save Settings';
+            alert('Settings saved!');
+        }
+        
+        // Day selector
+        document.querySelectorAll('.day-btn').forEach(btn => {
+            btn.addEventListener('click', () => btn.classList.toggle('active'));
+        });
+        
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        
+        if (window.ethereum?.selectedAddress) {
+            connectWallet();
+        }
+    </script>
+</body>
+</html>

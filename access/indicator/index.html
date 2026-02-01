@@ -1,0 +1,754 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PriceCipher Indicator - Decrypt Labs</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-dark: #0a0b1e;
+            --bg-card: #12132d;
+            --bg-code: #0d0e1f;
+            --accent: #6366f1;
+            --bronze: #cd7f32;
+            --gold: #ffd700;
+            --diamond: #b9f2ff;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .nav-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .back-link {
+            color: var(--text-dim);
+            text-decoration: none;
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover {
+            color: var(--text);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .connect-btn {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
+        
+        .connect-btn.connected {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 2rem 0 3rem;
+        }
+        
+        .hero h1 {
+            font-size: 2.25rem;
+            margin-bottom: 0.75rem;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            color: var(--text-dim);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        /* Gated Content States */
+        .gated-section {
+            display: none;
+        }
+        
+        .gated-section.active {
+            display: block;
+        }
+        
+        /* Connect Prompt */
+        .connect-prompt {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .connect-prompt .icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .connect-prompt h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        .connect-prompt p {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Access Denied */
+        .access-denied {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border-radius: 24px;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .access-denied .icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .access-denied h2 {
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--error);
+        }
+        
+        .access-denied p {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+        
+        .tier-needed {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: rgba(205, 127, 50, 0.2);
+            border: 1px solid var(--bronze);
+            border-radius: 50px;
+            color: var(--bronze);
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        .buy-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+        
+        .buy-link:hover {
+            transform: translateY(-2px);
+        }
+        
+        /* Download Section */
+        .download-section {
+            background: var(--bg-card);
+            border-radius: 24px;
+            padding: 2rem;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .tier-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tier-bronze { background: rgba(205, 127, 50, 0.2); color: var(--bronze); border: 1px solid var(--bronze); }
+        .tier-gold { background: rgba(255, 215, 0, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+        .tier-diamond { background: rgba(185, 242, 255, 0.2); color: var(--diamond); border: 1px solid var(--diamond); }
+        
+        .section-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .section-title .check {
+            color: var(--success);
+        }
+        
+        /* Code Block */
+        .code-container {
+            margin: 1.5rem 0;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .code-lang {
+            font-size: 0.75rem;
+            color: var(--accent);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .copy-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .copy-btn:hover {
+            background: #818cf8;
+        }
+        
+        .copy-btn.copied {
+            background: var(--success);
+        }
+        
+        .code-block {
+            background: var(--bg-code);
+            padding: 1.5rem;
+            overflow-x: auto;
+            max-height: 400px;
+        }
+        
+        .code-block pre {
+            margin: 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            color: var(--text);
+        }
+        
+        /* Syntax Highlighting */
+        .code-block .comment { color: #6b7280; font-style: italic; }
+        .code-block .keyword { color: #c084fc; }
+        .code-block .string { color: #34d399; }
+        .code-block .function { color: #60a5fa; }
+        .code-block .number { color: #fbbf24; }
+        .code-block .variable { color: #f472b6; }
+        
+        /* Instructions */
+        .instructions {
+            margin-top: 2rem;
+        }
+        
+        .instructions h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .steps {
+            list-style: none;
+            counter-reset: step;
+        }
+        
+        .steps li {
+            position: relative;
+            padding: 1rem 1rem 1rem 3.5rem;
+            margin-bottom: 0.75rem;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            counter-increment: step;
+        }
+        
+        .steps li::before {
+            content: counter(step);
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 1.75rem;
+            height: 1.75rem;
+            background: var(--accent);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.875rem;
+        }
+        
+        .steps li strong {
+            color: var(--text);
+        }
+        
+        .steps li span {
+            color: var(--text-dim);
+        }
+        
+        /* Video Section */
+        .video-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .video-section h3 {
+            font-size: 1.25rem;
+            margin-bottom: 1rem;
+        }
+        
+        .video-placeholder {
+            aspect-ratio: 16/9;
+            background: var(--bg-code);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 2px dashed rgba(99, 102, 241, 0.3);
+            color: var(--text-dim);
+        }
+        
+        .video-placeholder .icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+        
+        /* Footer Note */
+        .footer-note {
+            margin-top: 2rem;
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            font-size: 0.875rem;
+            color: var(--text-dim);
+            text-align: center;
+        }
+        
+        .footer-note a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+        
+        .footer-note a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Loading State */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            padding: 4rem;
+            color: var(--text-dim);
+        }
+        
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(99, 102, 241, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .hero h1 { font-size: 1.75rem; }
+            .hero { padding: 1.5rem 0 2rem; }
+            .download-section { padding: 1.5rem; }
+            .code-block { padding: 1rem; }
+            .code-block pre { font-size: 0.75rem; }
+            header { flex-direction: column; align-items: stretch; }
+            .nav-left { justify-content: center; }
+            .connect-btn { width: 100%; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="nav-left">
+                <a href="/access/" class="back-link">← Back to Access</a>
+                <a href="/" class="logo">🔐 Decrypt Labs</a>
+            </div>
+            <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+        </header>
+        
+        <div class="hero">
+            <h1>📊 PriceCipher Indicator</h1>
+            <p>Download the PriceCipher TradingView indicator — available exclusively to Bronze tier and above</p>
+        </div>
+        
+        <!-- Loading State -->
+        <div class="gated-section active" id="loadingState">
+            <div class="loading">
+                <div class="spinner"></div>
+                <span>Checking access...</span>
+            </div>
+        </div>
+        
+        <!-- Connect Wallet Prompt -->
+        <div class="gated-section" id="connectPrompt">
+            <div class="connect-prompt">
+                <div class="icon">🔌</div>
+                <h2>Connect Your Wallet</h2>
+                <p>Connect your wallet to verify your $CIPHER holdings and access the indicator.</p>
+                <button class="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+            </div>
+        </div>
+        
+        <!-- Access Denied -->
+        <div class="gated-section" id="accessDenied">
+            <div class="access-denied">
+                <div class="icon">🔒</div>
+                <h2>Bronze Tier Required</h2>
+                <p>You need to hold at least 100,000 $CIPHER to access the PriceCipher indicator.</p>
+                <div class="tier-needed">
+                    <span>🥉</span>
+                    <span>100,000 $CIPHER needed</span>
+                </div>
+                <br>
+                <p id="currentBalance" style="margin-bottom: 1.5rem;"></p>
+                <a href="https://app.uniswap.org/swap?outputCurrency=0x85075b6E79FEB545F30e60151f467ff17FD3E8BB&chain=base" target="_blank" class="buy-link">
+                    🛒 Buy $CIPHER on Uniswap
+                </a>
+            </div>
+        </div>
+        
+        <!-- Download Section (Unlocked) -->
+        <div class="gated-section" id="downloadSection">
+            <div class="download-section">
+                <div class="tier-badge tier-bronze" id="userTierBadge">🥉 Bronze Access</div>
+                
+                <h2 class="section-title">
+                    <span class="check">✓</span>
+                    PriceCipher Indicator — PineScript
+                </h2>
+                <p style="color: var(--text-dim); margin-bottom: 1rem;">
+                    Copy the code below and add it to TradingView as a custom indicator.
+                </p>
+                
+                <div class="code-container">
+                    <div class="code-header">
+                        <span class="code-lang">PineScript v5</span>
+                        <button class="copy-btn" id="copyBtn" onclick="copyCode()">
+                            <span id="copyIcon">📋</span>
+                            <span id="copyText">Copy Code</span>
+                        </button>
+                    </div>
+                    <div class="code-block">
+                        <pre id="codeContent"><span class="comment">// PriceCipher Indicator v1.0</span>
+<span class="comment">// © Decrypt Labs - decryptlabs.io</span>
+<span class="comment">// For Bronze tier and above holders only</span>
+
+<span class="comment">//@version=5</span>
+<span class="keyword">indicator</span>(<span class="string">"PriceCipher"</span>, overlay=<span class="keyword">true</span>)
+
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">//                    COMING SOON</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+<span class="comment">//</span>
+<span class="comment">// The full PriceCipher indicator code will be released</span>
+<span class="comment">// upon the official launch of Decrypt Labs.</span>
+<span class="comment">//</span>
+<span class="comment">// Features include:</span>
+<span class="comment">//   • Order Block Detection</span>
+<span class="comment">//   • Fair Value Gap (FVG) Identification</span>
+<span class="comment">//   • Liquidity Sweep Alerts</span>
+<span class="comment">//   • Optimal Trade Entry (OTE) Zones</span>
+<span class="comment">//   • Multi-timeframe Analysis</span>
+<span class="comment">//</span>
+<span class="comment">// Stay tuned for updates!</span>
+<span class="comment">// ═══════════════════════════════════════════════════════</span>
+
+<span class="comment">// Placeholder plot</span>
+<span class="function">plot</span>(<span class="function">close</span>, <span class="string">"Price"</span>, <span class="variable">color.new</span>(<span class="variable">color.blue</span>, <span class="number">100</span>))</pre>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h3>📝 Installation Instructions</h3>
+                    <ol class="steps">
+                        <li>
+                            <strong>Open TradingView</strong><br>
+                            <span>Go to <a href="https://tradingview.com" target="_blank" style="color: var(--accent);">tradingview.com</a> and log into your account</span>
+                        </li>
+                        <li>
+                            <strong>Open Pine Editor</strong><br>
+                            <span>Click the "Pine Editor" tab at the bottom of the chart</span>
+                        </li>
+                        <li>
+                            <strong>Create New Indicator</strong><br>
+                            <span>Click "Open" → "New blank indicator" to start fresh</span>
+                        </li>
+                        <li>
+                            <strong>Paste the Code</strong><br>
+                            <span>Delete the default code and paste the PriceCipher code from above</span>
+                        </li>
+                        <li>
+                            <strong>Save & Add to Chart</strong><br>
+                            <span>Click "Save" (name it "PriceCipher"), then "Add to chart"</span>
+                        </li>
+                        <li>
+                            <strong>Configure Settings</strong><br>
+                            <span>Double-click the indicator on chart to customize colors and parameters</span>
+                        </li>
+                    </ol>
+                </div>
+                
+                <div class="video-section">
+                    <h3>🎬 Video Tutorial</h3>
+                    <div class="video-placeholder">
+                        <div class="icon">▶️</div>
+                        <span>Video tutorial coming soon</span>
+                    </div>
+                </div>
+                
+                <div class="footer-note">
+                    Need help? Join our <a href="https://discord.gg/decryptlabs" target="_blank">Discord community</a> for support.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONTRACTS = {
+            cipher: "0x85075b6E79FEB545F30e60151f467ff17FD3E8BB",
+            tierGate: "0x08c7C46434B8d0c5cEa538278711df0051C0fCA1"
+        };
+        
+        const ERC20_ABI = ["function balanceOf(address) view returns (uint256)"];
+        const TIERGATE_ABI = ["function getUserTier(address) view returns (uint8)"];
+        
+        let provider, signer, userAddress;
+        
+        function showSection(sectionId) {
+            document.querySelectorAll('.gated-section').forEach(s => s.classList.remove('active'));
+            document.getElementById(sectionId).classList.add('active');
+        }
+        
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert('Please install MetaMask or another Web3 wallet!');
+                return;
+            }
+            
+            try {
+                showSection('loadingState');
+                
+                provider = new ethers.BrowserProvider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                // Check network (Base Sepolia = 84532)
+                const network = await provider.getNetwork();
+                if (network.chainId !== 84532n) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x14a34' }]
+                        });
+                    } catch (switchError) {
+                        // If chain not added, add it
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x14a34',
+                                    chainName: 'Base Sepolia',
+                                    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                    rpcUrls: ['https://sepolia.base.org'],
+                                    blockExplorerUrls: ['https://sepolia.basescan.org']
+                                }]
+                            });
+                        }
+                    }
+                }
+                
+                // Update connect button
+                const btn = document.getElementById('connectBtn');
+                btn.textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                btn.classList.add('connected');
+                
+                await checkAccess();
+            } catch (error) {
+                console.error('Connection error:', error);
+                showSection('connectPrompt');
+            }
+        }
+        
+        async function checkAccess() {
+            try {
+                const cipher = new ethers.Contract(CONTRACTS.cipher, ERC20_ABI, provider);
+                const tierGate = new ethers.Contract(CONTRACTS.tierGate, TIERGATE_ABI, provider);
+                
+                const balance = await cipher.balanceOf(userAddress);
+                const tier = await tierGate.getUserTier(userAddress);
+                
+                const balanceFormatted = Number(ethers.formatEther(balance)).toLocaleString();
+                
+                if (tier >= 1) {
+                    // Bronze or higher - show download section
+                    const tierBadge = document.getElementById('userTierBadge');
+                    const tierNames = ['', '🥉 Bronze Access', '🥇 Gold Access', '💎 Diamond Access'];
+                    const tierClasses = ['', 'tier-bronze', 'tier-gold', 'tier-diamond'];
+                    
+                    tierBadge.textContent = tierNames[tier];
+                    tierBadge.className = 'tier-badge ' + tierClasses[tier];
+                    
+                    showSection('downloadSection');
+                } else {
+                    // No tier - show access denied
+                    document.getElementById('currentBalance').innerHTML = 
+                        `You currently hold <strong>${balanceFormatted} $CIPHER</strong>`;
+                    showSection('accessDenied');
+                }
+            } catch (error) {
+                console.error('Access check error:', error);
+                showSection('connectPrompt');
+            }
+        }
+        
+        function copyCode() {
+            // Get raw code (without HTML tags)
+            const rawCode = `// PriceCipher Indicator v1.0
+// © Decrypt Labs - decryptlabs.io
+// For Bronze tier and above holders only
+
+//@version=5
+indicator("PriceCipher", overlay=true)
+
+// ═══════════════════════════════════════════════════════
+//                    COMING SOON
+// ═══════════════════════════════════════════════════════
+//
+// The full PriceCipher indicator code will be released
+// upon the official launch of Decrypt Labs.
+//
+// Features include:
+//   • Order Block Detection
+//   • Fair Value Gap (FVG) Identification
+//   • Liquidity Sweep Alerts
+//   • Optimal Trade Entry (OTE) Zones
+//   • Multi-timeframe Analysis
+//
+// Stay tuned for updates!
+// ═══════════════════════════════════════════════════════
+
+// Placeholder plot
+plot(close, "Price", color.new(color.blue, 100))`;
+            
+            navigator.clipboard.writeText(rawCode).then(() => {
+                const btn = document.getElementById('copyBtn');
+                const icon = document.getElementById('copyIcon');
+                const text = document.getElementById('copyText');
+                
+                btn.classList.add('copied');
+                icon.textContent = '✓';
+                text.textContent = 'Copied!';
+                
+                setTimeout(() => {
+                    btn.classList.remove('copied');
+                    icon.textContent = '📋';
+                    text.textContent = 'Copy Code';
+                }, 2000);
+            });
+        }
+        
+        // Initialize
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        
+        // Check if already connected
+        if (window.ethereum?.selectedAddress) {
+            connectWallet();
+        } else {
+            showSection('connectPrompt');
+        }
+    </script>
+</body>
+</html>

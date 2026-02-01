@@ -25,9 +25,10 @@ secrets.json
 *.pinescript
 webhook/*.pine
 strategies/*.pine
-**/strategies/**
 *indicator*.pine
 *webhook*.pine
+# Allow HTML pages in strategies folder
+!**/strategies/index.html
 
 # ============ TRADE DATA & LOGS ============
 # Your trading history and performance
