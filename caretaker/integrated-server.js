@@ -50,6 +50,33 @@ let lastPositionData = {
 // Session storage (in-memory, resets on restart)
 const sessions = new Map();
 
+// Access Requests storage (persisted to file)
+let accessRequests = [];
+const ACCESS_REQUESTS_FILE = path.join(__dirname, 'access-requests.json');
+
+function loadAccessRequests() {
+  try {
+    if (fs.existsSync(ACCESS_REQUESTS_FILE)) {
+      accessRequests = JSON.parse(fs.readFileSync(ACCESS_REQUESTS_FILE, 'utf8'));
+      console.log(`[Access] Loaded ${accessRequests.length} access requests`);
+    }
+  } catch (e) {
+    console.log('[Access] No existing access requests file');
+    accessRequests = [];
+  }
+}
+
+function saveAccessRequests() {
+  try {
+    fs.writeFileSync(ACCESS_REQUESTS_FILE, JSON.stringify(accessRequests, null, 2));
+  } catch (e) {
+    console.log('[Access] Failed to save access requests:', e.message);
+  }
+}
+
+// Load access requests on startup
+loadAccessRequests();
+
 // Auth helpers
 function generateSessionId() {
   return 'sess_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
@@ -792,6 +819,88 @@ const server = http.createServer(async (req, res) => {
       expected,
       stats: caretaker.stats
     }));
+    return;
+  }
+
+  // ============================================================================
+  // ACCESS CONTROL ENDPOINTS
+  // ============================================================================
+  
+  // GET /api/access-requests - Get all access requests
+  if (req.method === 'GET' && pathname === '/api/access-requests') {
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify({
+      pending: accessRequests.filter(r => r.status === 'pending'),
+      approved: accessRequests.filter(r => r.status === 'approved')
+    }));
+    return;
+  }
+  
+  // POST /api/access-requests - Submit new access request
+  if (req.method === 'POST' && pathname === '/api/access-requests') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body);
+        const request = {
+          id: Date.now(),
+          tvUsername: data.tvUsername,
+          wallet: data.wallet,
+          type: data.type, // 'indicator' or 'strategy'
+          strategyId: data.strategyId,
+          tier: data.tier || 0,
+          holdings: data.holdings || 0,
+          timestamp: Date.now(),
+          status: 'pending'
+        };
+        accessRequests.push(request);
+        saveAccessRequests();
+        console.log(`[Access] New ${data.type} request from @${data.tvUsername}`);
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ success: true, id: request.id }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid request' }));
+      }
+    });
+    return;
+  }
+  
+  // POST /api/access-requests/:id/approve - Approve a request
+  if (req.method === 'POST' && pathname.match(/^\/api\/access-requests\/\d+\/approve$/)) {
+    const id = parseInt(pathname.split('/')[3]);
+    const request = accessRequests.find(r => r.id === id);
+    if (request) {
+      request.status = 'approved';
+      request.approvedAt = Date.now();
+      saveAccessRequests();
+      console.log(`[Access] ✅ Approved @${request.tvUsername} for ${request.type}`);
+    }
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify({ success: true }));
+    return;
+  }
+  
+  // POST /api/access-requests/:id/reject - Reject a request
+  if (req.method === 'POST' && pathname.match(/^\/api\/access-requests\/\d+\/reject$/)) {
+    const id = parseInt(pathname.split('/')[3]);
+    accessRequests = accessRequests.filter(r => r.id !== id);
+    saveAccessRequests();
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify({ success: true }));
     return;
   }
 
