@@ -743,6 +743,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   
+  // GET /api/dashboard - Full dashboard data (alias for stats + more)
+  if (req.method === 'GET' && pathname === '/api/dashboard') {
+    try {
+      const data = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
+      res.writeHead(200, { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+      });
+      res.end(JSON.stringify(data));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to load dashboard data' }));
+    }
+    return;
+  }
+  
   // GET /api/trades - Recent trades
   if (req.method === 'GET' && pathname === '/api/trades') {
     try {
