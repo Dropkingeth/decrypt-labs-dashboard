@@ -1,0 +1,948 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mint Your Trading Bot | Decrypt Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0a0b14;
+      --bg-secondary: #12141f;
+      --bg-card: #181a28;
+      --bg-hover: #1f2235;
+      --accent-purple: #8b5cf6;
+      --accent-purple-light: #a78bfa;
+      --accent-blue: #3b82f6;
+      --accent-cyan: #06b6d4;
+      --accent-green: #10b981;
+      --accent-orange: #f59e0b;
+      --accent-red: #ef4444;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --text-muted: #64748b;
+      --border-color: rgba(139, 92, 246, 0.2);
+      --glow-purple: rgba(139, 92, 246, 0.4);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Background Effects */
+    .bg-gradient {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
+        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(59, 130, 246, 0.1), transparent),
+        radial-gradient(ellipse 40% 30% at 10% 80%, rgba(6, 182, 212, 0.08), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Header */
+    header {
+      position: relative;
+      z-index: 10;
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+      backdrop-filter: blur(20px);
+      background: rgba(10, 11, 20, 0.8);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-decoration: none;
+      color: var(--text-primary);
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .connect-btn {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border: none;
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+    }
+
+    .connect-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px var(--glow-purple);
+    }
+
+    .connect-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .wallet-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+    }
+
+    .wallet-address {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    .wallet-balance {
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    /* Main Container */
+    main {
+      position: relative;
+      z-index: 10;
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--text-primary), var(--accent-purple-light));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 1rem;
+      line-height: 1.2;
+    }
+
+    .hero p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+      max-width: 500px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+
+    /* Mint Card */
+    .mint-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 
+        0 4px 40px rgba(0, 0, 0, 0.3),
+        0 0 80px rgba(139, 92, 246, 0.05);
+    }
+
+    /* Supply Section */
+    .supply-section {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--bg-secondary);
+      border-radius: 16px;
+      margin-bottom: 2rem;
+    }
+
+    .supply-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      margin-bottom: 0.5rem;
+    }
+
+    .supply-count {
+      font-size: 2.5rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .supply-count .current {
+      color: var(--accent-cyan);
+    }
+
+    .supply-count .separator {
+      color: var(--text-muted);
+      margin: 0 0.25rem;
+    }
+
+    .supply-count .max {
+      color: var(--text-secondary);
+    }
+
+    .supply-bar {
+      height: 8px;
+      background: var(--bg-primary);
+      border-radius: 4px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .supply-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+
+    /* Strategy Selector */
+    .strategy-section {
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .strategy-grid {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .strategy-option {
+      padding: 1rem 1.25rem;
+      background: var(--bg-secondary);
+      border: 2px solid transparent;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .strategy-option:hover {
+      background: var(--bg-hover);
+      border-color: rgba(139, 92, 246, 0.3);
+    }
+
+    .strategy-option.selected {
+      background: rgba(139, 92, 246, 0.1);
+      border-color: var(--accent-purple);
+    }
+
+    .strategy-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .strategy-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .strategy-risk {
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .risk-low {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--accent-green);
+    }
+
+    .risk-medium {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--accent-orange);
+    }
+
+    .risk-high {
+      background: rgba(239, 68, 68, 0.15);
+      color: var(--accent-red);
+    }
+
+    .strategy-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    /* Price Section */
+    .price-section {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem;
+      background: var(--bg-secondary);
+      border-radius: 14px;
+      margin-bottom: 1.5rem;
+    }
+
+    .price-label {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+    }
+
+    .price-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-purple-light);
+    }
+
+    .price-value span {
+      font-size: 1rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    /* Mint Button */
+    .mint-btn {
+      width: 100%;
+      padding: 1.25rem;
+      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+      border: none;
+      border-radius: 16px;
+      color: white;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mint-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
+      transform: translateX(-100%);
+      transition: transform 0.5s ease;
+    }
+
+    .mint-btn:hover:not(:disabled)::before {
+      transform: translateX(100%);
+    }
+
+    .mint-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px var(--glow-purple);
+    }
+
+    .mint-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .mint-btn.loading {
+      pointer-events: none;
+    }
+
+    .mint-btn .spinner {
+      display: none;
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-right: 0.5rem;
+    }
+
+    .mint-btn.loading .spinner {
+      display: inline-block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Status Messages */
+    .status {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      border-radius: 12px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .status.show {
+      display: block;
+    }
+
+    .status.info {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: var(--accent-blue);
+    }
+
+    .status.success {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--accent-green);
+    }
+
+    .status.error {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: var(--accent-red);
+    }
+
+    .status a {
+      color: inherit;
+      text-decoration: underline;
+    }
+
+    /* Network Warning */
+    .network-warning {
+      display: none;
+      padding: 1rem;
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .network-warning.show {
+      display: block;
+    }
+
+    .network-warning p {
+      color: var(--accent-orange);
+      font-size: 0.9rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .network-warning button {
+      padding: 0.5rem 1rem;
+      background: var(--accent-orange);
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-primary);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    /* Footer */
+    footer {
+      position: relative;
+      z-index: 10;
+      text-align: center;
+      padding: 2rem;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--accent-purple-light);
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 640px) {
+      header {
+        padding: 1rem;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .wallet-info {
+        width: 100%;
+        justify-content: center;
+      }
+
+      main {
+        padding: 2rem 1rem;
+      }
+
+      .mint-card {
+        padding: 1.5rem;
+      }
+
+      .supply-count {
+        font-size: 2rem;
+      }
+
+      .price-section {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-gradient"></div>
+  <div class="grid-overlay"></div>
+
+  <header>
+    <a href="/" class="logo">
+      <div class="logo-icon">🤖</div>
+      <span>Decrypt Labs</span>
+    </a>
+    <div id="walletArea">
+      <button class="connect-btn" id="connectBtn" onclick="connectWallet()">
+        Connect Wallet
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1>Mint Your Trading Bot</h1>
+      <p>Claim ownership of an AI-powered futures trading bot. Earn real profits from automated ICT strategies.</p>
+    </section>
+
+    <div class="mint-card">
+      <!-- Supply -->
+      <div class="supply-section">
+        <div class="supply-label">Bots Minted</div>
+        <div class="supply-count">
+          <span class="current" id="currentSupply">—</span>
+          <span class="separator">/</span>
+          <span class="max">20</span>
+        </div>
+        <div class="supply-bar">
+          <div class="supply-fill" id="supplyBar" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Network Warning -->
+      <div class="network-warning" id="networkWarning">
+        <p>⚠️ Please switch to Base Sepolia network</p>
+        <button onclick="switchNetwork()">Switch Network</button>
+      </div>
+
+      <!-- Strategy Selector -->
+      <div class="strategy-section">
+        <div class="section-title">
+          <span>🎯</span> Select Strategy
+        </div>
+        <div class="strategy-grid" id="strategyGrid">
+          <!-- Strategies populated by JS -->
+        </div>
+      </div>
+
+      <!-- Price -->
+      <div class="price-section">
+        <span class="price-label">Mint Price</span>
+        <span class="price-value">300 <span>$CIPHER</span></span>
+      </div>
+
+      <!-- Mint Button -->
+      <button class="mint-btn" id="mintBtn" onclick="mint()" disabled>
+        <span class="spinner"></span>
+        <span class="btn-text">Connect Wallet to Mint</span>
+      </button>
+
+      <!-- Status -->
+      <div class="status" id="status"></div>
+    </div>
+  </main>
+
+  <footer>
+    <p>
+      <a href="https://sepolia.basescan.org/address/0xc267113C4E6f4421B28e51093583eABeC9E201c8" target="_blank">View Contract</a>
+      &nbsp;•&nbsp;
+      <a href="https://decryptlabs.io" target="_blank">Back to Site</a>
+    </p>
+  </footer>
+
+  <script>
+    // ============================================
+    // CONTRACT CONFIGURATION
+    // ============================================
+    const CONFIG = {
+      chainId: 84532,
+      chainIdHex: '0x14a34',
+      chainName: 'Base Sepolia',
+      rpcUrl: 'https://sepolia.base.org',
+      blockExplorer: 'https://sepolia.basescan.org',
+      
+      addresses: {
+        cipher: '0x85075b6E79FEB545F30e60151f467ff17FD3E8BB',
+        botNFT: '0xc267113C4E6f4421B28e51093583eABeC9E201c8'
+      },
+      
+      mintPrice: ethers.parseUnits('300', 18), // 300 CIPHER
+      maxSupply: 20,
+      
+      strategies: [
+        { id: 0, name: 'OTE Silver Bullet', risk: 'Medium', description: 'Trades all valid OTE setups during kill zones' },
+        { id: 1, name: 'FVG + IFVG', risk: 'Medium', description: 'Fair Value Gap & Inverse FVG entries' },
+        { id: 2, name: 'OTE Refined (High Risk)', risk: 'High', description: 'Selective days, larger position sizing' },
+        { id: 3, name: 'OTE Refined (Low Risk)', risk: 'Low', description: 'Conservative sizing, max consistency' }
+      ]
+    };
+
+    // Minimal ABIs
+    const CIPHER_ABI = [
+      'function approve(address spender, uint256 amount) returns (bool)',
+      'function allowance(address owner, address spender) view returns (uint256)',
+      'function balanceOf(address account) view returns (uint256)'
+    ];
+
+    const BOTNFT_ABI = [
+      'function mint(uint8 strategy, string uri) external',
+      'function totalSupply() view returns (uint256)',
+      'function MAX_SUPPLY() view returns (uint256)'
+    ];
+
+    // ============================================
+    // STATE
+    // ============================================
+    let provider = null;
+    let signer = null;
+    let userAddress = null;
+    let selectedStrategy = 0;
+    let cipherContract = null;
+    let botNFTContract = null;
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      renderStrategies();
+      
+      // Try to connect if already authorized
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          await connectWallet();
+        }
+      }
+      
+      // Fetch supply even without wallet
+      await fetchSupply();
+    });
+
+    // ============================================
+    // WALLET CONNECTION
+    // ============================================
+    async function connectWallet() {
+      const btn = document.getElementById('connectBtn');
+      
+      if (!window.ethereum) {
+        showStatus('Please install MetaMask or another Web3 wallet', 'error');
+        return;
+      }
+
+      try {
+        btn.disabled = true;
+        btn.textContent = 'Connecting...';
+
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send('eth_requestAccounts', []);
+        userAddress = accounts[0];
+        signer = await provider.getSigner();
+
+        // Check network
+        const network = await provider.getNetwork();
+        if (Number(network.chainId) !== CONFIG.chainId) {
+          document.getElementById('networkWarning').classList.add('show');
+        } else {
+          document.getElementById('networkWarning').classList.remove('show');
+        }
+
+        // Init contracts
+        cipherContract = new ethers.Contract(CONFIG.addresses.cipher, CIPHER_ABI, signer);
+        botNFTContract = new ethers.Contract(CONFIG.addresses.botNFT, BOTNFT_ABI, signer);
+
+        // Update UI
+        await updateWalletUI();
+        await fetchSupply();
+        updateMintButton();
+
+        // Listen for account/network changes
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', () => window.location.reload());
+
+      } catch (error) {
+        console.error('Connection error:', error);
+        showStatus('Failed to connect wallet', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Connect Wallet';
+      }
+    }
+
+    async function handleAccountsChanged(accounts) {
+      if (accounts.length === 0) {
+        userAddress = null;
+        signer = null;
+        document.getElementById('walletArea').innerHTML = `
+          <button class="connect-btn" id="connectBtn" onclick="connectWallet()">
+            Connect Wallet
+          </button>
+        `;
+        updateMintButton();
+      } else {
+        userAddress = accounts[0];
+        signer = await provider.getSigner();
+        await updateWalletUI();
+      }
+    }
+
+    async function updateWalletUI() {
+      const cipherBalance = await cipherContract.balanceOf(userAddress);
+      const formatted = Number(ethers.formatUnits(cipherBalance, 18)).toLocaleString();
+      const shortAddr = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
+
+      document.getElementById('walletArea').innerHTML = `
+        <div class="wallet-info">
+          <span class="wallet-balance">${formatted} CIPHER</span>
+          <span class="wallet-address">${shortAddr}</span>
+        </div>
+      `;
+    }
+
+    async function switchNetwork() {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: CONFIG.chainIdHex }]
+        });
+      } catch (switchError) {
+        // Chain not added, try to add it
+        if (switchError.code === 4902) {
+          try {
+            await window.ethereum.request({
+              method: 'wallet_addEthereumChain',
+              params: [{
+                chainId: CONFIG.chainIdHex,
+                chainName: CONFIG.chainName,
+                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                rpcUrls: [CONFIG.rpcUrl],
+                blockExplorerUrls: [CONFIG.blockExplorer]
+              }]
+            });
+          } catch (addError) {
+            showStatus('Failed to add network', 'error');
+          }
+        }
+      }
+    }
+
+    // ============================================
+    // SUPPLY
+    // ============================================
+    async function fetchSupply() {
+      try {
+        // Create read-only provider
+        const readProvider = new ethers.JsonRpcProvider(CONFIG.rpcUrl);
+        const readContract = new ethers.Contract(CONFIG.addresses.botNFT, BOTNFT_ABI, readProvider);
+        
+        const supply = await readContract.totalSupply();
+        const current = Number(supply);
+        
+        document.getElementById('currentSupply').textContent = current;
+        document.getElementById('supplyBar').style.width = `${(current / CONFIG.maxSupply) * 100}%`;
+        
+        return current;
+      } catch (error) {
+        console.error('Failed to fetch supply:', error);
+        document.getElementById('currentSupply').textContent = '?';
+        return null;
+      }
+    }
+
+    // ============================================
+    // STRATEGIES
+    // ============================================
+    function renderStrategies() {
+      const grid = document.getElementById('strategyGrid');
+      grid.innerHTML = CONFIG.strategies.map((s, i) => `
+        <div class="strategy-option ${i === 0 ? 'selected' : ''}" onclick="selectStrategy(${s.id})" data-id="${s.id}">
+          <div class="strategy-header">
+            <span class="strategy-name">${s.name}</span>
+            <span class="strategy-risk risk-${s.risk.toLowerCase()}">${s.risk}</span>
+          </div>
+          <div class="strategy-desc">${s.description}</div>
+        </div>
+      `).join('');
+    }
+
+    function selectStrategy(id) {
+      selectedStrategy = id;
+      document.querySelectorAll('.strategy-option').forEach(el => {
+        el.classList.toggle('selected', Number(el.dataset.id) === id);
+      });
+    }
+
+    // ============================================
+    // MINTING
+    // ============================================
+    function updateMintButton() {
+      const btn = document.getElementById('mintBtn');
+      const text = btn.querySelector('.btn-text');
+      
+      if (!userAddress) {
+        btn.disabled = true;
+        text.textContent = 'Connect Wallet to Mint';
+      } else {
+        btn.disabled = false;
+        text.textContent = 'Mint Bot NFT';
+      }
+    }
+
+    async function mint() {
+      if (!userAddress || !signer) {
+        showStatus('Please connect your wallet first', 'error');
+        return;
+      }
+
+      const btn = document.getElementById('mintBtn');
+      const text = btn.querySelector('.btn-text');
+      
+      try {
+        btn.classList.add('loading');
+        btn.disabled = true;
+
+        // Check network
+        const network = await provider.getNetwork();
+        if (Number(network.chainId) !== CONFIG.chainId) {
+          showStatus('Please switch to Base Sepolia network', 'error');
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          return;
+        }
+
+        // Check CIPHER balance
+        const balance = await cipherContract.balanceOf(userAddress);
+        if (balance < CONFIG.mintPrice) {
+          showStatus('Insufficient CIPHER balance. You need 300 CIPHER to mint.', 'error');
+          btn.classList.remove('loading');
+          btn.disabled = false;
+          return;
+        }
+
+        // Check allowance
+        text.textContent = 'Checking allowance...';
+        const allowance = await cipherContract.allowance(userAddress, CONFIG.addresses.botNFT);
+        
+        if (allowance < CONFIG.mintPrice) {
+          // Need to approve
+          text.textContent = 'Approving CIPHER...';
+          showStatus('Please approve CIPHER spending in your wallet', 'info');
+          
+          const approveTx = await cipherContract.approve(CONFIG.addresses.botNFT, CONFIG.mintPrice);
+          showStatus('Waiting for approval confirmation...', 'info');
+          await approveTx.wait();
+          showStatus('CIPHER approved! Now minting...', 'success');
+        }
+
+        // Mint
+        text.textContent = 'Minting...';
+        showStatus('Please confirm the mint transaction', 'info');
+        
+        // Generate simple metadata URI (could be IPFS in production)
+        const metadataUri = `https://decryptlabs.io/api/metadata/${selectedStrategy}`;
+        
+        const mintTx = await botNFTContract.mint(selectedStrategy, metadataUri);
+        showStatus(`Transaction submitted! <a href="${CONFIG.blockExplorer}/tx/${mintTx.hash}" target="_blank">View on BaseScan</a>`, 'info');
+        
+        text.textContent = 'Confirming...';
+        const receipt = await mintTx.wait();
+        
+        // Success!
+        showStatus(`
+          🎉 Mint successful! Welcome to Decrypt Labs!<br>
+          <a href="${CONFIG.blockExplorer}/tx/${receipt.hash}" target="_blank">View transaction</a>
+        `, 'success');
+        
+        // Refresh supply
+        await fetchSupply();
+        await updateWalletUI();
+        
+        text.textContent = 'Mint Another';
+
+      } catch (error) {
+        console.error('Mint error:', error);
+        
+        let message = 'Mint failed';
+        if (error.code === 'ACTION_REJECTED' || error.code === 4001) {
+          message = 'Transaction cancelled by user';
+        } else if (error.message?.includes('insufficient funds')) {
+          message = 'Insufficient ETH for gas fees';
+        } else if (error.reason) {
+          message = error.reason;
+        }
+        
+        showStatus(message, 'error');
+        text.textContent = 'Mint Bot NFT';
+        
+      } finally {
+        btn.classList.remove('loading');
+        btn.disabled = false;
+      }
+    }
+
+    // ============================================
+    // UI HELPERS
+    // ============================================
+    function showStatus(message, type) {
+      const status = document.getElementById('status');
+      status.innerHTML = message;
+      status.className = `status show ${type}`;
+    }
+  </script>
+</body>
+</html>

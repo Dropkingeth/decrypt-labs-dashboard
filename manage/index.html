@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bot Management - Decrypt Labs</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-dark: #0a0b1e;
+            --bg-card: #12132d;
+            --accent: #6366f1;
+            --accent-hover: #818cf8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .connect-btn {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
+        
+        .connect-btn.connected {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+        }
+        
+        .page-title {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .page-subtitle {
+            color: var(--text-dim);
+            margin-bottom: 2rem;
+        }
+        
+        .no-bots {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .no-bots h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .no-bots p {
+            color: var(--text-dim);
+            margin-bottom: 1.5rem;
+        }
+        
+        .bots-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .bot-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .bot-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+        
+        .bot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .bot-id {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .bot-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+        
+        .status-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+        
+        .status-inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+        
+        .bot-strategy {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+        }
+        
+        .strategy-icon {
+            font-size: 1.5rem;
+        }
+        
+        .strategy-name {
+            font-weight: 600;
+        }
+        
+        .strategy-risk {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        
+        .bot-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .stat {
+            padding: 0.75rem;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+            margin-bottom: 0.25rem;
+        }
+        
+        .stat-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .fuel-bar {
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .fuel-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success), #34d399);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        
+        .fuel-fill.warning {
+            background: linear-gradient(90deg, var(--warning), #fbbf24);
+        }
+        
+        .fuel-fill.danger {
+            background: linear-gradient(90deg, var(--danger), #f87171);
+        }
+        
+        .bot-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            color: white;
+        }
+        
+        .action-btn.secondary {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .rewards-section {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .rewards-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .rewards-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .rewards-amount {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .claim-btn {
+            width: 100%;
+            padding: 1rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.125rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .claim-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.3);
+        }
+        
+        .claim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .modal-close {
+            float: right;
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+        
+        .fuel-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+        
+        .fuel-option {
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .fuel-option:hover, .fuel-option.selected {
+            border-color: var(--accent);
+            background: rgba(99, 102, 241, 0.2);
+        }
+        
+        .fuel-months {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .fuel-cost {
+            font-size: 0.875rem;
+            color: var(--text-dim);
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .bots-grid { grid-template-columns: 1fr; }
+            .fuel-options { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="logo">🔐 Decrypt Labs</a>
+            <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+        </header>
+        
+        <h1 class="page-title">Bot Management</h1>
+        <p class="page-subtitle">Manage your trading bots, pay fuel, and claim rewards</p>
+        
+        <div id="noWallet" class="no-bots">
+            <h3>👋 Connect Your Wallet</h3>
+            <p>Connect your wallet to view and manage your bots</p>
+            <button class="connect-btn" onclick="connectWallet()">Connect Wallet</button>
+        </div>
+        
+        <div id="noBots" class="no-bots" style="display: none;">
+            <h3>🤖 No Bots Found</h3>
+            <p>You don't own any Bot NFTs yet. Mint one to get started!</p>
+            <a href="/mint/" class="connect-btn" style="display: inline-block; text-decoration: none;">Mint a Bot</a>
+        </div>
+        
+        <div id="botsContainer" class="bots-grid" style="display: none;"></div>
+        
+        <div id="rewardsSection" class="rewards-section" style="display: none;">
+            <div class="rewards-header">
+                <span class="rewards-title">💰 Total Claimable Rewards</span>
+                <span class="rewards-amount" id="totalRewards">0 CIPHER</span>
+            </div>
+            <button class="claim-btn" id="claimAllBtn" disabled>Claim All Rewards</button>
+        </div>
+    </div>
+    
+    <!-- Fuel Modal -->
+    <div class="modal" id="fuelModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeFuelModal()">&times;</button>
+            <h2 class="modal-title">⛽ Add Fuel</h2>
+            <p style="color: var(--text-dim); margin-bottom: 1rem;">Select how many months of fuel to purchase</p>
+            
+            <div class="fuel-options">
+                <div class="fuel-option" data-months="1">
+                    <div class="fuel-months">1</div>
+                    <div class="fuel-cost">175 CIPHER</div>
+                </div>
+                <div class="fuel-option" data-months="3">
+                    <div class="fuel-months">3</div>
+                    <div class="fuel-cost">525 CIPHER</div>
+                </div>
+                <div class="fuel-option" data-months="6">
+                    <div class="fuel-months">6</div>
+                    <div class="fuel-cost">1,050 CIPHER</div>
+                </div>
+                <div class="fuel-option" data-months="12">
+                    <div class="fuel-months">12</div>
+                    <div class="fuel-cost">2,100 CIPHER</div>
+                </div>
+            </div>
+            
+            <button class="connect-btn" style="width: 100%;" id="payFuelBtn" disabled>Select Duration</button>
+        </div>
+    </div>
+
+    <script>
+        // Contract addresses (Base Sepolia Testnet)
+        const CONTRACTS = {
+            cipher: "0x85075b6E79FEB545F30e60151f467ff17FD3E8BB",
+            botNFT: "0xc267113C4E6f4421B28e51093583eABeC9E201c8",
+            botFleet: "0xFB85e2790F12eC12c672B991F9485E52b9329352",
+            fuelManager: "0xD28Ca185e4B539bedB2019A6Bc10bCC3CB533b85",
+            rewardsDistributor: "0xE7B5e151f05975F441301BC6ac37EDd2013029f6"
+        };
+        
+        const FUEL_PRICE = ethers.parseEther("175");
+        
+        const STRATEGIES = [
+            { name: "OTE Silver Bullet", risk: "Medium", icon: "🎯" },
+            { name: "FVG+IFVG", risk: "Medium", icon: "📊" },
+            { name: "OTE Refined", risk: "High", icon: "🔥" },
+            { name: "OTE Conservative", risk: "Low", icon: "🛡️" }
+        ];
+        
+        // ABIs
+        const BOTNFT_ABI = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function tokenOfOwnerByIndex(address owner, uint256 index) view returns (uint256)",
+            "function ownerOf(uint256 tokenId) view returns (address)",
+            "function getStrategy(uint256 tokenId) view returns (uint8)",
+            "function totalSupply() view returns (uint256)"
+        ];
+        
+        const BOTFLEET_ABI = [
+            "function getSlotDetails(uint256 tokenId) view returns (uint8 status, uint40 activatedAt, uint40 fuelPaidUntil, uint40 graceEndsAt, uint256 queuePosition)",
+            "function isSlotActive(uint256 tokenId) view returns (bool)"
+        ];
+        
+        const FUEL_ABI = [
+            "function purchaseFuel(uint256 tokenId, uint256 months) external",
+            "function getFuelStatus(uint256 tokenId) view returns (uint40 paidUntil, uint40 lastPayment, uint256 totalPaid, bool isExpired, uint256 daysRemaining)"
+        ];
+        
+        const REWARDS_ABI = [
+            "function getClaimableAmount(uint256 tokenId) view returns (uint256)",
+            "function claimRewards(uint256 tokenId) external",
+            "function getRewardBalance(uint256 tokenId) view returns (uint256 available, uint256 totalEarned, uint256 totalClaimed)"
+        ];
+        
+        const ERC20_ABI = [
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function allowance(address owner, address spender) view returns (uint256)"
+        ];
+        
+        let provider, signer, userAddress;
+        let userBots = [];
+        let selectedFuelTokenId = null;
+        let selectedFuelMonths = 0;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('.fuel-option').forEach(opt => {
+                opt.addEventListener('click', () => selectFuelOption(opt));
+            });
+        });
+        
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert('Please install MetaMask!');
+                return;
+            }
+            
+            try {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                // Check network
+                const network = await provider.getNetwork();
+                if (network.chainId !== 84532n) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x14a34' }]
+                        });
+                    } catch (e) {
+                        alert('Please switch to Base Sepolia network');
+                        return;
+                    }
+                }
+                
+                document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('connectBtn').classList.add('connected');
+                
+                await loadUserBots();
+            } catch (error) {
+                console.error('Connection error:', error);
+                alert('Failed to connect wallet');
+            }
+        }
+        
+        async function loadUserBots() {
+            document.getElementById('noWallet').style.display = 'none';
+            
+            const botNFT = new ethers.Contract(CONTRACTS.botNFT, BOTNFT_ABI, provider);
+            const botFleet = new ethers.Contract(CONTRACTS.botFleet, BOTFLEET_ABI, provider);
+            const rewards = new ethers.Contract(CONTRACTS.rewardsDistributor, REWARDS_ABI, provider);
+            
+            // Get total supply and check each token
+            const totalSupply = await botNFT.totalSupply();
+            userBots = [];
+            
+            for (let i = 0; i < totalSupply; i++) {
+                try {
+                    const owner = await botNFT.ownerOf(i);
+                    if (owner.toLowerCase() === userAddress.toLowerCase()) {
+                        const strategy = await botNFT.getStrategy(i);
+                        const slotDetails = await botFleet.getSlotDetails(i);
+                        const claimable = await rewards.getClaimableAmount(i);
+                        
+                        userBots.push({
+                            tokenId: i,
+                            strategy: Number(strategy),
+                            status: Number(slotDetails[0]),
+                            fuelPaidUntil: Number(slotDetails[2]),
+                            claimable: claimable
+                        });
+                    }
+                } catch (e) {
+                    // Token doesn't exist
+                }
+            }
+            
+            if (userBots.length === 0) {
+                document.getElementById('noBots').style.display = 'block';
+                document.getElementById('botsContainer').style.display = 'none';
+                document.getElementById('rewardsSection').style.display = 'none';
+            } else {
+                document.getElementById('noBots').style.display = 'none';
+                document.getElementById('botsContainer').style.display = 'grid';
+                document.getElementById('rewardsSection').style.display = 'block';
+                renderBots();
+            }
+        }
+        
+        function renderBots() {
+            const container = document.getElementById('botsContainer');
+            let totalClaimable = 0n;
+            
+            container.innerHTML = userBots.map(bot => {
+                const strat = STRATEGIES[bot.strategy] || STRATEGIES[0];
+                const now = Math.floor(Date.now() / 1000);
+                const daysRemaining = bot.fuelPaidUntil > now ? Math.floor((bot.fuelPaidUntil - now) / 86400) : 0;
+                const fuelPercent = Math.min(100, (daysRemaining / 30) * 100);
+                
+                let statusClass = 'status-active';
+                let statusText = 'Active';
+                let fuelClass = '';
+                
+                if (daysRemaining === 0) {
+                    statusClass = 'status-inactive';
+                    statusText = 'No Fuel';
+                    fuelClass = 'danger';
+                } else if (daysRemaining < 7) {
+                    statusClass = 'status-warning';
+                    statusText = 'Low Fuel';
+                    fuelClass = 'warning';
+                }
+                
+                totalClaimable += bot.claimable;
+                
+                return `
+                    <div class="bot-card">
+                        <div class="bot-header">
+                            <span class="bot-id">Bot #${bot.tokenId}</span>
+                            <span class="bot-status ${statusClass}">${statusText}</span>
+                        </div>
+                        
+                        <div class="bot-strategy">
+                            <span class="strategy-icon">${strat.icon}</span>
+                            <div>
+                                <div class="strategy-name">${strat.name}</div>
+                                <div class="strategy-risk">${strat.risk} Risk</div>
+                            </div>
+                        </div>
+                        
+                        <div class="bot-stats">
+                            <div class="stat">
+                                <div class="stat-label">Fuel Remaining</div>
+                                <div class="stat-value">${daysRemaining} days</div>
+                            </div>
+                            <div class="stat">
+                                <div class="stat-label">Claimable</div>
+                                <div class="stat-value">${ethers.formatEther(bot.claimable)} CIPHER</div>
+                            </div>
+                        </div>
+                        
+                        <div class="fuel-bar">
+                            <div class="fuel-fill ${fuelClass}" style="width: ${fuelPercent}%"></div>
+                        </div>
+                        
+                        <div class="bot-actions">
+                            <button class="action-btn primary" onclick="openFuelModal(${bot.tokenId})">Add Fuel</button>
+                            <button class="action-btn secondary" onclick="claimRewards(${bot.tokenId})" ${bot.claimable === 0n ? 'disabled' : ''}>Claim</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            document.getElementById('totalRewards').textContent = ethers.formatEther(totalClaimable) + ' CIPHER';
+            document.getElementById('claimAllBtn').disabled = totalClaimable === 0n;
+        }
+        
+        function openFuelModal(tokenId) {
+            selectedFuelTokenId = tokenId;
+            selectedFuelMonths = 0;
+            document.querySelectorAll('.fuel-option').forEach(o => o.classList.remove('selected'));
+            document.getElementById('payFuelBtn').disabled = true;
+            document.getElementById('payFuelBtn').textContent = 'Select Duration';
+            document.getElementById('fuelModal').classList.add('active');
+        }
+        
+        function closeFuelModal() {
+            document.getElementById('fuelModal').classList.remove('active');
+        }
+        
+        function selectFuelOption(opt) {
+            document.querySelectorAll('.fuel-option').forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            selectedFuelMonths = parseInt(opt.dataset.months);
+            const cost = 175 * selectedFuelMonths;
+            document.getElementById('payFuelBtn').disabled = false;
+            document.getElementById('payFuelBtn').textContent = `Pay ${cost} CIPHER`;
+            document.getElementById('payFuelBtn').onclick = payFuel;
+        }
+        
+        async function payFuel() {
+            if (!selectedFuelTokenId === null || !selectedFuelMonths) return;
+            
+            const btn = document.getElementById('payFuelBtn');
+            btn.disabled = true;
+            btn.textContent = 'Approving...';
+            
+            try {
+                const cipher = new ethers.Contract(CONTRACTS.cipher, ERC20_ABI, signer);
+                const fuelManager = new ethers.Contract(CONTRACTS.fuelManager, FUEL_ABI, signer);
+                
+                const amount = FUEL_PRICE * BigInt(selectedFuelMonths);
+                
+                // Check allowance
+                const allowance = await cipher.allowance(userAddress, CONTRACTS.fuelManager);
+                if (allowance < amount) {
+                    const approveTx = await cipher.approve(CONTRACTS.fuelManager, amount);
+                    await approveTx.wait();
+                }
+                
+                btn.textContent = 'Paying fuel...';
+                const tx = await fuelManager.purchaseFuel(selectedFuelTokenId, selectedFuelMonths);
+                await tx.wait();
+                
+                closeFuelModal();
+                await loadUserBots();
+                alert('Fuel purchased successfully!');
+            } catch (error) {
+                console.error('Fuel payment error:', error);
+                alert('Failed to pay fuel: ' + error.message);
+            }
+            
+            btn.disabled = false;
+            btn.textContent = 'Select Duration';
+        }
+        
+        async function claimRewards(tokenId) {
+            try {
+                const rewards = new ethers.Contract(CONTRACTS.rewardsDistributor, REWARDS_ABI, signer);
+                const tx = await rewards.claimRewards(tokenId);
+                await tx.wait();
+                await loadUserBots();
+                alert('Rewards claimed!');
+            } catch (error) {
+                console.error('Claim error:', error);
+                alert('Failed to claim: ' + error.message);
+            }
+        }
+        
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        document.getElementById('claimAllBtn').addEventListener('click', async () => {
+            for (const bot of userBots) {
+                if (bot.claimable > 0n) {
+                    await claimRewards(bot.tokenId);
+                }
+            }
+        });
+        
+        // Check if already connected
+        if (window.ethereum?.selectedAddress) {
+            connectWallet();
+        }
+    </script>
+</body>
+</html>

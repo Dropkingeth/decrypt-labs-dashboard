@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Token Holder Access - Decrypt Labs</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg-dark: #0a0b1e;
+            --bg-card: #12132d;
+            --accent: #6366f1;
+            --bronze: #cd7f32;
+            --gold: #ffd700;
+            --diamond: #b9f2ff;
+            --text: #e2e8f0;
+            --text-dim: #94a3b8;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(ellipse at top, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at bottom, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        
+        .connect-btn {
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(99, 102, 241, 0.3);
+        }
+        
+        .connect-btn.connected {
+            background: var(--bg-card);
+            border: 1px solid var(--accent);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 3rem 0;
+        }
+        
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p {
+            color: var(--text-dim);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .tier-display {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-card);
+            border-radius: 24px;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 1rem 2rem;
+            border-radius: 50px;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .tier-none { background: rgba(148, 163, 184, 0.2); color: var(--text-dim); }
+        .tier-bronze { background: rgba(205, 127, 50, 0.2); color: var(--bronze); border: 2px solid var(--bronze); }
+        .tier-gold { background: rgba(255, 215, 0, 0.2); color: var(--gold); border: 2px solid var(--gold); }
+        .tier-diamond { background: rgba(185, 242, 255, 0.2); color: var(--diamond); border: 2px solid var(--diamond); }
+        
+        .tier-balance {
+            font-size: 1.25rem;
+            color: var(--text-dim);
+        }
+        
+        .tier-balance strong {
+            color: var(--text);
+        }
+        
+        .upgrade-info {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            font-size: 0.875rem;
+        }
+        
+        .tiers-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .tier-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .tier-card.active {
+            transform: scale(1.05);
+        }
+        
+        .tier-card.bronze.active { border-color: var(--bronze); box-shadow: 0 10px 40px rgba(205, 127, 50, 0.2); }
+        .tier-card.gold.active { border-color: var(--gold); box-shadow: 0 10px 40px rgba(255, 215, 0, 0.2); }
+        .tier-card.diamond.active { border-color: var(--diamond); box-shadow: 0 10px 40px rgba(185, 242, 255, 0.2); }
+        
+        .tier-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tier-card.bronze .tier-name { color: var(--bronze); }
+        .tier-card.gold .tier-name { color: var(--gold); }
+        .tier-card.diamond .tier-name { color: var(--diamond); }
+        
+        .tier-requirement {
+            color: var(--text-dim);
+            margin-bottom: 1rem;
+        }
+        
+        .tier-benefits {
+            text-align: left;
+            list-style: none;
+        }
+        
+        .tier-benefits li {
+            padding: 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .tier-benefits li::before {
+            content: '✓';
+            color: #10b981;
+        }
+        
+        .tier-benefits li.locked::before {
+            content: '✗';
+            color: #ef4444;
+        }
+        
+        .tier-benefits li.locked {
+            opacity: 0.5;
+        }
+        
+        .access-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .access-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .access-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+        
+        .access-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-unlocked {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+        
+        .status-locked {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .access-content {
+            color: var(--text-dim);
+        }
+        
+        .download-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #8b5cf6);
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 1rem;
+            transition: transform 0.2s;
+        }
+        
+        .download-btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .download-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        
+        .strategy-cards {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .strategy-card {
+            padding: 1rem;
+            background: rgba(99, 102, 241, 0.1);
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+        
+        .strategy-card.locked {
+            opacity: 0.5;
+        }
+        
+        .strategy-name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .strategy-risk {
+            font-size: 0.75rem;
+            color: var(--text-dim);
+        }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .tiers-grid { grid-template-columns: 1fr; }
+            .strategy-cards { grid-template-columns: 1fr; }
+            .hero h1 { font-size: 1.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <a href="/" class="logo">🔐 Decrypt Labs</a>
+            <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+        </header>
+        
+        <div class="hero">
+            <h1>Token Holder Access</h1>
+            <p>Hold $CIPHER tokens to unlock the PriceCipher indicator and trading strategies</p>
+        </div>
+        
+        <div class="tier-display" id="tierDisplay">
+            <div class="tier-badge tier-none" id="tierBadge">Connect Wallet</div>
+            <div class="tier-balance" id="balanceDisplay"></div>
+            <div class="upgrade-info" id="upgradeInfo" style="display: none;"></div>
+        </div>
+        
+        <div class="tiers-grid">
+            <div class="tier-card bronze" id="bronzeCard">
+                <div class="tier-icon">🥉</div>
+                <div class="tier-name">Bronze</div>
+                <div class="tier-requirement">100,000 $CIPHER</div>
+                <ul class="tier-benefits">
+                    <li>PriceCipher Indicator</li>
+                    <li class="locked">Strategy Access</li>
+                </ul>
+            </div>
+            
+            <div class="tier-card gold" id="goldCard">
+                <div class="tier-icon">🥇</div>
+                <div class="tier-name">Gold</div>
+                <div class="tier-requirement">500,000 $CIPHER</div>
+                <ul class="tier-benefits">
+                    <li>PriceCipher Indicator</li>
+                    <li>1 Strategy of Choice</li>
+                </ul>
+            </div>
+            
+            <div class="tier-card diamond" id="diamondCard">
+                <div class="tier-icon">💎</div>
+                <div class="tier-name">Diamond</div>
+                <div class="tier-requirement">1,300,000 $CIPHER</div>
+                <ul class="tier-benefits">
+                    <li>PriceCipher Indicator</li>
+                    <li>All 4 Strategies</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="access-section" id="indicatorAccess">
+            <div class="access-header">
+                <span class="access-title">📊 PriceCipher Indicator</span>
+                <span class="access-status status-locked" id="indicatorStatus">LOCKED</span>
+            </div>
+            <p class="access-content">
+                The PriceCipher indicator identifies optimal trade entries using ICT concepts including Order Blocks, Fair Value Gaps, and Liquidity Sweeps.
+            </p>
+            <a href="#" class="download-btn disabled" id="indicatorBtn">
+                🔒 Requires Bronze Tier
+            </a>
+        </div>
+        
+        <div class="access-section" id="strategyAccess">
+            <div class="access-header">
+                <span class="access-title">🤖 Trading Strategies</span>
+                <span class="access-status status-locked" id="strategyStatus">LOCKED</span>
+            </div>
+            <p class="access-content">
+                Access our proven automated trading strategies. Gold tier gets 1 strategy, Diamond gets all 4.
+            </p>
+            <div class="strategy-cards">
+                <div class="strategy-card locked" id="strat0">
+                    <div class="strategy-name">🎯 OTE Silver Bullet</div>
+                    <div class="strategy-risk">Medium Risk</div>
+                </div>
+                <div class="strategy-card locked" id="strat1">
+                    <div class="strategy-name">📊 FVG+IFVG</div>
+                    <div class="strategy-risk">Medium Risk</div>
+                </div>
+                <div class="strategy-card locked" id="strat2">
+                    <div class="strategy-name">🔥 OTE Refined (High)</div>
+                    <div class="strategy-risk">High Risk</div>
+                </div>
+                <div class="strategy-card locked" id="strat3">
+                    <div class="strategy-name">🛡️ OTE Refined (Low)</div>
+                    <div class="strategy-risk">Low Risk</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const CONTRACTS = {
+            cipher: "0x85075b6E79FEB545F30e60151f467ff17FD3E8BB",
+            tierGate: "0x08c7C46434B8d0c5cEa538278711df0051C0fCA1"
+        };
+        
+        const THRESHOLDS = {
+            bronze: ethers.parseEther("100000"),
+            gold: ethers.parseEther("500000"),
+            diamond: ethers.parseEther("1300000")
+        };
+        
+        const ERC20_ABI = ["function balanceOf(address) view returns (uint256)"];
+        const TIERGATE_ABI = [
+            "function getUserTier(address) view returns (uint8)",
+            "function getTokensToNextTier(address) view returns (uint256, uint8)"
+        ];
+        
+        let provider, signer, userAddress;
+        
+        async function connectWallet() {
+            if (!window.ethereum) {
+                alert('Please install MetaMask!');
+                return;
+            }
+            
+            try {
+                provider = new ethers.BrowserProvider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
+                signer = await provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                const network = await provider.getNetwork();
+                if (network.chainId !== 84532n) {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: '0x14a34' }]
+                    });
+                }
+                
+                document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('connectBtn').classList.add('connected');
+                
+                await checkTier();
+            } catch (error) {
+                console.error('Connection error:', error);
+            }
+        }
+        
+        async function checkTier() {
+            const cipher = new ethers.Contract(CONTRACTS.cipher, ERC20_ABI, provider);
+            const tierGate = new ethers.Contract(CONTRACTS.tierGate, TIERGATE_ABI, provider);
+            
+            const balance = await cipher.balanceOf(userAddress);
+            const tier = await tierGate.getUserTier(userAddress);
+            const [tokensNeeded, nextTier] = await tierGate.getTokensToNextTier(userAddress);
+            
+            const balanceFormatted = Number(ethers.formatEther(balance)).toLocaleString();
+            document.getElementById('balanceDisplay').innerHTML = `You hold <strong>${balanceFormatted} $CIPHER</strong>`;
+            
+            const tierBadge = document.getElementById('tierBadge');
+            const tierNames = ['No Tier', '🥉 Bronze', '🥇 Gold', '💎 Diamond'];
+            const tierClasses = ['tier-none', 'tier-bronze', 'tier-gold', 'tier-diamond'];
+            
+            tierBadge.textContent = tierNames[tier];
+            tierBadge.className = 'tier-badge ' + tierClasses[tier];
+            
+            // Highlight active tier
+            document.querySelectorAll('.tier-card').forEach(c => c.classList.remove('active'));
+            if (tier >= 1) document.getElementById('bronzeCard').classList.add('active');
+            if (tier >= 2) document.getElementById('goldCard').classList.add('active');
+            if (tier >= 3) document.getElementById('diamondCard').classList.add('active');
+            
+            // Upgrade info
+            if (tier < 3) {
+                const needed = Number(ethers.formatEther(tokensNeeded)).toLocaleString();
+                const nextName = tierNames[nextTier];
+                document.getElementById('upgradeInfo').style.display = 'block';
+                document.getElementById('upgradeInfo').textContent = `Need ${needed} more $CIPHER to reach ${nextName}`;
+            }
+            
+            // Update access
+            if (tier >= 1) {
+                document.getElementById('indicatorStatus').textContent = 'UNLOCKED';
+                document.getElementById('indicatorStatus').className = 'access-status status-unlocked';
+                document.getElementById('indicatorBtn').textContent = '📥 Download Indicator';
+                document.getElementById('indicatorBtn').classList.remove('disabled');
+                document.getElementById('indicatorBtn').href = '/access/indicator/';
+            }
+            
+            if (tier >= 2) {
+                document.getElementById('strategyStatus').textContent = tier === 3 ? 'ALL UNLOCKED' : '1 UNLOCKED';
+                document.getElementById('strategyStatus').className = 'access-status status-unlocked';
+                
+                if (tier === 2) {
+                    // Gold - 1 strategy
+                    document.getElementById('strat0').classList.remove('locked');
+                } else {
+                    // Diamond - all strategies
+                    document.querySelectorAll('.strategy-card').forEach(c => c.classList.remove('locked'));
+                }
+            }
+        }
+        
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        
+        if (window.ethereum?.selectedAddress) {
+            connectWallet();
+        }
+    </script>
+</body>
+</html>
