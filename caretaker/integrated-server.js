@@ -444,7 +444,7 @@ const server = http.createServer(async (req, res) => {
     // Merge stored account data when session not active
     let positions = lastPositionData;
     try {
-      const DASHBOARD_DATA_PATH = path.join(__dirname, '../dashboard/data.json');
+      const DASHBOARD_DATA_PATH = path.join(__dirname, './dashboard/data.json');
       const storedData = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
       
       // If session not active, use stored balances
@@ -719,7 +719,7 @@ const server = http.createServer(async (req, res) => {
   // DASHBOARD API (for decryptlabs.io website)
   // -------------------------------------------------------------------------
   
-  const DASHBOARD_DATA_PATH = path.join(__dirname, '../dashboard/data.json');
+  const DASHBOARD_DATA_PATH = path.join(__dirname, './dashboard/data.json');
   
   // GET /api/stats - Dashboard stats
   if (req.method === 'GET' && pathname === '/api/stats') {
