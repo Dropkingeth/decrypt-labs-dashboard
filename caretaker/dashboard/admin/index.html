@@ -1,0 +1,1384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🤖 Bot Caretaker — Command Center</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🤖</text></svg>">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-dark: #0a0a12;
+      --bg-card: rgba(255,255,255,0.03);
+      --bg-card-hover: rgba(255,255,255,0.06);
+      --accent-cyan: #00d4ff;
+      --accent-green: #00ff88;
+      --accent-red: #ff4455;
+      --accent-orange: #ffaa00;
+      --accent-purple: #aa66ff;
+      --accent-gold: #ffd700;
+      --text-primary: #ffffff;
+      --text-secondary: #88889a;
+      --border-color: rgba(255,255,255,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'SF Mono', 'Monaco', 'Inconsolata', monospace;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: 
+        radial-gradient(ellipse at 20% 20%, rgba(0,212,255,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(170,102,255,0.08) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(20px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo-icon {
+      font-size: 28px;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(1.05); }
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+    }
+
+    .nav-tab.active {
+      background: var(--accent-cyan);
+      color: var(--bg-dark);
+      border-color: var(--accent-cyan);
+    }
+
+    .status-bar {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .status-active {
+      background: rgba(0,255,136,0.15);
+      color: var(--accent-green);
+      border: 1px solid rgba(0,255,136,0.3);
+    }
+
+    .status-inactive {
+      background: rgba(255,170,0,0.15);
+      color: var(--accent-orange);
+      border: 1px solid rgba(255,170,0,0.3);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      animation: blink 1s ease-in-out infinite;
+    }
+
+    .status-active .status-dot { background: var(--accent-green); }
+    .status-inactive .status-dot { background: var(--accent-orange); }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .time-display {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .main-container {
+      padding: 20px 30px;
+      max-width: 1800px;
+      margin: 0 auto;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    /* Stats Row */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .stat-value.warning {
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-red));
+      -webkit-background-clip: text;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    /* Access Requests Table */
+    .requests-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .requests-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.2);
+    }
+
+    .requests-table td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .requests-table tr:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .request-type {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .type-indicator {
+      background: rgba(0,212,255,0.2);
+      color: var(--accent-cyan);
+    }
+
+    .type-strategy {
+      background: rgba(170,102,255,0.2);
+      color: var(--accent-purple);
+    }
+
+    .tier-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .tier-bronze { background: rgba(205,127,50,0.2); color: #cd7f32; }
+    .tier-gold { background: rgba(255,215,0,0.2); color: var(--accent-gold); }
+    .tier-diamond { background: rgba(185,242,255,0.2); color: #b9f2ff; }
+
+    .action-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .action-btn.approve {
+      background: var(--accent-green);
+      color: var(--bg-dark);
+    }
+
+    .action-btn.reject {
+      background: rgba(255,68,85,0.2);
+      color: var(--accent-red);
+      border: 1px solid rgba(255,68,85,0.3);
+    }
+
+    .action-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .wallet-address {
+      font-family: monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .tv-username {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Wallet Scanner */
+    .scanner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+
+    .wallet-card {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.2s;
+    }
+
+    .wallet-card.warning {
+      border-color: var(--accent-orange);
+    }
+
+    .wallet-card.danger {
+      border-color: var(--accent-red);
+      background: rgba(255,68,85,0.05);
+    }
+
+    .wallet-card.healthy {
+      border-color: var(--accent-green);
+    }
+
+    .wallet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .wallet-tv {
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    .wallet-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .status-healthy { background: rgba(0,255,136,0.2); color: var(--accent-green); }
+    .status-warning { background: rgba(255,170,0,0.2); color: var(--accent-orange); }
+    .status-danger { background: rgba(255,68,85,0.2); color: var(--accent-red); }
+
+    .wallet-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .wallet-detail {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .wallet-detail-label {
+      color: var(--text-secondary);
+    }
+
+    .wallet-detail-value {
+      font-weight: 600;
+    }
+
+    .wallet-detail-value.positive { color: var(--accent-green); }
+    .wallet-detail-value.negative { color: var(--accent-red); }
+
+    .wallet-actions {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 8px;
+    }
+
+    .scan-btn {
+      padding: 8px 16px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-dark);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .scan-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+    }
+
+    .scan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Grid layouts */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 400px;
+      gap: 20px;
+    }
+
+    @media (max-width: 1200px) {
+      .main-grid { grid-template-columns: 1fr; }
+      .stats-row { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 768px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .nav-tabs { display: none; }
+    }
+
+    /* Bot cards from original */
+    .bots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .bot-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .bot-card:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--accent-cyan);
+      transform: translateY(-2px);
+    }
+
+    .bot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .bot-name {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .bot-id {
+      font-size: 11px;
+      color: var(--text-secondary);
+      font-family: monospace;
+    }
+
+    .bot-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .bot-status.online {
+      background: rgba(0,255,136,0.15);
+      color: var(--accent-green);
+    }
+
+    .bot-position {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(0,0,0,0.3);
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .position-direction {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .position-direction.long { color: var(--accent-green); }
+    .position-direction.short { color: var(--accent-red); }
+    .position-direction.flat { color: var(--text-secondary); }
+
+    .position-details { flex: 1; }
+    .position-size { font-size: 18px; font-weight: 600; }
+    .position-symbol { font-size: 11px; color: var(--text-secondary); }
+
+    .bot-equity {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+    }
+
+    .equity-label { color: var(--text-secondary); }
+    .equity-value { font-weight: 600; }
+    .equity-value.positive { color: var(--accent-green); }
+    .equity-value.negative { color: var(--accent-red); }
+
+    /* Performance Grid */
+    .performance-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .perf-account {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .perf-account-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .perf-account-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent-cyan);
+    }
+
+    .perf-account-balance {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .perf-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .perf-stat {
+      background: rgba(255,255,255,0.03);
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .perf-stat-value {
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .perf-stat-value.positive { color: var(--accent-green); }
+    .perf-stat-value.negative { color: var(--accent-red); }
+    .perf-stat-value.neutral { color: var(--text-secondary); }
+
+    .perf-stat-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 4px;
+    }
+
+    .perf-progress {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .perf-progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+    }
+
+    .perf-progress-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .perf-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+
+    /* Signal Feed */
+    .signal-feed {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+
+    .signal-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px;
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.2s;
+    }
+
+    .signal-item:hover {
+      background: rgba(255,255,255,0.02);
+    }
+
+    .signal-time {
+      font-size: 11px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      min-width: 70px;
+    }
+
+    .signal-icon { font-size: 16px; min-width: 24px; text-align: center; }
+    .signal-content { flex: 1; }
+    .signal-title { font-size: 13px; font-weight: 500; margin-bottom: 2px; }
+    .signal-details { font-size: 11px; color: var(--text-secondary); }
+
+    .signal-badge {
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .signal-badge.entry { background: rgba(0,212,255,0.2); color: var(--accent-cyan); }
+    .signal-badge.exit { background: rgba(170,102,255,0.2); color: var(--accent-purple); }
+    .signal-badge.alert { background: rgba(255,68,85,0.2); color: var(--accent-red); }
+    .signal-badge.retry { background: rgba(255,170,0,0.2); color: var(--accent-orange); }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: var(--text-secondary);
+      font-size: 11px;
+      border-top: 1px solid var(--border-color);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="logo">
+      <span class="logo-icon">🤖</span>
+      <span class="logo-text">Command Center</span></a> <a href="/" style="color: var(--text-secondary); margin-left: 20px; text-decoration: none; font-size: 12px;">← Back to Dashboard</a
+    </div>
+    
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="switchTab('trading')">📊 Trading</button>
+      <button class="nav-tab" onclick="switchTab('access')">🔑 Access Control</button>
+      <button class="nav-tab" onclick="switchTab('scanner')">🔍 Wallet Scanner</button>
+    </div>
+    
+    <div class="status-bar">
+      <div id="session-status" class="status-indicator status-inactive">
+        <span class="status-dot"></span>
+        <span>Offline</span>
+      </div>
+      <div class="time-display" id="current-time">--:--:-- ET</div>
+    </div>
+  </header>
+
+  <main class="main-container">
+    
+    <!-- TRADING TAB -->
+    <div id="tab-trading" class="tab-content active">
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-value" id="stat-signals">0</div>
+          <div class="stat-label">Signals Today</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-orders">0</div>
+          <div class="stat-label">Orders Tracked</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-aum">$302K</div>
+          <div class="stat-label">Total AUM</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-pnl">+$2.4K</div>
+          <div class="stat-label">Total P&L</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="stat-pending">0</div>
+          <div class="stat-label">Pending Requests</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="left-column">
+          <div class="bots-grid" id="bots-container"></div>
+          
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span>💰</span> Account Performance</div>
+              <span style="font-size: 11px; color: var(--text-secondary);" id="perf-last-updated">--</span>
+            </div>
+            <div class="card-body">
+              <div class="performance-grid" id="performance-grid"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-column">
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title"><span>📡</span> Live Signal Feed</div>
+            </div>
+            <div class="card-body signal-feed" id="signal-feed">
+              <div class="empty-state">
+                <div class="empty-state-icon">📡</div>
+                <div>Waiting for signals...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ACCESS CONTROL TAB -->
+    <div id="tab-access" class="tab-content">
+      <div class="stats-row" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat-card">
+          <div class="stat-value" id="access-pending">0</div>
+          <div class="stat-label">Pending Requests</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="access-indicator">0</div>
+          <div class="stat-label">Indicator Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="access-strategy">0</div>
+          <div class="stat-label">Strategy Users</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value warning" id="access-revoke">0</div>
+          <div class="stat-label">Need Revocation</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span>📥</span> New Access Requests</div>
+          <div class="card-actions">
+            <button class="scan-btn" onclick="refreshRequests()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th>TradingView User</th>
+                <th>Type</th>
+                <th>Details</th>
+                <th>Wallet</th>
+                <th>Tier</th>
+                <th>Holdings</th>
+                <th>Requested</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="requests-table">
+              <tr>
+                <td colspan="8" class="empty-state">No pending requests</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span>✅</span> Approved Users</div>
+        </div>
+        <div class="card-body">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th>TradingView User</th>
+                <th>Access Type</th>
+                <th>Wallet</th>
+                <th>Current Holdings</th>
+                <th>Status</th>
+                <th>Approved</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="approved-table">
+              <tr>
+                <td colspan="7" class="empty-state">No approved users yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- WALLET SCANNER TAB -->
+    <div id="tab-scanner" class="tab-content">
+      <div class="stats-row" style="grid-template-columns: repeat(4, 1fr);">
+        <div class="stat-card">
+          <div class="stat-value" id="scan-total">0</div>
+          <div class="stat-label">Total Wallets</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="scan-healthy">0</div>
+          <div class="stat-label">Healthy</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value warning" id="scan-warning">0</div>
+          <div class="stat-label">Low Balance</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value warning" id="scan-danger">0</div>
+          <div class="stat-label">Below Threshold</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span>🔍</span> Wallet Holdings Scanner</div>
+          <div class="card-actions">
+            <button class="scan-btn" id="scanAllBtn" onclick="scanAllWallets()">
+              🔄 Scan All Wallets
+            </button>
+          </div>
+        </div>
+        <div class="card-body">
+          <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 12px;">
+            Monitors all approved users' wallets to ensure they maintain required $CIPHER holdings.
+            Users who drop below their tier threshold will be flagged for access revocation.
+          </p>
+          
+          <div class="scanner-grid" id="scanner-grid">
+            <div class="empty-state">
+              <div class="empty-state-icon">🔍</div>
+              <div>Click "Scan All Wallets" to check holdings</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title"><span>⚠️</span> Revocation Queue</div>
+        </div>
+        <div class="card-body">
+          <table class="requests-table">
+            <thead>
+              <tr>
+                <th>TradingView User</th>
+                <th>Access Type</th>
+                <th>Required</th>
+                <th>Current Balance</th>
+                <th>Shortfall</th>
+                <th>Grace Period</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="revocation-table">
+              <tr>
+                <td colspan="7" class="empty-state">No users pending revocation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="footer">
+    🤖 Decrypt Labs Command Center — Bot Monitoring + Access Control
+  </footer>
+
+  <script>
+    // Configuration
+    const API_BASE = 'https://decrypt-caretaker-production.up.railway.app';
+    const REFRESH_INTERVAL = 10000;
+    
+    // Contract addresses (Base Sepolia)
+    const CONTRACTS = {
+      cipher: "0x85075b6E79FEB545F30e60151f467ff17FD3E8BB",
+      tierGate: "0x08c7C46434B8d0c5cEa538278711df0051C0fCA1"
+    };
+    
+    const TIER_THRESHOLDS = {
+      bronze: 100000,
+      gold: 500000,
+      diamond: 1300000
+    };
+    
+    const STRATEGY_NAMES = ['OTE Silver Bullet', 'FVG+IFVG', 'OTE Aggressive', 'OTE Conservative'];
+    
+    // ABIs
+    const ERC20_ABI = ["function balanceOf(address) view returns (uint256)"];
+    const TIERGATE_ABI = ["function getUserTier(address) view returns (uint8)"];
+    
+    let provider = null;
+    let accessRequests = [];
+    let approvedUsers = [];
+    let walletScanResults = [];
+
+    // Tab switching
+    function switchTab(tab) {
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(`tab-${tab}`).classList.add('active');
+      event.target.classList.add('active');
+      
+      if (tab === 'access') refreshRequests();
+      if (tab === 'scanner') loadApprovedForScanner();
+    }
+
+    // Time display
+    function updateTime() {
+      const now = new Date();
+      const options = { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+      document.getElementById('current-time').textContent = now.toLocaleTimeString('en-US', options) + ' ET';
+    }
+    setInterval(updateTime, 1000);
+    updateTime();
+
+    // Initialize ethers provider
+    async function initProvider() {
+      try {
+        provider = new ethers.JsonRpcProvider('https://sepolia.base.org');
+      } catch (e) {
+        console.log('Provider init failed:', e);
+      }
+    }
+    initProvider();
+
+    // Fetch access requests from API
+    async function refreshRequests() {
+      try {
+        const res = await fetch(`${API_BASE}/api/access-requests`);
+        if (res.ok) {
+          const data = await res.json();
+          accessRequests = data.pending || [];
+          approvedUsers = data.approved || [];
+          renderRequests();
+          renderApproved();
+          updateAccessStats();
+        }
+      } catch (e) {
+        console.log('Failed to fetch requests:', e);
+        // Use demo data for testing
+        accessRequests = [
+          { id: 1, tvUsername: 'trader_mike', type: 'indicator', wallet: '0x1234...5678', tier: 1, holdings: 150000, timestamp: Date.now() - 3600000 },
+          { id: 2, tvUsername: 'crypto_sarah', type: 'strategy', strategyId: 0, wallet: '0xabcd...ef01', tier: 2, holdings: 650000, timestamp: Date.now() - 7200000 }
+        ];
+        renderRequests();
+      }
+    }
+
+    function renderRequests() {
+      const tbody = document.getElementById('requests-table');
+      
+      if (accessRequests.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="empty-state">No pending requests</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = accessRequests.map(req => {
+        const tierClass = req.tier === 3 ? 'tier-diamond' : req.tier === 2 ? 'tier-gold' : 'tier-bronze';
+        const tierName = req.tier === 3 ? '💎 Diamond' : req.tier === 2 ? '🥇 Gold' : '🥉 Bronze';
+        const typeClass = req.type === 'indicator' ? 'type-indicator' : 'type-strategy';
+        const typeText = req.type === 'indicator' ? 'Indicator' : `Strategy #${req.strategyId}`;
+        const details = req.type === 'strategy' ? STRATEGY_NAMES[req.strategyId] || 'Unknown' : 'PriceCipher';
+        const timeAgo = formatTimeAgo(req.timestamp);
+        
+        return `
+          <tr>
+            <td class="tv-username">@${req.tvUsername}</td>
+            <td><span class="request-type ${typeClass}">${typeText}</span></td>
+            <td>${details}</td>
+            <td class="wallet-address">${req.wallet}</td>
+            <td><span class="tier-badge ${tierClass}">${tierName}</span></td>
+            <td>${(req.holdings || 0).toLocaleString()} CIPHER</td>
+            <td>${timeAgo}</td>
+            <td>
+              <button class="action-btn approve" onclick="approveRequest(${req.id})">✓ Approve</button>
+              <button class="action-btn reject" onclick="rejectRequest(${req.id})">✗</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderApproved() {
+      const tbody = document.getElementById('approved-table');
+      
+      if (approvedUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No approved users yet</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = approvedUsers.map(user => {
+        const accessTypes = [];
+        if (user.indicator) accessTypes.push('Indicator');
+        if (user.strategies?.length) accessTypes.push(`${user.strategies.length} Strategies`);
+        const accessText = accessTypes.join(' + ') || 'None';
+        
+        const holdingsOk = user.currentHoldings >= (user.requiredHoldings || 100000);
+        const statusClass = holdingsOk ? 'status-healthy' : 'status-danger';
+        const statusText = holdingsOk ? '✓ Active' : '⚠️ Low Balance';
+        
+        return `
+          <tr>
+            <td class="tv-username">@${user.tvUsername}</td>
+            <td>${accessText}</td>
+            <td class="wallet-address">${user.wallet}</td>
+            <td>${(user.currentHoldings || 0).toLocaleString()} CIPHER</td>
+            <td><span class="wallet-status ${statusClass}">${statusText}</span></td>
+            <td>${formatDate(user.approvedAt)}</td>
+            <td>
+              <button class="action-btn reject" onclick="revokeAccess('${user.id}')">Revoke</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function approveRequest(id) {
+      const req = accessRequests.find(r => r.id === id);
+      if (!req) return;
+      
+      // Send to API
+      try {
+        await fetch(`${API_BASE}/api/access-requests/${id}/approve`, { method: 'POST' });
+      } catch (e) {
+        console.log('API call failed, proceeding anyway');
+      }
+      
+      // Show confirmation
+      const action = req.type === 'indicator' ? 
+        'Add to PriceCipher indicator' : 
+        `Add to ${STRATEGY_NAMES[req.strategyId]} strategy`;
+      
+      alert(`✅ Approved!\n\nTradingView: @${req.tvUsername}\nAction: ${action}\n\nGo to TradingView and add this user to your private script.`);
+      
+      // Remove from pending
+      accessRequests = accessRequests.filter(r => r.id !== id);
+      renderRequests();
+    }
+
+    async function rejectRequest(id) {
+      if (!confirm('Reject this request?')) return;
+      
+      try {
+        await fetch(`${API_BASE}/api/access-requests/${id}/reject`, { method: 'POST' });
+      } catch (e) {}
+      
+      accessRequests = accessRequests.filter(r => r.id !== id);
+      renderRequests();
+    }
+
+    // Wallet Scanner
+    async function scanAllWallets() {
+      const btn = document.getElementById('scanAllBtn');
+      btn.disabled = true;
+      btn.textContent = '🔄 Scanning...';
+      
+      const grid = document.getElementById('scanner-grid');
+      grid.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Scanning wallets on Base Sepolia...</div>';
+      
+      walletScanResults = [];
+      
+      // Get all approved users
+      const usersToScan = approvedUsers.length > 0 ? approvedUsers : [
+        // Demo data
+        { tvUsername: 'trader_mike', wallet: '0x1234567890abcdef1234567890abcdef12345678', type: 'indicator', requiredTier: 1 },
+        { tvUsername: 'crypto_sarah', wallet: '0xabcdef1234567890abcdef1234567890abcdef12', type: 'strategy', strategyId: 0, requiredTier: 2 }
+      ];
+      
+      for (const user of usersToScan) {
+        try {
+          let balance = 0;
+          let tier = 0;
+          
+          if (provider && user.wallet && user.wallet.length === 42) {
+            const cipher = new ethers.Contract(CONTRACTS.cipher, ERC20_ABI, provider);
+            const tierGate = new ethers.Contract(CONTRACTS.tierGate, TIERGATE_ABI, provider);
+            
+            const rawBalance = await cipher.balanceOf(user.wallet);
+            balance = Number(ethers.formatEther(rawBalance));
+            tier = Number(await tierGate.getUserTier(user.wallet));
+          } else {
+            // Demo values
+            balance = Math.floor(Math.random() * 1500000);
+            tier = balance >= 1300000 ? 3 : balance >= 500000 ? 2 : balance >= 100000 ? 1 : 0;
+          }
+          
+          const requiredBalance = user.type === 'strategy' ? 500000 : 100000;
+          const status = balance >= requiredBalance ? 'healthy' : balance >= requiredBalance * 0.5 ? 'warning' : 'danger';
+          
+          walletScanResults.push({
+            ...user,
+            currentBalance: balance,
+            currentTier: tier,
+            requiredBalance,
+            status
+          });
+        } catch (e) {
+          console.log('Scan error for', user.wallet, e);
+        }
+      }
+      
+      renderScanResults();
+      updateScanStats();
+      
+      btn.disabled = false;
+      btn.textContent = '🔄 Scan All Wallets';
+    }
+
+    function renderScanResults() {
+      const grid = document.getElementById('scanner-grid');
+      
+      if (walletScanResults.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><div class="empty-state-icon">🔍</div><div>No wallets to scan</div></div>';
+        return;
+      }
+      
+      grid.innerHTML = walletScanResults.map(w => {
+        const shortfall = w.requiredBalance - w.currentBalance;
+        const tierName = w.currentTier === 3 ? '💎 Diamond' : w.currentTier === 2 ? '🥇 Gold' : w.currentTier === 1 ? '🥉 Bronze' : '❌ None';
+        const statusText = w.status === 'healthy' ? '✓ Healthy' : w.status === 'warning' ? '⚠️ Low' : '❌ Below';
+        
+        return `
+          <div class="wallet-card ${w.status}">
+            <div class="wallet-header">
+              <span class="wallet-tv">@${w.tvUsername}</span>
+              <span class="wallet-status status-${w.status}">${statusText}</span>
+            </div>
+            <div class="wallet-details">
+              <div class="wallet-detail">
+                <span class="wallet-detail-label">Balance:</span>
+                <span class="wallet-detail-value">${w.currentBalance.toLocaleString()}</span>
+              </div>
+              <div class="wallet-detail">
+                <span class="wallet-detail-label">Required:</span>
+                <span class="wallet-detail-value">${w.requiredBalance.toLocaleString()}</span>
+              </div>
+              <div class="wallet-detail">
+                <span class="wallet-detail-label">Tier:</span>
+                <span class="wallet-detail-value">${tierName}</span>
+              </div>
+              <div class="wallet-detail">
+                <span class="wallet-detail-label">Access:</span>
+                <span class="wallet-detail-value">${w.type === 'indicator' ? 'Indicator' : STRATEGY_NAMES[w.strategyId] || 'Strategy'}</span>
+              </div>
+            </div>
+            ${w.status === 'danger' ? `
+              <div class="wallet-actions">
+                <button class="action-btn reject" onclick="addToRevocation('${w.tvUsername}')">Add to Revocation</button>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateScanStats() {
+      const healthy = walletScanResults.filter(w => w.status === 'healthy').length;
+      const warning = walletScanResults.filter(w => w.status === 'warning').length;
+      const danger = walletScanResults.filter(w => w.status === 'danger').length;
+      
+      document.getElementById('scan-total').textContent = walletScanResults.length;
+      document.getElementById('scan-healthy').textContent = healthy;
+      document.getElementById('scan-warning').textContent = warning;
+      document.getElementById('scan-danger').textContent = danger;
+    }
+
+    function updateAccessStats() {
+      document.getElementById('access-pending').textContent = accessRequests.length;
+      document.getElementById('stat-pending').textContent = accessRequests.length;
+      document.getElementById('access-indicator').textContent = approvedUsers.filter(u => u.indicator).length;
+      document.getElementById('access-strategy').textContent = approvedUsers.filter(u => u.strategies?.length).length;
+    }
+
+    function loadApprovedForScanner() {
+      // Pre-load approved users for scanning
+      refreshRequests();
+    }
+
+    // Utility functions
+    function formatTimeAgo(timestamp) {
+      const seconds = Math.floor((Date.now() - timestamp) / 1000);
+      if (seconds < 60) return 'Just now';
+      if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+      if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+      return `${Math.floor(seconds / 86400)}d ago`;
+    }
+
+    function formatDate(timestamp) {
+      if (!timestamp) return '--';
+      return new Date(timestamp).toLocaleDateString();
+    }
+
+    // Trading tab functions (from original)
+    async function fetchData() {
+      try {
+        const healthRes = await fetch(`${API_BASE}/health`);
+        const health = await healthRes.json();
+        
+        const dashRes = await fetch(`${API_BASE}/api/dashboard`);
+        const dashboard = await dashRes.json();
+        
+        const statusEl = document.getElementById('session-status');
+        if (health.status === 'ok') {
+          statusEl.className = 'status-indicator status-active';
+          statusEl.innerHTML = '<span class="status-dot"></span><span>Online</span>';
+        }
+        
+        updateBotCards(dashboard);
+        updatePerformanceGrid(dashboard.accounts);
+      } catch (e) {
+        console.log('Fetch error:', e);
+      }
+    }
+
+    function updateBotCards(data) {
+      const container = document.getElementById('bots-container');
+      const bots = [
+        { name: 'OTE Silver Bullet', account: 'APEX-251912-14', key: 'ote-silver-bullet' },
+        { name: 'FVG+IFVG', account: 'APEX-251912-18', key: 'fvg-ifvg' }
+      ];
+
+      container.innerHTML = bots.map(bot => {
+        const acc = data?.accounts?.[bot.key] || {};
+        return `
+          <div class="bot-card">
+            <div class="bot-header">
+              <div>
+                <div class="bot-name">${bot.name}</div>
+                <div class="bot-id">${bot.account}</div>
+              </div>
+              <span class="bot-status online">ACTIVE</span>
+            </div>
+            <div class="bot-position">
+              <div class="position-direction flat">●</div>
+              <div class="position-details">
+                <div class="position-size">FLAT</div>
+                <div class="position-symbol">MNQ</div>
+              </div>
+            </div>
+            <div class="bot-equity">
+              <span class="equity-label">Balance</span>
+              <span class="equity-value">$${(acc.balance || 150000).toLocaleString()}</span>
+            </div>
+            <div class="bot-equity" style="margin-top: 4px;">
+              <span class="equity-label">P&L</span>
+              <span class="equity-value ${(acc.pnl || 0) >= 0 ? 'positive' : 'negative'}">
+                ${(acc.pnl || 0) >= 0 ? '+' : ''}$${(acc.pnl || 0).toLocaleString()}
+              </span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updatePerformanceGrid(accounts) {
+      const grid = document.getElementById('performance-grid');
+      const accs = [
+        { key: 'ote-silver-bullet', name: 'OTE Silver Bullet' },
+        { key: 'fvg-ifvg', name: 'FVG+IFVG' }
+      ];
+
+      grid.innerHTML = accs.map(a => {
+        const d = accounts?.[a.key] || { balance: 150000, pnl: 0, progress: 0 };
+        return `
+          <div class="perf-account">
+            <div class="perf-account-header">
+              <div class="perf-account-name">${a.name}</div>
+              <div class="perf-account-balance">$${(d.balance || 150000).toLocaleString()}</div>
+            </div>
+            <div class="perf-stats">
+              <div class="perf-stat">
+                <div class="perf-stat-value ${(d.pnl || 0) >= 0 ? 'positive' : 'negative'}">
+                  ${(d.pnl || 0) >= 0 ? '+' : ''}$${(d.pnl || 0).toLocaleString()}
+                </div>
+                <div class="perf-stat-label">Total P&L</div>
+              </div>
+              <div class="perf-stat">
+                <div class="perf-stat-value positive">${(d.progress || 0).toFixed(1)}%</div>
+                <div class="perf-stat-label">To Funded</div>
+              </div>
+            </div>
+            <div class="perf-progress">
+              <div class="perf-progress-label">
+                <span>Progress</span>
+                <span>${(d.progress || 0).toFixed(1)}%</span>
+              </div>
+              <div class="perf-progress-bar">
+                <div class="perf-progress-fill" style="width: ${Math.min(100, d.progress || 0)}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Initialize
+    fetchData();
+    setInterval(fetchData, REFRESH_INTERVAL);
+    refreshRequests();
+  </script>
+</body>
+</html>
