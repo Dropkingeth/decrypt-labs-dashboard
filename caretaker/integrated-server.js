@@ -674,6 +674,42 @@ const server = http.createServer(async (req, res) => {
         // Track with caretaker
         caretaker.processAlert(alert, botName);
         
+        // Save trade to data.json for transmission log
+        try {
+          const dataPath = path.join(__dirname, './dashboard/data.json');
+          const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
+          
+          // Only log entry/exit trades (not cancels)
+          if (alert.action === 'entry' || alert.action === 'exit' || alert.side) {
+            const trade = {
+              id: Date.now(),
+              bot: botName,
+              timestamp: alert.time || new Date().toISOString(),
+              symbol: alert.symbol || alert.ticker || 'MNQ',
+              side: alert.side || (alert.sentiment === 'bullish' ? 'long' : alert.sentiment === 'bearish' ? 'short' : 'flat'),
+              action: alert.action || 'entry',
+              price: parseFloat(alert.price || alert.entryPrice || alert.limitPrice || 0),
+              size: parseInt(alert.size || alert.quantity || 1),
+              pnl: parseFloat(alert.pnl || 0)
+            };
+            
+            // Add to front of trades array (most recent first)
+            data.trades = data.trades || [];
+            data.trades.unshift(trade);
+            
+            // Keep only last 100 trades
+            data.trades = data.trades.slice(0, 100);
+            
+            // Update lastUpdated
+            data.lastUpdated = new Date().toISOString();
+            
+            fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+            console.log(`[Trades] Saved trade: ${trade.side} ${trade.symbol} @ ${trade.price}`);
+          }
+        } catch (saveErr) {
+          console.log('[Trades] Could not save trade:', saveErr.message);
+        }
+        
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ success: true, tracked: true }));
         

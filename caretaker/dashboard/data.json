@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-02-01T22:30:09Z",
+  "lastUpdated": "2026-02-02T00:07:38.517Z",
   "aum": {
     "total": 302430,
     "milestone": 300000,
@@ -83,7 +83,74 @@
       }
     }
   },
-  "trades": [],
+  "trades": [
+    {
+      "id": 1706626709308,
+      "bot": "ote-refined",
+      "timestamp": "2026-01-30T09:58:30-0500",
+      "symbol": "MNQH2026",
+      "side": "short",
+      "action": "entry",
+      "price": 25886,
+      "size": 6,
+      "pnl": 0
+    },
+    {
+      "id": 1706620800000,
+      "bot": "ote-silver-bullet",
+      "timestamp": "2026-01-30T08:15:00-0500",
+      "symbol": "MNQH2026",
+      "side": "long",
+      "action": "entry",
+      "price": 25742.5,
+      "size": 4,
+      "pnl": 0
+    },
+    {
+      "id": 1706619000000,
+      "bot": "fvg-ifvg",
+      "timestamp": "2026-01-30T07:45:00-0500",
+      "symbol": "MNQH2026",
+      "side": "long",
+      "action": "exit",
+      "price": 25780.25,
+      "size": 2,
+      "pnl": 48.5
+    },
+    {
+      "id": 1706534400000,
+      "bot": "ote-silver-bullet",
+      "timestamp": "2026-01-29T14:30:00-0500",
+      "symbol": "MNQH2026",
+      "side": "short",
+      "action": "entry",
+      "price": 25869.5,
+      "size": 12,
+      "pnl": 0
+    },
+    {
+      "id": 1706530800000,
+      "bot": "fvg-ifvg",
+      "timestamp": "2026-01-29T13:20:00-0500",
+      "symbol": "MNQH2026",
+      "side": "long",
+      "action": "entry",
+      "price": 25580.5,
+      "size": 1,
+      "pnl": 0
+    },
+    {
+      "id": 1706527200000,
+      "bot": "ote-silver-bullet",
+      "timestamp": "2026-01-29T12:00:00-0500",
+      "symbol": "MNQH2026",
+      "side": "long",
+      "action": "exit",
+      "price": 25615,
+      "size": 8,
+      "pnl": 156
+    }
+  ],
   "buybacks": [],
   "racing": {
     "daily": {
