@@ -679,8 +679,12 @@ const server = http.createServer(async (req, res) => {
           const dataPath = path.join(__dirname, './dashboard/data.json');
           const data = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
           
-          // Only log entry/exit trades (not cancels)
-          if (alert.action === 'entry' || alert.action === 'exit' || alert.side) {
+          // Only log trades from active bots (not ote-refined variants)
+          const activeBots = ['ote-silver-bullet', 'fvg-ifvg'];
+          const isActiveBot = activeBots.includes(botName);
+          
+          // Only log entry/exit trades (not cancels) from active bots
+          if (isActiveBot && (alert.action === 'entry' || alert.action === 'exit' || alert.side)) {
             const trade = {
               id: Date.now(),
               bot: botName,

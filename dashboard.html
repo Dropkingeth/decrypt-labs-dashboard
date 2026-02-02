@@ -6080,16 +6080,19 @@
                         }
                     }
                 },
-                trades: (apiData.recentTrades || []).map(t => ({
-                    bot: t.bot === 'fvg-ifvg' ? 'fvg-ifvg-1' : t.bot,
-                    timestamp: t.time || new Date().toISOString(),
-                    symbol: t.symbol || 'MNQ',
-                    side: t.side || 'long',
-                    entry: parseFloat(t.price) || 0,
-                    exit: 0,
-                    size: 1,
-                    pnl: 0
-                })),
+                trades: (apiData.trades || [])
+                    .filter(t => ['ote-silver-bullet', 'fvg-ifvg', 'fvg-ifvg-1'].includes(t.bot))
+                    .map(t => ({
+                        bot: t.bot === 'fvg-ifvg' ? 'fvg-ifvg-1' : t.bot,
+                        timestamp: t.timestamp || t.time || new Date().toISOString(),
+                        symbol: t.symbol || 'MNQ',
+                        side: t.side || 'long',
+                        action: t.action || 'entry',
+                        entry: parseFloat(t.price) || 0,
+                        exit: 0,
+                        size: t.size || 1,
+                        pnl: t.pnl || 0
+                    })),
                 racing: {
                     daily: { leader: 'ote-silver-bullet', scores: {} },
                     monthly: { leader: 'ote-silver-bullet', scores: {} },
