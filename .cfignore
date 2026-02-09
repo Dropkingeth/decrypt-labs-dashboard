@@ -1,0 +1,10 @@
+pitch-video/
+nft-art/
+node_modules/
+.git/
+contracts/cache/
+contracts/out/
+contracts/broadcast/
+cache/
+out/
+broadcast/

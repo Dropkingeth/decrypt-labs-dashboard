@@ -23,8 +23,15 @@ class Settings(BaseSettings):
 
     DELIVERY_METHOD: str = "discord"  # "discord", "telegram", "both"
 
+    AI_PROVIDER: str = "deepseek"
+    DEEPSEEK_API_KEY: str = ""
+    DEEPSEEK_MODEL: str = "deepseek-chat"
+
+    CARETAKER_URL: str = "https://decrypt-caretaker-production.up.railway.app"
+
     class Config:
         env_file = ".env"
+        extra = "ignore"
 
 
 settings = Settings()

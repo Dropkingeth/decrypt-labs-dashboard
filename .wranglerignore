@@ -11,3 +11,4 @@ nft-art/
 node_modules/
 .git/
 *.log
+pitch-video/

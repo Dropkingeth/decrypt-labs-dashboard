@@ -1,5 +1,4 @@
 from typing import Optional
-import anthropic
 import base64
 import structlog
 from pathlib import Path
@@ -10,20 +9,27 @@ from .prompts import ICT_SYSTEM_PROMPT
 
 logger = structlog.get_logger()
 
+# Try to import the right client based on config
+try:
+    import anthropic
+    HAS_ANTHROPIC = True
+except ImportError:
+    HAS_ANTHROPIC = False
+
+try:
+    import httpx
+    HAS_HTTPX = True
+except ImportError:
+    HAS_HTTPX = False
+
 
 async def run_analysis_pipeline(payload: TradingViewPayload):
     """
     Full pipeline: screenshot → AI analysis → delivery.
     """
-    # Step 1: Capture chart screenshot
+    # Step 1: Skip screenshot for now (Playwright TradingView login is flaky)
+    # TODO: Use OpenClaw browser for chart screenshots instead
     screenshot_path = None
-    try:
-        screenshot_path = await get_screenshot(
-            output_path=f"screenshots/{payload.sym}_{payload.trigger}_{payload.ts}.png"
-        )
-    except Exception as e:
-        logger.warning("screenshot_failed", error=str(e),
-                       msg="Continuing with JSON-only analysis")
 
     # Step 2: Run AI analysis
     analysis = await analyze_with_ai(payload, screenshot_path)
@@ -48,53 +54,68 @@ async def analyze_with_ai(
     screenshot_path: Optional[str] = None
 ) -> str:
     """
-    Send JSON data + chart screenshot to Claude for ICT analysis.
+    Send JSON data to AI for ICT analysis.
+    Uses DeepSeek (cheap) or Anthropic (premium) based on config.
     Returns the formatted analysis text.
     """
-    client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
-
-    # Build the user message content
     json_summary = format_payload_for_ai(payload)
-
-    user_content = []
-
-    # Include screenshot if available
-    if screenshot_path and Path(screenshot_path).exists():
-        image_data = Path(screenshot_path).read_bytes()
-        base64_image = base64.standard_b64encode(image_data).decode("utf-8")
-        user_content.append({
-            "type": "image",
-            "source": {
-                "type": "base64",
-                "media_type": "image/png",
-                "data": base64_image,
-            },
-        })
-
-    user_content.append({
-        "type": "text",
-        "text": f"""
-Here is the current ICT indicator data{"" if not screenshot_path else " and chart screenshot"}. Produce your market breakdown.
+    
+    user_text = f"""
+Here is the current ICT indicator data. Produce your market breakdown.
 
 **Alert Trigger:** {payload.trigger}
 **Symbol:** {payload.sym} | **Timeframe:** {payload.tf}min | **Current Price:** {payload.px}
 
 {json_summary}
 
-{"Analyze the chart screenshot alongside this data. " if screenshot_path else "No screenshot available — analyze based on JSON data only. "}Produce your ICT market breakdown following the exact output format specified.
+Analyze based on the JSON data. Produce your ICT market breakdown following the exact output format specified.
 """
-    })
 
-    response = client.messages.create(
-        model=settings.CLAUDE_MODEL,
-        max_tokens=2000,
-        system=ICT_SYSTEM_PROMPT,
-        messages=[{"role": "user", "content": user_content}]
-    )
+    # Use DeepSeek (OpenAI-compatible API) — much cheaper
+    provider = getattr(settings, 'AI_PROVIDER', 'deepseek')
+    
+    if provider == 'deepseek':
+        api_key = getattr(settings, 'DEEPSEEK_API_KEY', settings.ANTHROPIC_API_KEY)
+        model = getattr(settings, 'DEEPSEEK_MODEL', 'deepseek-chat')
+        
+        async with httpx.AsyncClient(timeout=60) as client:
+            response = await client.post(
+                "https://api.deepseek.com/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": model,
+                    "messages": [
+                        {"role": "system", "content": ICT_SYSTEM_PROMPT},
+                        {"role": "user", "content": user_text}
+                    ],
+                    "max_tokens": 2000,
+                    "temperature": 0.3
+                }
+            )
+            
+            if response.status_code != 200:
+                logger.error("deepseek_error", status=response.status_code, body=response.text[:200])
+                return f"⚠️ AI analysis failed (status {response.status_code}). Raw data:\n{json_summary}"
+            
+            data = response.json()
+            analysis_text = data["choices"][0]["message"]["content"]
+    else:
+        # Anthropic fallback
+        client = anthropic.Anthropic(api_key=settings.ANTHROPIC_API_KEY)
+        user_content = [{"type": "text", "text": user_text}]
+        
+        response = client.messages.create(
+            model=settings.CLAUDE_MODEL,
+            max_tokens=2000,
+            system=ICT_SYSTEM_PROMPT,
+            messages=[{"role": "user", "content": user_content}]
+        )
+        analysis_text = response.content[0].text
 
-    analysis_text = response.content[0].text
-    logger.info("ai_analysis_complete", length=len(analysis_text))
-
+    logger.info("ai_analysis_complete", provider=provider, length=len(analysis_text))
     return analysis_text
 
 

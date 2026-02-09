@@ -56,13 +56,20 @@ async def send_telegram_alert(
         # Telegram max message length is 4096
         truncated = analysis[:4090] if len(analysis) > 4090 else analysis
 
-        async with session.post(f"{base_url}/sendMessage", json={
-            "chat_id": settings.TELEGRAM_CHAT_ID,
-            "text": truncated,
-            "parse_mode": "Markdown"
-        }) as resp:
-            if resp.status == 200:
-                logger.info("telegram_sent", trigger=payload.trigger)
-            else:
-                text = await resp.text()
-                logger.error("telegram_text_error", status=resp.status, body=text)
+        # Try Markdown first, fall back to plain text if parsing fails
+        for parse_mode in ["Markdown", None]:
+            async with session.post(f"{base_url}/sendMessage", json={
+                "chat_id": settings.TELEGRAM_CHAT_ID,
+                "text": truncated,
+                **({"parse_mode": parse_mode} if parse_mode else {})
+            }) as resp:
+                if resp.status == 200:
+                    logger.info("telegram_sent", trigger=payload.trigger, parse_mode=parse_mode or "plain")
+                    return  # Success!
+                else:
+                    text = await resp.text()
+                    if "can't parse entities" in text and parse_mode:
+                        logger.warning("telegram_markdown_failed", msg="Retrying without parse_mode")
+                        continue  # Try plain text
+                    logger.error("telegram_text_error", status=resp.status, body=text)
+                    return

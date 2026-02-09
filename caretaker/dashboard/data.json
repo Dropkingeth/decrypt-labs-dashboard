@@ -139,17 +139,17 @@
       }
     },
     "new-300k": {
-      "name": "??? (Unassigned)",
-      "subtitle": "300K Account • Awaiting Bot Assignment",
+      "name": "Moon Mission Mike",
+      "subtitle": "300K Account • The Big Gun",
       "status": "online",
       "accountId": "APEX2519120000021",
       "accountSize": 300000,
       "currentBalance": 303042.06,
-      "strategy": "TBD",
+      "strategy": "OTE Silver Bullet",
       "nft": {
-        "id": null,
-        "name": "Unassigned",
-        "image": null
+        "id": 3,
+        "name": "Moon Mission Mike",
+        "image": "https://gateway.pinata.cloud/ipfs/QmPjVDwqkeWJbwfLCu82K7Ds1NAT4gyp4WapcmEoTxpSkm"
       },
       "stats": {
         "power": 50,

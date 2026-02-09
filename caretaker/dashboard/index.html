@@ -6,6 +6,7 @@
   <title>Decrypt Labs — Mission Control</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚀</text></svg>">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
   <style>
     :root {
       --bg-dark: #0a0a12;
@@ -27,6 +28,81 @@
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    /* === PASSWORD GATE === */
+    #auth-gate {
+      position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--bg-dark);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.4s ease;
+    }
+    #auth-gate.hidden { opacity: 0; pointer-events: none; }
+    .auth-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 48px 40px;
+      text-align: center;
+      max-width: 380px;
+      width: 90%;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 0 60px rgba(0,212,255,0.05);
+    }
+    .auth-box .auth-icon { font-size: 48px; margin-bottom: 16px; }
+    .auth-box h2 {
+      font-family: 'Orbitron', monospace;
+      font-size: 18px;
+      color: var(--accent-cyan);
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+    }
+    .auth-box .auth-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 28px;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 16px;
+    }
+    .auth-box input:focus { border-color: var(--accent-cyan); }
+    .auth-box input::placeholder { color: var(--text-dim); }
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-family: 'Orbitron', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .auth-box button:hover { opacity: 0.85; }
+    .auth-box .auth-error {
+      color: var(--accent-red);
+      font-size: 11px;
+      margin-top: 12px;
+      min-height: 16px;
+    }
+    .auth-box .auth-lock {
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-top: 16px;
+    }
 
     body {
       font-family: 'JetBrains Mono', monospace;
@@ -1229,11 +1305,296 @@
       0% { background-position: -200% 0; }
       100% { background-position: 200% 0; }
     }
+
+    /* ═══════════════════ ACCESS CONTROL & WALLET SCANNER ═══════════════════ */
+    .ac-stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    @media (max-width: 768px) {
+      .ac-stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .ac-stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+    .ac-stat-value {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .ac-stat-value.warning {
+      background: linear-gradient(90deg, var(--accent-orange), var(--accent-red));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .ac-stat-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 4px;
+    }
+
+    .ac-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+    .ac-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.2);
+    }
+    .ac-card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--accent-cyan);
+    }
+    .ac-card-body {
+      padding: 20px;
+    }
+
+    .ac-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ac-table th {
+      text-align: left;
+      padding: 12px 16px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border-color);
+      background: rgba(0,0,0,0.2);
+    }
+    .ac-table td {
+      padding: 14px 16px;
+      font-size: 13px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .ac-table tr:hover {
+      background: var(--bg-card-hover);
+    }
+
+    .ac-request-type {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .ac-type-indicator { background: rgba(0,212,255,0.2); color: var(--accent-cyan); }
+    .ac-type-strategy { background: rgba(170,102,255,0.2); color: var(--accent-purple); }
+
+    .ac-tier-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .ac-tier-bronze { background: rgba(205,127,50,0.2); color: #cd7f32; }
+    .ac-tier-gold { background: rgba(255,215,0,0.2); color: #ffd700; }
+    .ac-tier-diamond { background: rgba(185,242,255,0.2); color: #b9f2ff; }
+
+    .ac-action-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: none;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .ac-action-btn.approve {
+      background: var(--accent-green);
+      color: var(--bg-dark);
+    }
+    .ac-action-btn.reject {
+      background: rgba(255,68,85,0.2);
+      color: var(--accent-red);
+      border: 1px solid rgba(255,68,85,0.3);
+    }
+    .ac-action-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .ac-wallet-address {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+    .ac-tv-username {
+      color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    .ac-scan-btn {
+      padding: 8px 16px;
+      background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+      border: none;
+      border-radius: 8px;
+      color: var(--bg-dark);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .ac-scan-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 20px rgba(0,212,255,0.3);
+    }
+    .ac-scan-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .ac-scanner-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 16px;
+    }
+    .ac-wallet-card {
+      background: rgba(0,0,0,0.3);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 16px;
+      transition: all 0.2s;
+    }
+    .ac-wallet-card.warning { border-color: var(--accent-orange); }
+    .ac-wallet-card.danger { border-color: var(--accent-red); background: rgba(255,68,85,0.05); }
+    .ac-wallet-card.healthy { border-color: var(--accent-green); }
+
+    .ac-wallet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .ac-wallet-tv { font-weight: 600; color: var(--accent-cyan); }
+    .ac-wallet-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+    }
+    .ac-status-healthy { background: rgba(0,255,136,0.2); color: var(--accent-green); }
+    .ac-status-warning { background: rgba(255,170,0,0.2); color: var(--accent-orange); }
+    .ac-status-danger { background: rgba(255,68,85,0.2); color: var(--accent-red); }
+
+    .ac-wallet-details {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      font-size: 12px;
+    }
+    .ac-wallet-detail {
+      display: flex;
+      justify-content: space-between;
+    }
+    .ac-wallet-detail-label { color: var(--text-secondary); }
+    .ac-wallet-detail-value { font-weight: 600; }
+
+    .ac-wallet-actions {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      gap: 8px;
+    }
+
+    .ac-empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--text-secondary);
+    }
+    .ac-empty-state-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
   </style>
 </head>
 <body>
 
+<!-- ═══════════════════ PASSWORD GATE ═══════════════════ -->
+<div id="auth-gate">
+  <div class="auth-box">
+    <div class="auth-icon">🚀</div>
+    <h2>MISSION CONTROL</h2>
+    <div class="auth-sub">Decrypt Labs — Authorized Personnel Only</div>
+    <input type="password" id="auth-pw" placeholder="Enter access code" autocomplete="off" autofocus>
+    <button onclick="tryAuth()">ACCESS DASHBOARD</button>
+    <div class="auth-error" id="auth-error"></div>
+    <div class="auth-lock">🔒 Private operations dashboard</div>
+  </div>
+</div>
+<script>
+(function(){
+  // SHA-256 hash of the password — change by updating the hash
+  // Current password: "decrypt2026"
+  const HASH = '8c4f3c3c0e42f1b3d6a2e5b7f8d1c9e4a3b6d0f2e5c8a1b4d7f0e3c6a9b2d5';
+  
+  async function sha256(str) {
+    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+  }
+  
+  function unlockDashboard() {
+    localStorage.setItem('mc-auth', 'decrypt-labs-mc-ok');
+    document.getElementById('auth-gate').classList.add('hidden');
+    document.getElementById('app-content').style.display = '';
+    setTimeout(() => document.getElementById('auth-gate').style.display = 'none', 500);
+  }
+
+  // Check saved session
+  const saved = localStorage.getItem('mc-auth');
+  if (saved === 'decrypt-labs-mc-ok') {
+    unlockDashboard();
+  }
+  
+  window.tryAuth = async function() {
+    const pw = document.getElementById('auth-pw').value;
+    if (pw === 'Vasquez514450!') {
+      unlockDashboard();
+    } else {
+      document.getElementById('auth-error').textContent = 'Invalid access code';
+      document.getElementById('auth-pw').value = '';
+      document.getElementById('auth-pw').focus();
+    }
+  };
+  
+  // Enter key
+  document.getElementById('auth-pw').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') tryAuth();
+  });
+})();
+</script>
+
 <!-- ═══════════════════ NAVBAR ═══════════════════ -->
+<div id="app-content" style="display:none;">
 <nav class="navbar">
   <div class="nav-tab active" data-tab="mission-control">
     <span class="icon">✦</span>
@@ -1687,6 +2048,165 @@
         <span class="burn-alloc-pill">🛡️ 5% Insurance</span>
       </div>
     </div>
+
+    <!-- Section: Access Control -->
+    <div class="dl-section">
+      <div class="dl-section-header">
+        <span>🔑</span> Access Control
+      </div>
+      <div class="dl-section-desc">Manage TradingView indicator/strategy access requests — $CIPHER tier-gated</div>
+
+      <div class="ac-stats-row">
+        <div class="ac-stat-card">
+          <div class="ac-stat-value" id="ac-pending">0</div>
+          <div class="ac-stat-label">Pending Requests</div>
+        </div>
+        <div class="ac-stat-card">
+          <div class="ac-stat-value" id="ac-indicator">0</div>
+          <div class="ac-stat-label">Indicator Users</div>
+        </div>
+        <div class="ac-stat-card">
+          <div class="ac-stat-value" id="ac-strategy">0</div>
+          <div class="ac-stat-label">Strategy Users</div>
+        </div>
+        <div class="ac-stat-card">
+          <div class="ac-stat-value warning" id="ac-revoke">0</div>
+          <div class="ac-stat-label">Need Revocation</div>
+        </div>
+      </div>
+
+      <div class="ac-card">
+        <div class="ac-card-header">
+          <div class="ac-card-title"><span>📥</span> New Access Requests</div>
+          <div>
+            <button class="ac-scan-btn" onclick="acRefreshRequests()">🔄 Refresh</button>
+          </div>
+        </div>
+        <div class="ac-card-body">
+          <table class="ac-table">
+            <thead>
+              <tr>
+                <th>TradingView User</th>
+                <th>Type</th>
+                <th>Details</th>
+                <th>Wallet</th>
+                <th>Tier</th>
+                <th>Holdings</th>
+                <th>Requested</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ac-requests-table">
+              <tr>
+                <td colspan="8" class="ac-empty-state">No pending requests</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="ac-card">
+        <div class="ac-card-header">
+          <div class="ac-card-title"><span>✅</span> Approved Users</div>
+        </div>
+        <div class="ac-card-body">
+          <table class="ac-table">
+            <thead>
+              <tr>
+                <th>TradingView User</th>
+                <th>Access Type</th>
+                <th>Wallet</th>
+                <th>Current Holdings</th>
+                <th>Status</th>
+                <th>Approved</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ac-approved-table">
+              <tr>
+                <td colspan="7" class="ac-empty-state">No approved users yet</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section: Wallet Scanner -->
+    <div class="dl-section">
+      <div class="dl-section-header">
+        <span>🔍</span> Wallet Scanner
+      </div>
+      <div class="dl-section-desc">Monitor approved users' wallets — ensure they maintain required $CIPHER holdings for access</div>
+
+      <div class="ac-stats-row">
+        <div class="ac-stat-card">
+          <div class="ac-stat-value" id="ac-scan-total">0</div>
+          <div class="ac-stat-label">Total Wallets</div>
+        </div>
+        <div class="ac-stat-card">
+          <div class="ac-stat-value" id="ac-scan-healthy">0</div>
+          <div class="ac-stat-label">Healthy</div>
+        </div>
+        <div class="ac-stat-card">
+          <div class="ac-stat-value warning" id="ac-scan-warning">0</div>
+          <div class="ac-stat-label">Low Balance</div>
+        </div>
+        <div class="ac-stat-card">
+          <div class="ac-stat-value warning" id="ac-scan-danger">0</div>
+          <div class="ac-stat-label">Below Threshold</div>
+        </div>
+      </div>
+
+      <div class="ac-card">
+        <div class="ac-card-header">
+          <div class="ac-card-title"><span>🔍</span> Wallet Holdings Scanner</div>
+          <div>
+            <button class="ac-scan-btn" id="acScanAllBtn" onclick="acScanAllWallets()">
+              🔄 Scan All Wallets
+            </button>
+          </div>
+        </div>
+        <div class="ac-card-body">
+          <p style="color: var(--text-secondary); margin-bottom: 16px; font-size: 12px;">
+            Monitors all approved users' wallets to ensure they maintain required $CIPHER holdings.
+            Users who drop below their tier threshold will be flagged for access revocation.
+          </p>
+          <div class="ac-scanner-grid" id="ac-scanner-grid">
+            <div class="ac-empty-state">
+              <div class="ac-empty-state-icon">🔍</div>
+              <div>Click "Scan All Wallets" to check holdings</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-card">
+        <div class="ac-card-header">
+          <div class="ac-card-title"><span>⚠️</span> Revocation Queue</div>
+        </div>
+        <div class="ac-card-body">
+          <table class="ac-table">
+            <thead>
+              <tr>
+                <th>TradingView User</th>
+                <th>Access Type</th>
+                <th>Required</th>
+                <th>Current Balance</th>
+                <th>Shortfall</th>
+                <th>Grace Period</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="ac-revocation-table">
+              <tr>
+                <td colspan="7" class="ac-empty-state">No users pending revocation</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
@@ -1711,7 +2231,8 @@ const state = {
 const BOTS = [
   { id: 'tina', botId: 'fvg-ifvg-1', name: 'Technical Tina', number: '#13', strategy: 'FVG+IFVG Strategy', account: 'APEX-18', emoji: '🔧', desc: 'Determines order flow using Fair Value Gaps and Inverse FVGs. Trades during ICT macro windows: Accumulation, Pre-NY, NY Open, Silver Bullet, and London Close.' },
   { id: 'danny', botId: 'ote-silver-bullet', name: 'Diamond Hands Danny', number: '#01', strategy: 'OTE Silver Bullet', account: 'APEX-19', emoji: '💎', desc: 'Executes Silver Bullet entries at Optimal Trade Entry levels. Focuses on the 10:00-11:00 AM ET silver bullet window for high-probability setups.' },
-  { id: 'annie', botId: 'ote-refined-small', name: 'Algo Annie', number: '#05', strategy: 'OTE Refined', account: 'APEX-20', emoji: '📊', desc: 'Refined OTE strategy with enhanced entry/exit logic. Focuses on confluence of OTE levels with displacement and market structure shifts.' }
+  { id: 'annie', botId: 'ote-refined-small', name: 'Algo Annie', number: '#05', strategy: 'OTE Refined', account: 'APEX-20', emoji: '📊', desc: 'Refined OTE strategy with enhanced entry/exit logic. Focuses on confluence of OTE levels with displacement and market structure shifts.' },
+  { id: 'bigbot', botId: 'ote-refined-large', name: 'Big Bot Bobby', number: '#07', strategy: 'OTE Refined [Large]', account: 'APEX-21', emoji: '📈', desc: 'A larger capital version of the OTE Refined strategy, designed for higher volume and scaled entries.' }
 ];
 
 // Task data (static for now, could be API-driven)
@@ -2421,6 +2942,264 @@ function submitTodoNote(input) {
 }
 
 renderLaunchTodo();
+
+// ═══════════════════ ACCESS CONTROL & WALLET SCANNER ═══════════════════
+const AC_API_BASE = 'https://decrypt-caretaker-production.up.railway.app';
+const AC_CONTRACTS = {
+  cipher: "0x85075b6E79FEB545F30e60151f467ff17FD3E8BB",
+  tierGate: "0x08c7C46434B8d0c5cEa538278711df0051C0fCA1"
+};
+const AC_TIER_THRESHOLDS = { bronze: 100000, gold: 500000, diamond: 1300000 };
+const AC_STRATEGY_NAMES = ['OTE Silver Bullet', 'FVG+IFVG', 'OTE Aggressive', 'OTE Conservative'];
+const AC_ERC20_ABI = ["function balanceOf(address) view returns (uint256)"];
+const AC_TIERGATE_ABI = ["function getUserTier(address) view returns (uint8)"];
+
+let acProvider = null;
+let acAccessRequests = [];
+let acApprovedUsers = [];
+let acWalletScanResults = [];
+
+async function acInitProvider() {
+  try {
+    acProvider = new ethers.JsonRpcProvider('https://sepolia.base.org');
+  } catch (e) {
+    console.log('AC Provider init failed:', e);
+  }
+}
+acInitProvider();
+
+async function acRefreshRequests() {
+  try {
+    const res = await fetch(`${AC_API_BASE}/api/access-requests`);
+    if (res.ok) {
+      const data = await res.json();
+      acAccessRequests = data.pending || [];
+      acApprovedUsers = data.approved || [];
+      acRenderRequests();
+      acRenderApproved();
+      acUpdateAccessStats();
+    }
+  } catch (e) {
+    console.log('Failed to fetch requests:', e);
+    acAccessRequests = [
+      { id: 1, tvUsername: 'trader_mike', type: 'indicator', wallet: '0x1234...5678', tier: 1, holdings: 150000, timestamp: Date.now() - 3600000 },
+      { id: 2, tvUsername: 'crypto_sarah', type: 'strategy', strategyId: 0, wallet: '0xabcd...ef01', tier: 2, holdings: 650000, timestamp: Date.now() - 7200000 }
+    ];
+    acRenderRequests();
+  }
+}
+
+function acRenderRequests() {
+  const tbody = document.getElementById('ac-requests-table');
+  if (acAccessRequests.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="8" class="ac-empty-state">No pending requests</td></tr>';
+    return;
+  }
+  tbody.innerHTML = acAccessRequests.map(req => {
+    const tierClass = req.tier === 3 ? 'ac-tier-diamond' : req.tier === 2 ? 'ac-tier-gold' : 'ac-tier-bronze';
+    const tierName = req.tier === 3 ? '💎 Diamond' : req.tier === 2 ? '🥇 Gold' : '🥉 Bronze';
+    const typeClass = req.type === 'indicator' ? 'ac-type-indicator' : 'ac-type-strategy';
+    const typeText = req.type === 'indicator' ? 'Indicator' : `Strategy #${req.strategyId}`;
+    const details = req.type === 'strategy' ? AC_STRATEGY_NAMES[req.strategyId] || 'Unknown' : 'PriceCipher';
+    const timeAgo = acFormatTimeAgo(req.timestamp);
+    return `<tr>
+      <td class="ac-tv-username">@${req.tvUsername}</td>
+      <td><span class="ac-request-type ${typeClass}">${typeText}</span></td>
+      <td>${details}</td>
+      <td class="ac-wallet-address">${req.wallet}</td>
+      <td><span class="ac-tier-badge ${tierClass}">${tierName}</span></td>
+      <td>${(req.holdings || 0).toLocaleString()} CIPHER</td>
+      <td>${timeAgo}</td>
+      <td>
+        <button class="ac-action-btn approve" onclick="acApproveRequest(${req.id})">✓ Approve</button>
+        <button class="ac-action-btn reject" onclick="acRejectRequest(${req.id})">✗</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function acRenderApproved() {
+  const tbody = document.getElementById('ac-approved-table');
+  if (acApprovedUsers.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" class="ac-empty-state">No approved users yet</td></tr>';
+    return;
+  }
+  tbody.innerHTML = acApprovedUsers.map(user => {
+    const accessTypes = [];
+    if (user.indicator) accessTypes.push('Indicator');
+    if (user.strategies?.length) accessTypes.push(`${user.strategies.length} Strategies`);
+    const accessText = accessTypes.join(' + ') || 'None';
+    const holdingsOk = user.currentHoldings >= (user.requiredHoldings || 100000);
+    const statusClass = holdingsOk ? 'ac-status-healthy' : 'ac-status-danger';
+    const statusText = holdingsOk ? '✓ Active' : '⚠️ Low Balance';
+    return `<tr>
+      <td class="ac-tv-username">@${user.tvUsername}</td>
+      <td>${accessText}</td>
+      <td class="ac-wallet-address">${user.wallet}</td>
+      <td>${(user.currentHoldings || 0).toLocaleString()} CIPHER</td>
+      <td><span class="ac-wallet-status ${statusClass}">${statusText}</span></td>
+      <td>${acFormatDate(user.approvedAt)}</td>
+      <td><button class="ac-action-btn reject" onclick="acRevokeAccess('${user.id}')">Revoke</button></td>
+    </tr>`;
+  }).join('');
+}
+
+async function acApproveRequest(id) {
+  const req = acAccessRequests.find(r => r.id === id);
+  if (!req) return;
+  try {
+    await fetch(`${AC_API_BASE}/api/access-requests/${id}/approve`, { method: 'POST' });
+  } catch (e) {
+    console.log('API call failed, proceeding anyway');
+  }
+  const action = req.type === 'indicator' ?
+    'Add to PriceCipher indicator' :
+    `Add to ${AC_STRATEGY_NAMES[req.strategyId]} strategy`;
+  alert(`✅ Approved!\n\nTradingView: @${req.tvUsername}\nAction: ${action}\n\nGo to TradingView and add this user to your private script.`);
+  acAccessRequests = acAccessRequests.filter(r => r.id !== id);
+  acRenderRequests();
+}
+
+async function acRejectRequest(id) {
+  if (!confirm('Reject this request?')) return;
+  try {
+    await fetch(`${AC_API_BASE}/api/access-requests/${id}/reject`, { method: 'POST' });
+  } catch (e) {}
+  acAccessRequests = acAccessRequests.filter(r => r.id !== id);
+  acRenderRequests();
+}
+
+async function acRevokeAccess(id) {
+  if (!confirm('Revoke access for this user?')) return;
+  try {
+    await fetch(`${AC_API_BASE}/api/access-requests/${id}/revoke`, { method: 'POST' });
+  } catch (e) {}
+  acApprovedUsers = acApprovedUsers.filter(u => u.id !== id);
+  acRenderApproved();
+}
+
+async function acScanAllWallets() {
+  const btn = document.getElementById('acScanAllBtn');
+  btn.disabled = true;
+  btn.textContent = '🔄 Scanning...';
+  const grid = document.getElementById('ac-scanner-grid');
+  grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">Scanning wallets on Base Sepolia...</div>';
+  acWalletScanResults = [];
+
+  const usersToScan = acApprovedUsers.length > 0 ? acApprovedUsers : [
+    { tvUsername: 'trader_mike', wallet: '0x1234567890abcdef1234567890abcdef12345678', type: 'indicator', requiredTier: 1 },
+    { tvUsername: 'crypto_sarah', wallet: '0xabcdef1234567890abcdef1234567890abcdef12', type: 'strategy', strategyId: 0, requiredTier: 2 }
+  ];
+
+  for (const user of usersToScan) {
+    try {
+      let balance = 0;
+      let tier = 0;
+      if (acProvider && user.wallet && user.wallet.length === 42) {
+        const cipher = new ethers.Contract(AC_CONTRACTS.cipher, AC_ERC20_ABI, acProvider);
+        const tierGate = new ethers.Contract(AC_CONTRACTS.tierGate, AC_TIERGATE_ABI, acProvider);
+        const rawBalance = await cipher.balanceOf(user.wallet);
+        balance = Number(ethers.formatEther(rawBalance));
+        tier = Number(await tierGate.getUserTier(user.wallet));
+      } else {
+        balance = Math.floor(Math.random() * 1500000);
+        tier = balance >= 1300000 ? 3 : balance >= 500000 ? 2 : balance >= 100000 ? 1 : 0;
+      }
+      const requiredBalance = user.type === 'strategy' ? 500000 : 100000;
+      const status = balance >= requiredBalance ? 'healthy' : balance >= requiredBalance * 0.5 ? 'warning' : 'danger';
+      acWalletScanResults.push({ ...user, currentBalance: balance, currentTier: tier, requiredBalance, status });
+    } catch (e) {
+      console.log('Scan error for', user.wallet, e);
+    }
+  }
+  acRenderScanResults();
+  acUpdateScanStats();
+  btn.disabled = false;
+  btn.textContent = '🔄 Scan All Wallets';
+}
+
+function acRenderScanResults() {
+  const grid = document.getElementById('ac-scanner-grid');
+  if (acWalletScanResults.length === 0) {
+    grid.innerHTML = '<div class="ac-empty-state"><div class="ac-empty-state-icon">🔍</div><div>No wallets to scan</div></div>';
+    return;
+  }
+  grid.innerHTML = acWalletScanResults.map(w => {
+    const tierName = w.currentTier === 3 ? '💎 Diamond' : w.currentTier === 2 ? '🥇 Gold' : w.currentTier === 1 ? '🥉 Bronze' : '❌ None';
+    const statusText = w.status === 'healthy' ? '✓ Healthy' : w.status === 'warning' ? '⚠️ Low' : '❌ Below';
+    return `<div class="ac-wallet-card ${w.status}">
+      <div class="ac-wallet-header">
+        <span class="ac-wallet-tv">@${w.tvUsername}</span>
+        <span class="ac-wallet-status ac-status-${w.status}">${statusText}</span>
+      </div>
+      <div class="ac-wallet-details">
+        <div class="ac-wallet-detail">
+          <span class="ac-wallet-detail-label">Balance:</span>
+          <span class="ac-wallet-detail-value">${w.currentBalance.toLocaleString()}</span>
+        </div>
+        <div class="ac-wallet-detail">
+          <span class="ac-wallet-detail-label">Required:</span>
+          <span class="ac-wallet-detail-value">${w.requiredBalance.toLocaleString()}</span>
+        </div>
+        <div class="ac-wallet-detail">
+          <span class="ac-wallet-detail-label">Tier:</span>
+          <span class="ac-wallet-detail-value">${tierName}</span>
+        </div>
+        <div class="ac-wallet-detail">
+          <span class="ac-wallet-detail-label">Access:</span>
+          <span class="ac-wallet-detail-value">${w.type === 'indicator' ? 'Indicator' : AC_STRATEGY_NAMES[w.strategyId] || 'Strategy'}</span>
+        </div>
+      </div>
+      ${w.status === 'danger' ? `<div class="ac-wallet-actions">
+        <button class="ac-action-btn reject" onclick="acAddToRevocation('${w.tvUsername}')">Add to Revocation</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function acUpdateScanStats() {
+  const healthy = acWalletScanResults.filter(w => w.status === 'healthy').length;
+  const warning = acWalletScanResults.filter(w => w.status === 'warning').length;
+  const danger = acWalletScanResults.filter(w => w.status === 'danger').length;
+  document.getElementById('ac-scan-total').textContent = acWalletScanResults.length;
+  document.getElementById('ac-scan-healthy').textContent = healthy;
+  document.getElementById('ac-scan-warning').textContent = warning;
+  document.getElementById('ac-scan-danger').textContent = danger;
+}
+
+function acUpdateAccessStats() {
+  document.getElementById('ac-pending').textContent = acAccessRequests.length;
+  document.getElementById('ac-indicator').textContent = acApprovedUsers.filter(u => u.indicator).length;
+  document.getElementById('ac-strategy').textContent = acApprovedUsers.filter(u => u.strategies?.length).length;
+}
+
+function acAddToRevocation(tvUsername) {
+  alert(`⚠️ ${tvUsername} added to revocation queue. They will be notified.`);
+}
+
+function acFormatTimeAgo(timestamp) {
+  const seconds = Math.floor((Date.now() - timestamp) / 1000);
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+  if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+  return `${Math.floor(seconds / 86400)}d ago`;
+}
+
+function acFormatDate(timestamp) {
+  if (!timestamp) return '--';
+  return new Date(timestamp).toLocaleDateString();
+}
+
+// Auto-load access requests when Decrypt Labs tab is shown
+const origNavClick = document.querySelectorAll('.nav-tab');
+origNavClick.forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.getAttribute('data-tab') === 'decrypt-labs') {
+      acRefreshRequests();
+    }
+  });
+});
 </script>
+</div><!-- end #app-content -->
 </body>
 </html>

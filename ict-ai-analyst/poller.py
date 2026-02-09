@@ -71,17 +71,29 @@ async def process_alert(signal):
     print(f"{'='*60}")
     print(json.dumps(alert_data, indent=2))
     
-    # Import and run the analysis engine
+    # Import and run the full analysis pipeline (AI analysis + delivery)
     try:
-        from analysis.engine import run_analysis
-        result = await run_analysis(alert_data)
-        print(f"\n✅ Analysis complete")
-        return result
-    except ImportError:
-        print("[Poller] Analysis engine not available — logging alert only")
+        from webhook.models import TradingViewPayload
+        from analysis.engine import run_analysis_pipeline
+        
+        # Parse the alert data into the expected model
+        payload = TradingViewPayload(**alert_data)
+        print(f"   Trigger: {payload.trigger}")
+        print(f"   Symbol: {payload.sym} @ {payload.px}")
+        print(f"   Bias: {payload.bias.dir} | Model: {payload.model.name}")
+        print(f"   Conviction: {payload.narr.score}%")
+        
+        # Run full pipeline: screenshot → AI analysis → deliver to Telegram
+        await run_analysis_pipeline(payload)
+        print(f"\n✅ Analysis complete + delivered!")
+        return True
+    except ImportError as e:
+        print(f"[Poller] Import error: {e}")
         return None
     except Exception as e:
         print(f"[Poller] Analysis error: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 async def main():
