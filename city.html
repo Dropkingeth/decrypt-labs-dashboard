@@ -269,10 +269,10 @@
 <div id="hud-top">
   <div class="hud-title">Cipher City — Mission Control</div>
   <div class="hud-center">
-    <div class="hud-aum"><span>AUM</span> $<span id="hud-aum-val">449,491.58</span></div>
+    <div class="hud-aum"><span>AUM</span> $<span id="hud-aum-val">755,090.42</span></div>
     <div class="hud-status">
-      <div class="status-dot" id="sys-dot"></div>
-      <span id="sys-status">ALL SYSTEMS PAUSED</span>
+      <div class="status-dot" id="sys-dot" style="background:#00ff99;box-shadow:0 0 8px #00ff99"></div>
+      <span id="sys-status" style="color:#00ff99">BOTS ACTIVE</span>
     </div>
   </div>
   <div class="hud-nav">
@@ -284,12 +284,13 @@
 
 <!-- HUD BOTTOM -->
 <div id="hud-bottom">
-  <div class="hud-bottom-title">Road to Funded — $9,000 Profit Target</div>
+  <div class="hud-bottom-title">Road to Funded — Progress Tracker</div>
   <div id="progress-bars"></div>
   <div class="legend">
     <div class="legend-item"><div class="legend-swatch" style="background:#ff8a00"></div> Technical Tina</div>
     <div class="legend-item"><div class="legend-swatch" style="background:#00e5ff"></div> Diamond Hands Danny</div>
     <div class="legend-item"><div class="legend-swatch" style="background:#a855f7"></div> Algo Annie</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#22ff88"></div> Moon Mission Mike</div>
   </div>
 </div>
 
@@ -314,7 +315,7 @@
       <div class="funded-fill" id="funded-fill"></div>
       <div class="funded-text" id="funded-text"></div>
     </div>
-    <div class="funded-labels"><span>$150,000</span><span>$159,000</span></div>
+    <div class="funded-labels"><span id="funded-start">$150,000</span><span id="funded-target">$159,000</span></div>
   </div>
 </div>
 
@@ -387,26 +388,35 @@ let bots = [
   {
     id: 'tina', name: 'Technical Tina', nftId: '#13', nftNumId: 13,
     strategy: 'FVG+IFVG',
-    balance: 147412.64, pnl: -2587.36, winRate: 76.5,
-    drawdownPct: 55.3, status: 'PAUSED', totalTrades: 268,
+    balance: 147245.18, pnl: -2754.82, winRate: 76.5,
+    drawdownPct: 55.3, status: 'ACTIVE', totalTrades: 5202,
     color: '#ff8a00', health: 'warning',
     position: { x: -8, z: 4 }, angle: 0
   },
   {
     id: 'danny', name: 'Diamond Hands Danny', nftId: '#01', nftNumId: 1,
     strategy: 'OTE Silver Bullet',
-    balance: 151283.76, pnl: 1283.76, winRate: 62.6,
-    drawdownPct: 0, status: 'PAUSED', totalTrades: 195,
+    balance: 152419.30, pnl: 2419.30, winRate: 100,
+    drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#00e5ff', health: 'healthy',
     position: { x: 8, z: 4 }, angle: 0
   },
   {
     id: 'annie', name: 'Algo Annie', nftId: '#05', nftNumId: 5,
     strategy: 'OTE Refined',
-    balance: 150795.18, pnl: 795.18, winRate: 69.1,
-    drawdownPct: 0, status: 'PAUSED', totalTrades: 214,
+    balance: 152383.88, pnl: 2383.88, winRate: 100,
+    drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#a855f7', health: 'healthy',
     position: { x: 0, z: -7 }, angle: 0
+  },
+  {
+    id: 'mike', name: 'Moon Mission Mike', nftId: '#03', nftNumId: 3,
+    strategy: 'OTE Silver Bullet',
+    balance: 303042.06, pnl: 3042.06, winRate: 0,
+    drawdownPct: 0, status: 'ACTIVE', totalTrades: 0,
+    color: '#22ff88', health: 'healthy',
+    position: { x: 0, z: 10 }, angle: 0,
+    accountSize: 300000
   }
 ];
 
@@ -996,7 +1006,10 @@ function renderBotScreen(bot) {
   ctx.fillText('ROAD TO FUNDED', 16, barY);
   ctx.fillStyle = 'rgba(255,255,255,0.06)';
   ctx.fillRect(16, barY + 8, w - 32, 12);
-  const progress = Math.max(0, Math.min(1, (bot.balance - FUNDED_START) / FUNDED_RANGE));
+  const botStart = bot.accountSize || FUNDED_START;
+  const botTarget = bot.accountSize === 300000 ? 320000 : FUNDED_TARGET;
+  const botRange = botTarget - botStart;
+  const progress = Math.max(0, Math.min(1, (bot.balance - botStart) / botRange));
   const grad = ctx.createLinearGradient(16, 0, 16 + (w - 32) * progress, 0);
   grad.addColorStop(0, '#00e5ff'); grad.addColorStop(1, '#00ff99');
   ctx.fillStyle = grad;
@@ -2087,9 +2100,12 @@ function updateProgressBars() {
   const container = document.getElementById('progress-bars');
   container.innerHTML = '';
   bots.forEach(bot => {
-    const progress = Math.max(0, Math.min(1, (bot.balance - FUNDED_START) / FUNDED_RANGE));
-    const pctText = bot.balance < FUNDED_START
-      ? `-$${(FUNDED_START - bot.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+    const startBal = bot.accountSize || FUNDED_START;
+    const targetBal = bot.accountSize === 300000 ? 320000 : FUNDED_TARGET;
+    const range = targetBal - startBal;
+    const progress = Math.max(0, Math.min(1, (bot.balance - startBal) / range));
+    const pctText = bot.balance < startBal
+      ? `-$${(startBal - bot.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}`
       : `${(progress * 100).toFixed(1)}%`;
     const row = document.createElement('div');
     row.className = 'progress-row';
@@ -2155,12 +2171,17 @@ function openBotPanel(botIndex) {
   ddFill.style.background = bot.drawdownPct > 50 ? '#ff22bb' : bot.drawdownPct > 30 ? '#ff8a00' : '#00ff99';
   document.getElementById('dd-pct').textContent = bot.drawdownPct + '%';
 
-  const fundedProg = Math.max(0, Math.min(1, (bot.balance - FUNDED_START) / FUNDED_RANGE));
+  const botStart = bot.accountSize || FUNDED_START;
+  const botTarget = bot.accountSize === 300000 ? 320000 : FUNDED_TARGET;
+  const botRange = botTarget - botStart;
+  const fundedProg = Math.max(0, Math.min(1, (bot.balance - botStart) / botRange));
   document.getElementById('funded-fill').style.width = (fundedProg * 100) + '%';
-  const remaining = FUNDED_TARGET - bot.balance;
+  const remaining = botTarget - bot.balance;
   document.getElementById('funded-text').textContent = remaining > 0
     ? `$${remaining.toLocaleString('en-US', { minimumFractionDigits: 2 })} remaining`
     : 'FUNDED! 🎉';
+  document.getElementById('funded-start').textContent = '$' + botStart.toLocaleString();
+  document.getElementById('funded-target').textContent = '$' + botTarget.toLocaleString();
 
   detailPanel.classList.add('open');
 }
@@ -2421,21 +2442,26 @@ async function fetchDashboardData() {
     const data = await res.json();
     if (!data || !data.bots) return;
 
+    // data.bots can be object {botId: {...}} or array
+    const botsObj = Array.isArray(data.bots) ? {} : data.bots;
     const apiMap = {
-      'tina': data.bots.find(b => b.name && b.name.toLowerCase().includes('tina')),
-      'danny': data.bots.find(b => b.name && b.name.toLowerCase().includes('danny')),
-      'annie': data.bots.find(b => b.name && b.name.toLowerCase().includes('annie')),
+      'tina': botsObj['fvg-ifvg-1'],
+      'danny': botsObj['ote-silver-bullet'],
+      'annie': botsObj['ote-refined-small'],
+      'mike': botsObj['new-300k'],
     };
 
     bots.forEach(bot => {
       const apiBot = apiMap[bot.id];
       if (!apiBot) return;
-      if (apiBot.balance != null) bot.balance = parseFloat(apiBot.balance);
-      if (apiBot.pnl != null) bot.pnl = parseFloat(apiBot.pnl);
-      if (apiBot.winRate != null) bot.winRate = parseFloat(apiBot.winRate);
-      if (apiBot.drawdownPct != null) bot.drawdownPct = parseFloat(apiBot.drawdownPct);
-      if (apiBot.totalTrades != null) bot.totalTrades = parseInt(apiBot.totalTrades);
-      if (apiBot.status) bot.status = apiBot.status;
+      const bal = apiBot.currentBalance || apiBot.balance;
+      const startBal = bot.accountSize || 150000;
+      if (bal != null) { bot.balance = parseFloat(bal); bot.pnl = bot.balance - startBal; }
+      if (apiBot.performance?.winRate != null) bot.winRate = parseFloat(apiBot.performance.winRate);
+      if (apiBot.trailing?.ddUsed != null && apiBot.trailing?.ddMax) bot.drawdownPct = (apiBot.trailing.ddUsed / apiBot.trailing.ddMax) * 100;
+      if (apiBot.performance?.totalTrades != null) bot.totalTrades = parseInt(apiBot.performance.totalTrades);
+      const statusMap = { 'online': 'ACTIVE', 'paused': 'PAUSED', 'offline': 'OFFLINE' };
+      if (apiBot.status) bot.status = statusMap[apiBot.status] || apiBot.status.toUpperCase();
       bot.health = bot.drawdownPct > 50 ? 'danger' : bot.drawdownPct > 30 ? 'warning' : 'healthy';
       renderBotScreen(bot);
     });

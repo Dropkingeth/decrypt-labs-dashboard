@@ -77,7 +77,7 @@ function saveAccessRequests() {
 
 // Load access requests on startup
 loadAccessRequests();
-console.log('[DEPLOY] 🚀 MISSION CONTROL v1.0 — Build Feb 9 2026');
+console.log('[DEPLOY] 🚀 MISSION CONTROL v1.1 — Build Feb 9 2026 (Personal Tab)');
 
 // Auth helpers
 function generateSessionId() {
@@ -981,7 +981,83 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // GET /api/signals - Recent signals for dashboard
+  // GET /api/signals/ict — Isolated ICT pipeline signals only (for dashboard feed)
+  if (req.method === 'GET' && pathname === '/api/signals/ict') {
+    try {
+      const logPath = path.join(LOG_DIR, 'caretaker.jsonl');
+      const ictSignals = [];
+      if (fs.existsSync(logPath)) {
+        const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
+        const recentLines = lines.slice(-500);
+        for (const line of recentLines) {
+          try {
+            const entry = JSON.parse(line);
+            if (entry.type === 'webhook' && entry.bot === 'ict-analysis') {
+              const alert = entry.alert || {};
+              ictSignals.push({
+                timestamp: entry.timestamp,
+                trigger: alert.trigger || alert.type || 'Signal',
+                bias: alert.bias || alert.direction || null,
+                confidence: alert.confidence || null,
+                model: alert.model || alert.modelName || null,
+                keyLevel: alert.keyLevel || alert.level || alert.price || null,
+                timeframe: alert.timeframe || alert.tf || null,
+                instrument: alert.instrument || alert.symbol || 'MNQ',
+                biasReason: alert.biasReason || alert.reason || null,
+                entryZone: alert.entryZone || null,
+                dol: alert.dol || alert.drawOnLiquidity || null,
+                raw: alert
+              });
+            }
+          } catch (e) {}
+        }
+      }
+      ictSignals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(ictSignals.slice(0, 50)));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to load ICT signals' }));
+    }
+    return;
+  }
+
+  // GET /api/signals/bot/:botName — Signals filtered to a specific bot
+  if (req.method === 'GET' && pathname.startsWith('/api/signals/bot/')) {
+    const targetBot = pathname.replace('/api/signals/bot/', '');
+    try {
+      const logPath = path.join(LOG_DIR, 'caretaker.jsonl');
+      const botSignals = [];
+      if (fs.existsSync(logPath)) {
+        const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
+        const recentLines = lines.slice(-500);
+        for (const line of recentLines) {
+          try {
+            const entry = JSON.parse(line);
+            if ((entry.type === 'webhook' || entry.type === 'alert') && entry.bot === targetBot) {
+              botSignals.push({
+                timestamp: entry.timestamp,
+                type: entry.type,
+                bot: entry.bot,
+                title: formatSignalTitle(entry),
+                details: formatSignalDetails(entry),
+                raw: entry.alert || entry
+              });
+            }
+          } catch (e) {}
+        }
+      }
+      botSignals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(botSignals.slice(0, 50)));
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to load bot signals' }));
+    }
+    return;
+  }
+
+  // GET /api/signals - Recent signals for dashboard (all bots)
   // Optional query params: ?bot=fvg-ifvg or ?grouped=true
   if (req.method === 'GET' && pathname === '/api/signals') {
     try {
@@ -1479,6 +1555,106 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // GET /api/site-config — Centralized data for ALL pages (landing, city, admin)
+  if (req.method === 'GET' && pathname === '/api/site-config') {
+    try {
+      const DASHBOARD_DATA_PATH = path.join(__dirname, './dashboard/data.json');
+      const data = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
+      const bots = data.bots || {};
+      
+      // Calculate global stats
+      let totalAUM = 0, totalPnl = 0, todayPnl = 0, activeBots = 0, totalTrades = 0;
+      const botList = [];
+      
+      for (const [botId, bot] of Object.entries(bots)) {
+        const bal = bot.currentBalance || 0;
+        const startBal = bot.accountSize || 150000;
+        const pnl = bal - startBal;
+        const ddMax = startBal >= 300000 ? 7500 : startBal >= 250000 ? 6500 : 5000;
+        const profitTarget = startBal >= 300000 ? 320000 : 159000;
+        
+        totalAUM += bal;
+        totalPnl += pnl;
+        todayPnl += (bot.performance?.todayPnl || 0);
+        if (bot.status === 'online') activeBots++;
+        totalTrades += (bot.performance?.totalTrades || 0);
+        
+        botList.push({
+          id: botId,
+          name: bot.name,
+          subtitle: bot.subtitle,
+          strategy: bot.strategy,
+          status: bot.status,
+          accountId: bot.accountId,
+          accountSize: startBal,
+          balance: bal,
+          pnl: pnl,
+          todayPnl: bot.performance?.todayPnl || 0,
+          winRate: bot.performance?.winRate || null,
+          totalTrades: bot.performance?.totalTrades || 0,
+          drawdownUsed: bot.trailing?.ddUsed || 0,
+          drawdownMax: ddMax,
+          drawdownRemaining: ddMax - (bot.trailing?.ddUsed || 0),
+          peakBalance: bot.trailing?.peakBalance || bal,
+          trailingThreshold: (bot.trailing?.peakBalance || bal) - ddMax,
+          profitTarget: profitTarget,
+          progressPct: Math.max(0, (pnl / (profitTarget - startBal)) * 100),
+          nft: bot.nft || null
+        });
+      }
+      
+      // Count 24h signals
+      let signalCount24h = 0;
+      try {
+        const logPath = path.join(__dirname, 'logs', 'caretaker.jsonl');
+        if (fs.existsSync(logPath)) {
+          const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
+          const cutoff = Date.now() - 86400000;
+          for (const line of lines.slice(-500)) {
+            try {
+              const e = JSON.parse(line);
+              if (e.type === 'webhook' && new Date(e.timestamp).getTime() > cutoff) signalCount24h++;
+            } catch(e) {}
+          }
+        }
+      } catch(e) {}
+      
+      const config = {
+        // Global stats (used by ALL pages)
+        global: {
+          totalAUM: Math.round(totalAUM),
+          totalAUMFormatted: '$' + Math.round(totalAUM).toLocaleString('en-US'),
+          activeBots: activeBots,
+          totalBots: botList.length,
+          totalPnl: parseFloat(totalPnl.toFixed(2)),
+          todayPnl: parseFloat(todayPnl.toFixed(2)),
+          totalTrades: totalTrades,
+          signalCount24h: signalCount24h,
+          lastUpdated: data.lastUpdated
+        },
+        // Bot details (used by city, admin, landing)
+        bots: botList,
+        // Graveyard (used by city, landing)
+        graveyard: data.graveyard || [],
+        // Notices
+        notices: data.notices || [],
+        // Racing data
+        racing: data.racing || {}
+      };
+      
+      res.writeHead(200, { 
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'public, max-age=30'
+      });
+      res.end(JSON.stringify(config));
+    } catch(err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
   // PUT /api/data - Full data.json replacement (admin only)
   if (req.method === 'PUT' && pathname === '/api/data') {
     let body = '';
@@ -1501,6 +1677,150 @@ const server = http.createServer(async (req, res) => {
       } catch (err) {
         res.writeHead(400, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/ideas
+  if (req.method === 'GET' && pathname === '/api/ideas') {
+    try {
+      const p = path.join(PERSIST_DIR, 'ideas.json');
+      if (fs.existsSync(p)) {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(fs.readFileSync(p, 'utf8'));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify([]));
+      }
+    } catch(e) { res.writeHead(500, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: e.message })); }
+    return;
+  }
+
+  // POST /api/ideas
+  if (req.method === 'POST' && pathname === '/api/ideas') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const ideas = JSON.parse(body);
+        fs.writeFileSync(path.join(PERSIST_DIR, 'ideas.json'), JSON.stringify(ideas, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) { res.writeHead(400, { 'Content-Type': 'application/json' }); res.end(JSON.stringify({ error: e.message })); }
+    });
+    return;
+  }
+
+  // GET /api/kanban-tasks
+  if (req.method === 'GET' && pathname === '/api/kanban-tasks') {
+    try {
+      const kbPath = path.join(PERSIST_DIR, 'kanban-tasks.json');
+      if (fs.existsSync(kbPath)) {
+        const data = fs.readFileSync(kbPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify([]));
+      }
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // POST /api/kanban-tasks
+  if (req.method === 'POST' && pathname === '/api/kanban-tasks') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const tasks = JSON.parse(body);
+        const kbPath = path.join(PERSIST_DIR, 'kanban-tasks.json');
+        fs.writeFileSync(kbPath, JSON.stringify(tasks, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/personal-tasks
+  if (req.method === 'GET' && pathname === '/api/personal-tasks') {
+    try {
+      const taskPath = path.join(PERSIST_DIR, 'personal-tasks.json');
+      if (fs.existsSync(taskPath)) {
+        const data = fs.readFileSync(taskPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({}));
+      }
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // POST /api/personal-tasks
+  if (req.method === 'POST' && pathname === '/api/personal-tasks') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const tasks = JSON.parse(body);
+        const taskPath = path.join(PERSIST_DIR, 'personal-tasks.json');
+        fs.writeFileSync(taskPath, JSON.stringify(tasks, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/expenses - Load saved expenses
+  if (req.method === 'GET' && pathname === '/api/expenses') {
+    try {
+      const expPath = path.join(PERSIST_DIR, 'expenses.json');
+      if (fs.existsSync(expPath)) {
+        const data = fs.readFileSync(expPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify([]));
+      }
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // POST /api/expenses - Save expenses
+  if (req.method === 'POST' && pathname === '/api/expenses') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const expenses = JSON.parse(body);
+        const expPath = path.join(PERSIST_DIR, 'expenses.json');
+        fs.writeFileSync(expPath, JSON.stringify(expenses, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
       }
     });
     return;

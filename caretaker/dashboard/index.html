@@ -527,6 +527,53 @@
       color: var(--accent-cyan);
     }
 
+    /* Pipeline Status Board */
+    .pipeline-step { position: relative; }
+    .pipeline-node {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-left: 3px solid;
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: all 0.2s;
+    }
+    .pipeline-node:hover { background: rgba(255,255,255,0.06); transform: translateX(4px); }
+    .pipeline-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+    .pipeline-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px; flex-shrink: 0;
+    }
+    .pipeline-title { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+    .pipeline-agent { font-size: 11px; color: var(--text-secondary); margin-top: 2px; }
+    .pipeline-status {
+      font-size: 11px; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 6px; flex-shrink: 0;
+      padding: 3px 10px; border-radius: 12px; background: rgba(0,255,136,0.08);
+    }
+    .pipeline-status .status-dot { width: 6px; height: 6px; }
+    .pipeline-detail {
+      font-size: 11px; color: var(--text-secondary); line-height: 1.6;
+      padding: 4px 0 4px 48px;
+    }
+    .pipeline-detail code {
+      background: rgba(0,212,255,0.1); padding: 1px 6px; border-radius: 4px;
+      font-size: 10px; color: var(--accent-green);
+    }
+    .pipeline-meta {
+      display: flex; flex-wrap: wrap; gap: 12px; padding: 4px 0 0 48px;
+      font-size: 10px; color: rgba(255,255,255,0.35);
+    }
+    .pipeline-meta code { background: rgba(0,212,255,0.08); padding: 1px 5px; border-radius: 3px; font-size: 10px; }
+    .pipeline-arrow {
+      text-align: center; color: rgba(255,255,255,0.15); font-size: 14px;
+      padding: 2px 0; line-height: 1;
+    }
+    @media (max-width: 768px) {
+      .pipeline-detail, .pipeline-meta { padding-left: 0; }
+      .pipeline-header { flex-wrap: wrap; }
+    }
+
     .calendar-grid {
       display: grid;
       grid-template-columns: repeat(7, 1fr);
@@ -770,6 +817,358 @@
       font-size: 22px;
       font-weight: 700;
       color: var(--accent-orange);
+    }
+
+    /* ═══════════════════ TAB 6: PERSONAL ═══════════════════ */
+    .personal-calendar-section {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .personal-cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .personal-cal-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-cyan);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .personal-cal-subtitle {
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: 4px;
+    }
+
+    .personal-cal-legend {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--text-secondary);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+
+    .personal-cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+    }
+
+    .pcal-day {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      min-height: 280px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .pcal-day-header {
+      padding: 10px 12px 6px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-primary);
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pcal-day-header .pcal-today-badge {
+      font-size: 8px;
+      background: var(--accent-cyan);
+      color: #000;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-weight: 700;
+    }
+
+    .pcal-tasks {
+      flex: 1;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      overflow-y: auto;
+    }
+
+    .pcal-task {
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid;
+      background: rgba(255,255,255,0.03);
+    }
+
+    .pcal-task:hover {
+      background: rgba(255,255,255,0.07);
+      transform: translateX(2px);
+    }
+
+    .pcal-task.cat-trading { border-left-color: #00ff88; }
+    .pcal-task.cat-content { border-left-color: #aa66ff; }
+    .pcal-task.cat-business { border-left-color: #00d4ff; }
+    .pcal-task.cat-personal { border-left-color: #ffdd44; }
+
+    .pcal-task-name {
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 11px;
+    }
+
+    .pcal-task-time {
+      font-size: 9px;
+      color: var(--text-dim);
+      margin-top: 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pcal-task.editing {
+      background: rgba(0,212,255,0.08);
+      box-shadow: 0 0 0 1px var(--accent-cyan);
+    }
+
+    .pcal-task-edit-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-primary);
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      font-weight: 600;
+    }
+
+    .pcal-task-time-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      font-size: 9px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      margin-top: 2px;
+    }
+
+    .pcal-add-btn {
+      width: 100%;
+      padding: 4px;
+      background: transparent;
+      border: 1px dashed rgba(255,255,255,0.1);
+      border-radius: 4px;
+      color: var(--text-dim);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: auto;
+    }
+
+    .pcal-add-btn:hover {
+      border-color: var(--accent-cyan);
+      color: var(--accent-cyan);
+      background: rgba(0,212,255,0.05);
+    }
+
+    .personal-next-up {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .personal-next-up .countdown-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    .personal-next-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+      font-size: 13px;
+    }
+
+    .personal-next-item:last-child { border-bottom: none; }
+
+    .personal-next-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .personal-next-label .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .personal-next-value {
+      color: var(--text-dim);
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Category select dropdown in add modal */
+    .pcal-cat-select {
+      width: 100%;
+      padding: 4px 6px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      margin-top: 4px;
+    }
+
+    .pcal-cat-select option { background: #1a1a2e; }
+
+    /* Task edit modal overlay */
+    .pcal-edit-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .pcal-edit-overlay.active { display: flex; }
+
+    .pcal-edit-modal {
+      background: #1a1a2e;
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 24px;
+      width: 340px;
+      max-width: 90vw;
+    }
+
+    .pcal-edit-modal h3 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 13px;
+      color: var(--accent-cyan);
+      margin-bottom: 16px;
+    }
+
+    .pcal-edit-modal label {
+      display: block;
+      font-size: 10px;
+      color: var(--text-secondary);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .pcal-edit-modal input, .pcal-edit-modal select {
+      width: 100%;
+      padding: 8px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      color: var(--text-primary);
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      margin-bottom: 12px;
+    }
+
+    .pcal-edit-modal input:focus, .pcal-edit-modal select:focus {
+      border-color: var(--accent-cyan);
+    }
+
+    .pcal-edit-modal select option { background: #1a1a2e; }
+
+    .pcal-edit-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .pcal-edit-actions button {
+      flex: 1;
+      padding: 8px;
+      border-radius: 6px;
+      font-family: 'Orbitron', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      transition: all 0.2s;
+    }
+
+    .pcal-edit-actions .pcal-save-btn {
+      background: rgba(0,255,136,0.1);
+      color: var(--accent-green);
+      border-color: rgba(0,255,136,0.3);
+    }
+    .pcal-edit-actions .pcal-save-btn:hover { background: rgba(0,255,136,0.2); }
+
+    .pcal-edit-actions .pcal-cancel-btn {
+      background: rgba(255,255,255,0.03);
+      color: var(--text-secondary);
+    }
+    .pcal-edit-actions .pcal-cancel-btn:hover { background: rgba(255,255,255,0.08); }
+
+    .pcal-edit-actions .pcal-delete-btn {
+      background: rgba(255,68,85,0.1);
+      color: var(--accent-red);
+      border-color: rgba(255,68,85,0.3);
+      flex: 0 0 auto;
+      padding: 8px 12px;
+    }
+    .pcal-edit-actions .pcal-delete-btn:hover { background: rgba(255,68,85,0.2); }
+
+    @media (max-width: 900px) {
+      .personal-cal-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      .pcal-day { min-height: 200px; }
+    }
+
+    @media (max-width: 600px) {
+      .personal-cal-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
 
     /* ═══════════════════ TAB 4: ORG CHART ═══════════════════ */
@@ -1539,62 +1938,10 @@
 </head>
 <body>
 
-<!-- ═══════════════════ PASSWORD GATE ═══════════════════ -->
-<div id="auth-gate">
-  <div class="auth-box">
-    <div class="auth-icon">🚀</div>
-    <h2>MISSION CONTROL</h2>
-    <div class="auth-sub">Decrypt Labs — Authorized Personnel Only</div>
-    <input type="password" id="auth-pw" placeholder="Enter access code" autocomplete="off" autofocus>
-    <button onclick="tryAuth()">ACCESS DASHBOARD</button>
-    <div class="auth-error" id="auth-error"></div>
-    <div class="auth-lock">🔒 Private operations dashboard</div>
-  </div>
-</div>
-<script>
-(function(){
-  // SHA-256 hash of the password — change by updating the hash
-  // Current password: "decrypt2026"
-  const HASH = '8c4f3c3c0e42f1b3d6a2e5b7f8d1c9e4a3b6d0f2e5c8a1b4d7f0e3c6a9b2d5';
-  
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-  
-  function unlockDashboard() {
-    localStorage.setItem('mc-auth', 'decrypt-labs-mc-ok');
-    document.getElementById('auth-gate').classList.add('hidden');
-    document.getElementById('app-content').style.display = '';
-    setTimeout(() => document.getElementById('auth-gate').style.display = 'none', 500);
-  }
-
-  // Check saved session
-  const saved = localStorage.getItem('mc-auth');
-  if (saved === 'decrypt-labs-mc-ok') {
-    unlockDashboard();
-  }
-  
-  window.tryAuth = async function() {
-    const pw = document.getElementById('auth-pw').value;
-    if (pw === 'Vasquez514450!') {
-      unlockDashboard();
-    } else {
-      document.getElementById('auth-error').textContent = 'Invalid access code';
-      document.getElementById('auth-pw').value = '';
-      document.getElementById('auth-pw').focus();
-    }
-  };
-  
-  // Enter key
-  document.getElementById('auth-pw').addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') tryAuth();
-  });
-})();
-</script>
+<!-- Server-side auth handles login — no client-side gate needed -->
 
 <!-- ═══════════════════ NAVBAR ═══════════════════ -->
-<div id="app-content" style="display:none;">
+<div id="app-content">
 <nav class="navbar">
   <div class="nav-tab active" data-tab="mission-control">
     <span class="icon">✦</span>
@@ -1608,6 +1955,10 @@
     <span class="icon">📅</span>
     <span>Calendar</span>
   </div>
+  <div class="nav-tab" data-tab="decrypt-schedule">
+    <span class="icon">⚡</span>
+    <span>Decrypt Schedule</span>
+  </div>
   <div class="nav-tab" data-tab="org">
     <span class="icon">👥</span>
     <span>Org</span>
@@ -1615,6 +1966,10 @@
   <div class="nav-tab" data-tab="decrypt-labs">
     <span class="icon">🔬</span>
     <span>Decrypt Labs</span>
+  </div>
+  <div class="nav-tab" data-tab="ideas">
+    <span class="icon">💡</span>
+    <span>Ideas</span>
   </div>
   <div class="nav-spacer"></div>
   <div class="server-status" id="server-status">
@@ -1654,7 +2009,7 @@
       <div class="stat-card green">
         <div class="stat-label">Active Bots</div>
         <div class="stat-value" id="stat-bots">—</div>
-        <div class="stat-change">Across 3 accounts</div>
+        <div class="stat-change" id="stat-bots-change">Across 4 accounts</div>
       </div>
       <div class="stat-card purple">
         <div class="stat-label">Today's P&L</div>
@@ -1708,6 +2063,10 @@
     <h1 class="section-title">Task Board</h1>
     <p class="section-subtitle">Kanban view of active work items</p>
 
+    <div style="display:flex;gap:12px;margin-bottom:16px;">
+      <button onclick="addKanbanTask('todo')" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));color:#000;border:none;padding:8px 16px;border-radius:8px;font-weight:700;cursor:pointer;font-size:12px;font-family:'JetBrains Mono',monospace;">+ New Task</button>
+    </div>
+
     <div class="kanban-board" id="kanban-board">
       <div class="kanban-column" data-column="todo">
         <div class="kanban-column-header">
@@ -1740,8 +2099,8 @@
     </div>
   </div>
 
-  <!-- ═══ TAB 3: CALENDAR ═══ -->
-  <div class="tab-content" id="tab-calendar">
+  <!-- ═══ TAB: DECRYPT SCHEDULE (Bot Macro Calendar) ═══ -->
+  <div class="tab-content" id="tab-decrypt-schedule">
     <div class="calendar-header">
       <div>
         <h1 class="section-title">Scheduled Tasks</h1>
@@ -1756,12 +2115,125 @@
 
     <div class="always-running">
       <div class="always-running-label">
-        ⚡ Always Running
+        ⚡ Always Running (Background Automation)
       </div>
       <div class="always-running-pills">
-        <span class="cron-pill">ICT Macro Scanner • Every macro window</span>
-        <span class="cron-pill">Health Check • Every 5 min</span>
-        <span class="cron-pill">Balance Sync • Every 4 hours</span>
+        <span class="cron-pill">📡 ICT Signal Compiler (Cindy) • Every 5 min</span>
+        <span class="cron-pill">🐦 X Post Pipeline (Sheen) • Every 5 min</span>
+        <span class="cron-pill">📊 Balance Scrape • 5 AM + 12:30 PM PT</span>
+        <span class="cron-pill">🔄 Health Check • Every heartbeat</span>
+        <span class="cron-pill">📥 Webhook Listeners • 24/7 (Caretaker)</span>
+      </div>
+    </div>
+
+    <!-- ═══ PIPELINE STATUS BOARD ═══ -->
+    <div style="margin-bottom:24px;">
+      <div class="always-running-label" style="color:var(--accent-purple);margin-bottom:12px;">
+        🔗 ICT Signal → X Post Pipeline
+      </div>
+
+      <!-- Pipeline Flow Visual -->
+      <div id="pipeline-board" style="display:flex;flex-direction:column;gap:0;">
+
+        <!-- Step 1: TradingView Alert -->
+        <div class="pipeline-step" data-step="1">
+          <div class="pipeline-node" style="border-color:rgba(0,212,255,0.4);">
+            <div class="pipeline-header">
+              <div class="pipeline-icon" style="background:rgba(0,212,255,0.15);color:var(--accent-cyan);">📡</div>
+              <div style="flex:1;">
+                <div class="pipeline-title">① TradingView Alert</div>
+                <div class="pipeline-agent">Source: ICT Smart Entry Indicator</div>
+              </div>
+              <div class="pipeline-status" id="pipe-step1-status"><span class="status-dot green"></span> Listening</div>
+            </div>
+            <div class="pipeline-detail">TradingView fires ICT Smart Entry alert → <code>/webhook/ict-analysis</code></div>
+            <div class="pipeline-meta">
+              <span>Endpoint: <code style="color:var(--accent-green);">/webhook/ict-analysis</code></span>
+              <span id="pipe-step1-last">Last signal: <span id="pipe-last-signal-time">—</span></span>
+            </div>
+          </div>
+          <div class="pipeline-arrow">▼</div>
+        </div>
+
+        <!-- Step 2: Caretaker Stores -->
+        <div class="pipeline-step" data-step="2">
+          <div class="pipeline-node" style="border-color:rgba(0,255,136,0.4);">
+            <div class="pipeline-header">
+              <div class="pipeline-icon" style="background:rgba(0,255,136,0.15);color:var(--accent-green);">🗄️</div>
+              <div style="flex:1;">
+                <div class="pipeline-title">② Caretaker Stores Signal</div>
+                <div class="pipeline-agent">Service: Railway API Server</div>
+              </div>
+              <div class="pipeline-status" id="pipe-step2-status"><span class="status-dot green"></span> Online</div>
+            </div>
+            <div class="pipeline-detail">Signal stored in logs → available at <code>/api/signals/ict</code></div>
+            <div class="pipeline-meta">
+              <span>API: <code style="color:var(--accent-green);">/api/signals/ict</code></span>
+              <span id="pipe-step2-count">Signals stored: <span id="pipe-signal-count">—</span></span>
+            </div>
+          </div>
+          <div class="pipeline-arrow">▼</div>
+        </div>
+
+        <!-- Step 3: Cindy Compiles -->
+        <div class="pipeline-step" data-step="3">
+          <div class="pipeline-node" style="border-color:rgba(255,170,0,0.4);">
+            <div class="pipeline-header">
+              <div class="pipeline-icon" style="background:rgba(255,170,0,0.15);color:var(--accent-orange);">⚡</div>
+              <div style="flex:1;">
+                <div class="pipeline-title">③ Cindy Compiles Signal</div>
+                <div class="pipeline-agent">Agent: Cindy Vortex (DeepSeek) • Cron: Every 5 min</div>
+              </div>
+              <div class="pipeline-status" id="pipe-step3-status"><span class="status-dot green"></span> Running</div>
+            </div>
+            <div class="pipeline-detail">Pulls <code>/api/signals/ict</code> → compiles & logs → if conviction ≥ 60%: writes <code>pending-tweet-signal.json</code></div>
+            <div class="pipeline-meta">
+              <span>Filter: Conviction ≥ 60% + trigger = CONVICTION_CROSSED or PRE_MARKET</span>
+              <span>Output: <code style="color:var(--accent-yellow);">pending-tweet-signal.json</code></span>
+            </div>
+          </div>
+          <div class="pipeline-arrow">▼</div>
+        </div>
+
+        <!-- Step 4: Sheen Posts to X -->
+        <div class="pipeline-step" data-step="4">
+          <div class="pipeline-node" style="border-color:rgba(0,255,136,0.4);">
+            <div class="pipeline-header">
+              <div class="pipeline-icon" style="background:rgba(170,102,255,0.15);color:var(--accent-purple);">🚀</div>
+              <div style="flex:1;">
+                <div class="pipeline-title">④ Sheen Posts to X + Discord</div>
+                <div class="pipeline-agent">Agent: Sheen Estevez (Gemini) • Cron: Every 5 min</div>
+              </div>
+              <div class="pipeline-status" id="pipe-step4-status"><span class="status-dot green"></span> Running</div>
+            </div>
+            <div class="pipeline-detail">Reads pending signal → formats engaging tweet → posts to <a href="https://x.com/PriceCipherHQ" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">@PriceCipherHQ</a> → mirrors to Discord <code>#twitter-feed</code></div>
+            <div class="pipeline-meta">
+              <span>X: @PriceCipherHQ</span>
+              <span>Discord: #twitter-feed (1466796654073217247)</span>
+              <span>Sign-off: "— Jimmy 🧪"</span>
+            </div>
+          </div>
+          <div class="pipeline-arrow">▼</div>
+        </div>
+
+        <!-- Step 5: Dashboard Feed -->
+        <div class="pipeline-step" data-step="5">
+          <div class="pipeline-node" style="border-color:rgba(170,102,255,0.4);">
+            <div class="pipeline-header">
+              <div class="pipeline-icon" style="background:rgba(170,102,255,0.15);color:var(--accent-purple);">📊</div>
+              <div style="flex:1;">
+                <div class="pipeline-title">⑤ Dashboard ICT Feed</div>
+                <div class="pipeline-agent">Auto-populated from /api/signals/ict</div>
+              </div>
+              <div class="pipeline-status" id="pipe-step5-status"><span class="status-dot green"></span> Live</div>
+            </div>
+            <div class="pipeline-detail">Signal appears on Mission Control ICT Feed tab automatically</div>
+            <div class="pipeline-meta">
+              <span>View: Mission Control → ICT Feed tab</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
 
@@ -1772,28 +2244,6 @@
       <div id="countdown-list"></div>
     </div>
 
-    <!-- Monthly Expenses -->
-    <div class="expenses-section">
-      <div class="expenses-title">💸 Monthly Expenses</div>
-      <table class="expense-table" id="expense-table">
-        <thead>
-          <tr>
-            <th>Service</th>
-            <th>Notes</th>
-            <th>Cost</th>
-            <th style="width:30px;"></th>
-          </tr>
-        </thead>
-        <tbody id="expense-body"></tbody>
-      </table>
-      <div class="expense-actions">
-        <button class="expense-btn add" onclick="addExpenseRow('business')">+ Add Business</button>
-        <button class="expense-btn add" onclick="addExpenseRow('personal')">+ Add Personal</button>
-        <button class="expense-btn save" onclick="saveExpenses()">💾 Save Changes</button>
-      </div>
-      <div class="expense-total" id="expense-totals" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:16px;">
-      </div>
-    </div>
   </div>
 
   <!-- ═══ TAB 4: ORG CHART ═══ -->
@@ -1861,8 +2311,8 @@
           <div class="org-cost">↗ ~$0.27/$1.10 per 1M tokens</div>
           <div class="org-skills">
             <span class="skill-tag">Balance Scraping</span>
-            <span class="skill-tag">ICT Pipeline</span>
-            <span class="skill-tag">X Posts</span>
+            <span class="skill-tag">ICT Signal Compilation</span>
+            <span class="skill-tag">Data Scraping</span>
             <span class="skill-tag">Discord Updates</span>
             <span class="skill-tag">Data Ops</span>
           </div>
@@ -1896,17 +2346,17 @@
             <div class="org-avatar" style="background:rgba(0,255,136,0.15);color:#00ff88;">🚀</div>
             <div>
               <div class="org-name">Sheen Estevez</div>
-              <div class="org-role">Research Analyst</div>
+              <div class="org-role">Research + Content</div>
             </div>
           </div>
           <div class="org-model">Gemini 3 Pro Preview • OpenClaw</div>
           <div class="org-cost">↗ Free (Google subscription)</div>
           <div class="org-skills">
+            <span class="skill-tag">X Posts (@PriceCipherHQ)</span>
+            <span class="skill-tag">Discord Tweet Feed</span>
             <span class="skill-tag">Market Research</span>
             <span class="skill-tag">Backtesting</span>
-            <span class="skill-tag">Data Scraping</span>
             <span class="skill-tag">Competitor Intel</span>
-            <span class="skill-tag">Vision Analysis</span>
           </div>
         </div>
       </div>
@@ -1917,9 +2367,9 @@
       <p style="color:var(--text-dim);font-size:13px;line-height:1.7;">
         <strong style="color:var(--text-secondary);">AI-native organization.</strong> 
         DropKing (CEO) sets the vision and makes final calls. Jimmy Neutron (CSO) drives strategy and orchestrates the team.
-        Cindy Vortex (Ops) handles daily scraping, posting, and pipeline execution on DeepSeek V3.
+        Cindy Vortex (Ops) handles balance scraping, ICT signal compilation, data ops, and Discord updates on DeepSeek V3.
         Carl Wheezer (Engineering) builds and maintains all code, dashboards, and contracts on Sonnet 4.5.
-        Sheen Estevez (Research) hunts for alpha, analyzes markets, backtests strategies, and tracks competitors on Gemini 3 Pro.
+        Sheen Estevez (Research + Content) crafts X posts for @PriceCipherHQ, mirrors tweets to Discord, researches markets, and backtests strategies on Gemini 3 Pro.
         The system runs 24/5 with human oversight on key decisions. All agent slots filled — team is complete.
       </p>
     </div>
@@ -2209,7 +2659,82 @@
     </div>
   </div>
 
+  <!-- ═══ TAB: CALENDAR (Weekly Tasks + Expenses) ═══ -->
+  <div class="tab-content" id="tab-calendar">
+    <h1 class="section-title">Calendar</h1>
+    <p class="section-subtitle">Weekly schedule, tasks & expenses — all in one place</p>
+
+    <!-- Weekly Personal Calendar -->
+    <div class="personal-calendar-section">
+      <div class="personal-cal-header">
+        <div>
+          <div class="personal-cal-title">📅 Weekly Personal Schedule</div>
+          <div class="personal-cal-subtitle">Color-coded by category • Click to edit • + to add</div>
+        </div>
+        <div class="personal-cal-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#00ff88;"></span>Trading/Bots</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#aa66ff;"></span>Content/Social</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#00d4ff;"></span>Business/Admin</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#ffdd44;"></span>Personal</span>
+        </div>
+      </div>
+      <div class="personal-cal-grid" id="personal-cal-grid"></div>
+    </div>
+
+    <!-- Next Up Section -->
+    <div class="personal-next-up">
+      <div class="countdown-title">⏱ NEXT UP</div>
+      <div id="personal-countdown-list"></div>
+    </div>
+
+    <!-- Monthly Expenses (moved from Calendar tab) -->
+    <div class="expenses-section">
+      <div class="expenses-title">💸 Monthly Expenses</div>
+      <table class="expense-table" id="expense-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Notes</th>
+            <th>Cost</th>
+            <th style="width:30px;"></th>
+          </tr>
+        </thead>
+        <tbody id="expense-body"></tbody>
+      </table>
+      <div class="expense-actions">
+        <button class="expense-btn add" onclick="addExpenseRow('business')">+ Add Business</button>
+        <button class="expense-btn add" onclick="addExpenseRow('personal')">+ Add Personal</button>
+        <button class="expense-btn save" onclick="saveExpenses()">💾 Save Changes</button>
+      </div>
+      <div class="expense-total" id="expense-totals" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-top:16px;">
+      </div>
+    </div>
+  </div>
+
 </div>
+
+  <!-- ═══ TAB: IDEAS ═══ -->
+  <div class="tab-content" id="tab-ideas">
+    <h1 class="section-title">💡 Ideas Lab</h1>
+    <p class="section-subtitle">Brainstorms, experiments & future projects — capture everything</p>
+
+    <div style="display:flex;gap:12px;margin-bottom:20px;">
+      <button onclick="addIdea()" style="background:linear-gradient(135deg,#00ffc8,#00b894);color:#0a0e17;border:none;padding:10px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-size:14px;">+ New Idea</button>
+      <select id="idea-filter" onchange="renderIdeas()" style="background:#1a1e2e;color:#e0e0e0;border:1px solid #2a2e3e;padding:8px 14px;border-radius:8px;font-size:13px;">
+        <option value="all">All Ideas</option>
+        <option value="hot">🔥 Hot</option>
+        <option value="backlog">📋 Backlog</option>
+        <option value="in-progress">🚧 In Progress</option>
+        <option value="done">✅ Done</option>
+        <option value="trading">📈 Trading</option>
+        <option value="content">🎬 Content</option>
+        <option value="product">🛠️ Product</option>
+        <option value="token">🪙 Token</option>
+      </select>
+    </div>
+
+    <div id="ideas-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
+  </div>
 
 <!-- Refresh indicator -->
 <div class="refresh-indicator">
@@ -2232,22 +2757,30 @@ const BOTS = [
   { id: 'tina', botId: 'fvg-ifvg-1', name: 'Technical Tina', number: '#13', strategy: 'FVG+IFVG Strategy', account: 'APEX-18', emoji: '🔧', desc: 'Determines order flow using Fair Value Gaps and Inverse FVGs. Trades during ICT macro windows: Accumulation, Pre-NY, NY Open, Silver Bullet, and London Close.' },
   { id: 'danny', botId: 'ote-silver-bullet', name: 'Diamond Hands Danny', number: '#01', strategy: 'OTE Silver Bullet', account: 'APEX-19', emoji: '💎', desc: 'Executes Silver Bullet entries at Optimal Trade Entry levels. Focuses on the 10:00-11:00 AM ET silver bullet window for high-probability setups.' },
   { id: 'annie', botId: 'ote-refined-small', name: 'Algo Annie', number: '#05', strategy: 'OTE Refined', account: 'APEX-20', emoji: '📊', desc: 'Refined OTE strategy with enhanced entry/exit logic. Focuses on confluence of OTE levels with displacement and market structure shifts.' },
-  { id: 'bigbot', botId: 'ote-refined-large', name: 'Big Bot Bobby', number: '#07', strategy: 'OTE Refined [Large]', account: 'APEX-21', emoji: '📈', desc: 'A larger capital version of the OTE Refined strategy, designed for higher volume and scaled entries.' }
+  { id: 'mike', botId: 'new-300k', name: 'Moon Mission Mike', number: '#03', strategy: 'OTE Silver Bullet', account: 'APEX-21', emoji: '🚀', desc: 'The big gun. Runs OTE Silver Bullet on our largest account — a $300K evaluation. Same sniper precision with bigger stakes.' }
 ];
 
-// Task data (static for now, could be API-driven)
-const TASKS = [
-  { title: 'Set up Rithmic accounts', desc: 'Migrate from Tradovate to Rithmic for better drawdown rules', priority: 'high', assignee: 'DropKing', column: 'todo' },
-  { title: 'Backtest FVG+IFVG refinements', desc: 'Test new entry filter on 2-week historical data', priority: 'medium', assignee: 'Jimmy', column: 'todo' },
-  { title: 'Build caretaker dashboard', desc: 'Mission control UI for the caretaker server', priority: 'high', assignee: 'Jimmy', column: 'done' },
-  { title: 'Discord bot-performance auto-post', desc: 'Auto-post daily P&L to #bot-performance channel', priority: 'medium', assignee: 'Jimmy', column: 'in-progress' },
-  { title: 'Add PM session risk management', desc: 'Auto-pause bots when green before PM session', priority: 'high', assignee: 'Jimmy', column: 'in-progress' },
-  { title: 'Landing page live', desc: 'Deploy decryptlabs.io via Cloudflare Pages', priority: 'high', assignee: 'Jimmy', column: 'done' },
-  { title: 'ICT analysis webhook pipeline', desc: 'Signal pipeline from TradingView to API', priority: 'medium', assignee: 'Jimmy', column: 'done' },
-  { title: 'Apex PA payout processing', desc: 'Waiting on Apex to approve PA status', priority: 'low', assignee: 'DropKing', column: 'blocked' },
-  { title: 'Add trailing drawdown to dashboard', desc: 'Show live drawdown gauge per bot', priority: 'medium', assignee: 'Jimmy', column: 'done' },
-  { title: 'Twitter auto-post market analysis', desc: 'Post daily analysis to @PriceCipherHQ', priority: 'low', assignee: 'Jimmy', column: 'todo' },
+// Task data — persisted to API + localStorage
+const DEFAULT_TASKS = [
+  { id: 1, title: 'Set up Rithmic accounts', desc: 'Migrate from Tradovate to Rithmic for better drawdown rules', priority: 'high', assignee: 'DropKing', column: 'todo' },
+  { id: 2, title: 'Backtest FVG+IFVG refinements', desc: 'Test new entry filter on 2-week historical data', priority: 'medium', assignee: 'Jimmy', column: 'todo' },
+  { id: 3, title: 'Build caretaker dashboard', desc: 'Mission control UI for the caretaker server', priority: 'high', assignee: 'Jimmy', column: 'done' },
+  { id: 4, title: 'Discord bot-performance auto-post', desc: 'Auto-post daily P&L to #bot-performance channel', priority: 'medium', assignee: 'Jimmy', column: 'in-progress' },
+  { id: 5, title: 'Add PM session risk management', desc: 'Auto-pause bots when green before PM session', priority: 'high', assignee: 'Jimmy', column: 'in-progress' },
+  { id: 6, title: 'Landing page live', desc: 'Deploy decryptlabs.io via Cloudflare Pages', priority: 'high', assignee: 'Jimmy', column: 'done' },
+  { id: 7, title: 'ICT analysis webhook pipeline', desc: 'Signal pipeline from TradingView to API', priority: 'medium', assignee: 'Jimmy', column: 'done' },
+  { id: 8, title: 'Apex PA payout processing', desc: 'Waiting on Apex to approve PA status', priority: 'low', assignee: 'DropKing', column: 'blocked' },
+  { id: 9, title: 'Add trailing drawdown to dashboard', desc: 'Show live drawdown gauge per bot', priority: 'medium', assignee: 'Jimmy', column: 'done' },
+  { id: 10, title: 'Twitter auto-post market analysis', desc: 'Post daily analysis to @PriceCipherHQ', priority: 'low', assignee: 'Jimmy', column: 'todo' },
+  { id: 11, title: 'Build mint-to-bot pipeline', desc: 'When someone mints an NFT, auto-assign to a trading bot slot with ⏳ Pending label', priority: 'high', assignee: 'Carl', column: 'todo' },
+  { id: 12, title: 'Pre-load NFT archive for minting', desc: 'All 20 Cipher Bot NFTs available to mint from day one — not on-demand', priority: 'high', assignee: 'Carl', column: 'todo' },
+  { id: 13, title: 'Add "Share to X" post-mint button', desc: 'After minting, user can tweet about their NFT with pre-filled template + @PriceCipherHQ', priority: 'medium', assignee: 'Carl', column: 'todo' },
+  { id: 14, title: 'Minted NFT appears on dashboard', desc: 'New mint shows on dashboard + holder page immediately with ⏳ Pending status', priority: 'high', assignee: 'Carl', column: 'todo' },
+  { id: 15, title: 'Nightly mint activation checklist', desc: 'Documented process for activating new mints each evening — Pending → 🟢 Active', priority: 'medium', assignee: 'Jimmy', column: 'todo' },
+  { id: 16, title: 'Add minted NFT to Cipher City', desc: 'Minted bot must appear in the 3D city dashboard alongside existing bots', priority: 'medium', assignee: 'Carl', column: 'todo' },
 ];
+let kanbanTasks = [...DEFAULT_TASKS];
+let kanbanNextId = 100;
 
 // Schedule data
 const SCHEDULE = {
@@ -2306,13 +2839,13 @@ async function fetchData() {
   } catch(e) { console.warn('Failed to fetch accounts:', e); }
 
   try {
-    const sigRes = await fetch('/api/signals?bot=ict-analysis', { signal: AbortSignal.timeout(5000) }).catch(() => null);
+    const sigRes = await fetch('/api/signals/ict', { signal: AbortSignal.timeout(5000) }).catch(() => null);
     if (sigRes && sigRes.ok) {
       const data = await sigRes.json();
       state.signals = Array.isArray(data) ? data : (data.signals || []);
       updateSignalsUI();
     }
-  } catch(e) { console.warn('Failed to fetch signals:', e); }
+  } catch(e) { console.warn('Failed to fetch ICT signals:', e); }
 
   try {
     const statsRes = await fetch('/api/stats', { signal: AbortSignal.timeout(5000) }).catch(() => null);
@@ -2355,7 +2888,7 @@ function updateAccountsUI(data) {
     document.getElementById('stat-aum').textContent = '$' + totalAUM.toLocaleString(undefined, {minimumFractionDigits: 0, maximumFractionDigits: 0});
   }
   if (activeBots > 0) {
-    document.getElementById('stat-bots').textContent = activeBots + '/3';
+    document.getElementById('stat-bots').textContent = activeBots + '/' + accounts.length;
   }
   if (totalPnl !== 0) {
     const pnlEl = document.getElementById('stat-pnl');
@@ -2380,30 +2913,35 @@ function updateSignalsUI() {
   });
   document.getElementById('stat-signals').textContent = recent24h.length.toString();
 
-  // Full signals feed (Decrypt Labs tab)
+  // ICT Signals feed (Decrypt Labs tab) — isolated pipeline
   const feedEl = document.getElementById('signals-feed');
   if (signals.length === 0) {
-    feedEl.innerHTML = '<div class="empty-state"><div class="icon">📡</div><div class="message">No signals received yet. Signals will appear when ICT macro windows trigger.</div></div>';
+    feedEl.innerHTML = '<div class="empty-state"><div class="icon">📡</div><div class="message">No ICT signals received yet. Signals appear when macro windows trigger.</div></div>';
   } else {
     feedEl.innerHTML = signals.map(s => {
-      const bias = (s.bias || s.direction || 'neutral').toLowerCase();
+      const bias = (s.bias || 'neutral').toString().toLowerCase();
       const cardClass = bias.includes('bull') ? 'bullish' : bias.includes('bear') ? 'bearish' : 'neutral';
-      const confidence = (s.confidence || '').toLowerCase();
-      const confClass = confidence.includes('high') ? 'confidence-high' : confidence.includes('low') ? 'confidence-low' : 'confidence-medium';
-      const time = s.timestamp || s.time || s.created || '';
+      const confVal = parseFloat(s.confidence) || 0;
+      const confPct = confVal > 1 ? confVal : Math.round(confVal * 100);
+      const confClass = confPct >= 70 ? 'confidence-high' : confPct >= 50 ? 'confidence-medium' : 'confidence-low';
+      const time = s.timestamp || '';
       const timeStr = time ? new Date(time).toLocaleString() : '';
+      const modelName = (s.model || '').replace(/_/g, ' ');
       
       return `
         <div class="signal-card ${cardClass}">
           <div class="signal-card-header">
-            <div class="signal-trigger">${s.trigger || s.type || s.macro || 'Signal'}</div>
-            <span class="signal-confidence ${confClass}">${s.confidence || 'N/A'}</span>
+            <div class="signal-trigger">${s.trigger || 'Signal'}</div>
+            <span class="signal-confidence ${confClass}">${confPct}%</span>
           </div>
           <div class="signal-body">
-            <div><div class="signal-field-label">Bias</div><div class="signal-field-value">${s.bias || s.direction || '—'}</div></div>
-            <div><div class="signal-field-label">Key Level</div><div class="signal-field-value">${s.keyLevel || s.level || s.price || '—'}</div></div>
-            <div><div class="signal-field-label">Timeframe</div><div class="signal-field-value">${s.timeframe || s.tf || '—'}</div></div>
-            <div><div class="signal-field-label">Instrument</div><div class="signal-field-value">${s.instrument || s.symbol || 'NQ'}</div></div>
+            <div><div class="signal-field-label">Bias</div><div class="signal-field-value">${s.bias || '—'}</div></div>
+            <div><div class="signal-field-label">Model</div><div class="signal-field-value">${modelName || '—'}</div></div>
+            <div><div class="signal-field-label">Key Level</div><div class="signal-field-value">${s.keyLevel || '—'}</div></div>
+            <div><div class="signal-field-label">Instrument</div><div class="signal-field-value">${s.instrument || 'MNQ'}</div></div>
+            ${s.biasReason ? `<div style="grid-column:1/-1"><div class="signal-field-label">Reason</div><div class="signal-field-value" style="font-size:11px;color:var(--text-secondary)">${s.biasReason}</div></div>` : ''}
+            ${s.entryZone ? `<div><div class="signal-field-label">Entry Zone</div><div class="signal-field-value">${s.entryZone}</div></div>` : ''}
+            ${s.dol ? `<div><div class="signal-field-label">Draw on Liquidity</div><div class="signal-field-value">${s.dol}</div></div>` : ''}
           </div>
           <div class="signal-timestamp">${timeStr}</div>
         </div>`;
@@ -2413,7 +2951,7 @@ function updateSignalsUI() {
 
 function updateStatsUI(data) {
   if (data.aum) document.getElementById('stat-aum').textContent = '$' + parseFloat(data.aum).toLocaleString();
-  if (data.activeBots != null) document.getElementById('stat-bots').textContent = data.activeBots + '/3';
+  if (data.activeBots != null) document.getElementById('stat-bots').textContent = data.activeBots + '/' + BOTS.length;
   if (data.todayPnl != null) {
     const pnl = parseFloat(data.todayPnl);
     const prefix = pnl >= 0 ? '+$' : '-$';
@@ -2427,23 +2965,21 @@ function updateStatsUI(data) {
 function renderBotsTab(accounts) {
   const grid = document.getElementById('bots-grid');
   grid.innerHTML = BOTS.map(bot => {
-    const acc = accounts?.find(a => 
-      (a.id && a.id === bot.botId) ||
-      (a.botId && a.botId === bot.botId) ||
-      (a.name && a.name.includes(bot.name.split(' ')[0])) || 
-      (a.account && a.account.includes(bot.account.split('-')[1])) ||
-      (a.id && a.id.includes(bot.account.split('-')[1])) ||
-      (a.accountId && a.accountId.includes(bot.account.split('-')[1]))
-    );
+    // Match by exact bot ID first, then by name
+    const acc = accounts?.find(a => a.id && a.id === bot.botId) ||
+                accounts?.find(a => a.name && a.name.includes(bot.name.split(' ')[0]));
     
     const balance = acc ? parseFloat(acc.balance || acc.equity || 150000) : 150000;
     const pnl = acc ? parseFloat(acc.pnl || acc.todayPnl || 0) : 0;
     const peak = acc ? parseFloat(acc.peakBalance || acc.peak || balance) : balance;
-    const threshold = peak - 5000;
+    const startBal = (bot.botId === 'new-300k') ? 300000 : 150000;
+    const ddMax = (bot.botId === 'new-300k') ? 7500 : 5000;
+    const profitTarget = (bot.botId === 'new-300k') ? 320000 : 159000;
+    const profitRange = profitTarget - startBal;
+    const threshold = peak - ddMax;
     const drawdownUsed = peak - balance;
-    const drawdownPct = Math.min((drawdownUsed / 5000) * 100, 100);
-    const profitTarget = 159000;
-    const progressPct = Math.min(Math.max(((balance - 150000) / 9000) * 100, 0), 100);
+    const drawdownPct = Math.min((drawdownUsed / ddMax) * 100, 100);
+    const progressPct = Math.min(Math.max(((balance - startBal) / profitRange) * 100, 0), 100);
     const winRate = acc?.winRate || acc?.win_rate || '—';
     const totalTrades = acc?.totalTrades || acc?.trades || '—';
     const gaugeClass = drawdownPct > 70 ? 'danger' : drawdownPct > 40 ? 'warning' : 'safe';
@@ -2488,13 +3024,13 @@ function renderBotsTab(accounts) {
 
         <div class="drawdown-gauge">
           <div class="gauge-header">
-            <span class="gauge-label">Trailing Drawdown (Max $5,000)</span>
+            <span class="gauge-label">Trailing Drawdown (Max $${ddMax.toLocaleString()})</span>
             <span class="gauge-value">$${drawdownUsed.toLocaleString(undefined, {minimumFractionDigits: 2})} used</span>
           </div>
           <div class="gauge-bar"><div class="gauge-fill ${gaugeClass}" style="width:${drawdownPct}%"></div></div>
           <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--text-dim);margin-top:4px">
             <span>Threshold: $${threshold.toLocaleString(undefined, {minimumFractionDigits: 0})}</span>
-            <span>Remaining: $${(5000 - drawdownUsed).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
+            <span>Remaining: $${(ddMax - drawdownUsed).toLocaleString(undefined, {minimumFractionDigits: 2})}</span>
           </div>
         </div>
 
@@ -2509,10 +3045,45 @@ function renderBotsTab(accounts) {
   }).join('');
 }
 
-// ═══════════════════ KANBAN ═══════════════════
+// ═══════════════════ KANBAN (PERSISTENT) ═══════════════════
+function loadKanbanTasks() {
+  try {
+    const saved = localStorage.getItem('decrypt-kanban-tasks');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch(e) {}
+  return [...DEFAULT_TASKS];
+}
+
+async function loadKanbanFromAPI() {
+  try {
+    const res = await fetch('/api/kanban-tasks');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        localStorage.setItem('decrypt-kanban-tasks', JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch(e) { console.warn('Kanban API load failed, using localStorage'); }
+  const local = loadKanbanTasks();
+  // Push local to API as initial sync
+  fetch('/api/kanban-tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(local) }).catch(() => {});
+  return local;
+}
+
+async function saveKanbanTasks() {
+  localStorage.setItem('decrypt-kanban-tasks', JSON.stringify(kanbanTasks));
+  try {
+    await fetch('/api/kanban-tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(kanbanTasks) });
+  } catch(e) { console.warn('Kanban API save failed — saved locally'); }
+}
+
 function renderKanban() {
   const columns = { todo: [], 'in-progress': [], done: [], blocked: [] };
-  TASKS.forEach(t => {
+  kanbanTasks.forEach(t => {
     if (columns[t.column]) columns[t.column].push(t);
   });
 
@@ -2520,30 +3091,41 @@ function renderKanban() {
     const el = document.getElementById('col-' + col);
     document.getElementById('count-' + col).textContent = columns[col].length;
     el.innerHTML = columns[col].map(t => `
-      <div class="task-card" draggable="true">
-        <div class="task-title">${t.title}</div>
-        <div class="task-desc">${t.desc}</div>
+      <div class="task-card" draggable="true" data-task-id="${t.id}" onclick="editKanbanTask(${t.id})">
+        <div class="task-title">${escapeHtml(t.title)}</div>
+        <div class="task-desc">${escapeHtml(t.desc)}</div>
         <div class="task-meta">
           <span class="task-tag ${t.priority}">${t.priority}</span>
-          <span class="task-assignee">${t.assignee}</span>
+          <span class="task-assignee">${escapeHtml(t.assignee)}</span>
         </div>
       </div>
     `).join('');
   });
 
-  // Enable drag & drop
   setupDragDrop();
 }
 
 function setupDragDrop() {
+  let draggedId = null;
+
   document.querySelectorAll('.task-card').forEach(card => {
     card.addEventListener('dragstart', (e) => {
+      draggedId = parseInt(card.dataset.taskId);
       card.classList.add('dragging');
       e.dataTransfer.effectAllowed = 'move';
+      // Prevent click from firing after drag
+      card._dragged = true;
     });
     card.addEventListener('dragend', () => {
       card.classList.remove('dragging');
+      setTimeout(() => { card._dragged = false; }, 50);
     });
+    // Override click so drag doesn't trigger edit
+    const origClick = card.onclick;
+    card.onclick = function(e) {
+      if (this._dragged) { this._dragged = false; return; }
+      if (origClick) origClick.call(this, e);
+    };
   });
 
   document.querySelectorAll('.kanban-items').forEach(col => {
@@ -2553,7 +3135,116 @@ function setupDragDrop() {
       const dragging = document.querySelector('.dragging');
       if (dragging) col.appendChild(dragging);
     });
+
+    col.addEventListener('drop', (e) => {
+      e.preventDefault();
+      if (draggedId == null) return;
+      const newColumn = col.id.replace('col-', '');
+      const task = kanbanTasks.find(t => t.id === draggedId);
+      if (task && task.column !== newColumn) {
+        task.column = newColumn;
+        saveKanbanTasks();
+        renderKanban();
+      }
+      draggedId = null;
+    });
   });
+}
+
+function addKanbanTask(column) {
+  showKanbanEditModal(-1, { title: '', desc: '', priority: 'medium', assignee: 'Jimmy', column: column || 'todo' });
+}
+
+function editKanbanTask(id) {
+  const task = kanbanTasks.find(t => t.id === id);
+  if (task) showKanbanEditModal(id, task);
+}
+
+function showKanbanEditModal(id, task) {
+  let overlay = document.getElementById('kanban-edit-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'kanban-edit-overlay';
+    overlay.className = 'pcal-edit-overlay';
+    overlay.innerHTML = '<div class="pcal-edit-modal" id="kanban-edit-modal"></div>';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.classList.remove('active'); });
+    document.body.appendChild(overlay);
+  }
+
+  const isNew = id === -1;
+  const modal = document.getElementById('kanban-edit-modal');
+  modal.innerHTML = `
+    <h3>${isNew ? '➕ New Task' : '✏️ Edit Task'}</h3>
+    <label>Title</label>
+    <input type="text" id="kb-edit-title" value="${escapeHtml(task.title)}" placeholder="Task title...">
+    <label>Description</label>
+    <input type="text" id="kb-edit-desc" value="${escapeHtml(task.desc)}" placeholder="Brief description...">
+    <label>Priority</label>
+    <select id="kb-edit-priority">
+      <option value="high" ${task.priority==='high'?'selected':''}>🔴 High</option>
+      <option value="medium" ${task.priority==='medium'?'selected':''}>🟠 Medium</option>
+      <option value="low" ${task.priority==='low'?'selected':''}>🔵 Low</option>
+    </select>
+    <label>Assignee</label>
+    <select id="kb-edit-assignee">
+      <option value="Jimmy" ${task.assignee==='Jimmy'?'selected':''}>🧪 Jimmy</option>
+      <option value="DropKing" ${task.assignee==='DropKing'?'selected':''}>👑 DropKing</option>
+      <option value="Carl" ${task.assignee==='Carl'?'selected':''}>🤓 Carl</option>
+      <option value="Cindy" ${task.assignee==='Cindy'?'selected':''}>⚡ Cindy</option>
+      <option value="Sheen" ${task.assignee==='Sheen'?'selected':''}>🚀 Sheen</option>
+    </select>
+    <label>Column</label>
+    <select id="kb-edit-column">
+      <option value="todo" ${task.column==='todo'?'selected':''}>📋 To Do</option>
+      <option value="in-progress" ${task.column==='in-progress'?'selected':''}>🔧 In Progress</option>
+      <option value="done" ${task.column==='done'?'selected':''}>✅ Done</option>
+      <option value="blocked" ${task.column==='blocked'?'selected':''}>🚫 Blocked</option>
+    </select>
+    <div class="pcal-edit-actions">
+      ${!isNew ? '<button class="pcal-delete-btn" onclick="deleteKanbanTask('+id+')">🗑</button>' : ''}
+      <button class="pcal-cancel-btn" onclick="document.getElementById(\'kanban-edit-overlay\').classList.remove(\'active\')">CANCEL</button>
+      <button class="pcal-save-btn" onclick="saveKanbanEdit(${id})">SAVE</button>
+    </div>
+  `;
+
+  overlay.classList.add('active');
+  setTimeout(() => document.getElementById('kb-edit-title').focus(), 100);
+}
+
+function saveKanbanEdit(id) {
+  const title = document.getElementById('kb-edit-title').value.trim();
+  const desc = document.getElementById('kb-edit-desc').value.trim();
+  const priority = document.getElementById('kb-edit-priority').value;
+  const assignee = document.getElementById('kb-edit-assignee').value;
+  const column = document.getElementById('kb-edit-column').value;
+
+  if (!title) return;
+
+  if (id === -1) {
+    // New task
+    kanbanTasks.push({ id: kanbanNextId++, title, desc, priority, assignee, column });
+  } else {
+    const task = kanbanTasks.find(t => t.id === id);
+    if (task) {
+      task.title = title;
+      task.desc = desc;
+      task.priority = priority;
+      task.assignee = assignee;
+      task.column = column;
+    }
+  }
+
+  saveKanbanTasks();
+  renderKanban();
+  document.getElementById('kanban-edit-overlay').classList.remove('active');
+}
+
+function deleteKanbanTask(id) {
+  if (!confirm('Delete this task?')) return;
+  kanbanTasks = kanbanTasks.filter(t => t.id !== id);
+  saveKanbanTasks();
+  renderKanban();
+  document.getElementById('kanban-edit-overlay').classList.remove('active');
 }
 
 // ═══════════════════ CALENDAR ═══════════════════
@@ -2687,11 +3378,65 @@ function renderUpcomingSchedule() {
 
 // ═══════════════════ INIT ═══════════════════
 function init() {
-  // Render static content
+  // Load kanban from API (async), render with defaults first
+  kanbanTasks = loadKanbanTasks();
+  kanbanNextId = Math.max(...kanbanTasks.map(t => t.id || 0), 99) + 1;
   renderKanban();
+  loadKanbanFromAPI().then(data => {
+    kanbanTasks = data;
+    kanbanNextId = Math.max(...kanbanTasks.map(t => t.id || 0), 99) + 1;
+    renderKanban();
+  });
+
+  // ═══ Pipeline Status Updater ═══
+  async function updatePipelineStatus() {
+    try {
+      // Check Caretaker health (Step 2)
+      const healthRes = await fetch('/health', { signal: AbortSignal.timeout(5000) }).catch(() => null);
+      const step2El = document.getElementById('pipe-step2-status');
+      if (healthRes && healthRes.ok) {
+        step2El.innerHTML = '<span class="status-dot green"></span> Online';
+        step2El.style.background = 'rgba(0,255,136,0.08)';
+      } else {
+        step2El.innerHTML = '<span class="status-dot red"></span> Offline';
+        step2El.style.background = 'rgba(255,68,68,0.08)';
+      }
+
+      // Check ICT signals count & last signal time (Steps 1 & 5)
+      const sigRes = await fetch('/api/signals/ict', { signal: AbortSignal.timeout(5000) }).catch(() => null);
+      if (sigRes && sigRes.ok) {
+        const signals = await sigRes.json();
+        const sigArray = Array.isArray(signals) ? signals : (signals.signals || []);
+        document.getElementById('pipe-signal-count').textContent = sigArray.length;
+        
+        if (sigArray.length > 0) {
+          const latest = sigArray[sigArray.length - 1];
+          const ts = latest.timestamp || latest.receivedAt || latest.ts;
+          if (ts) {
+            const d = new Date(ts);
+            const ago = Math.floor((Date.now() - d.getTime()) / 60000);
+            let agoStr = ago < 60 ? `${ago}m ago` : ago < 1440 ? `${Math.floor(ago/60)}h ago` : `${Math.floor(ago/1440)}d ago`;
+            document.getElementById('pipe-last-signal-time').textContent = d.toLocaleTimeString() + ` (${agoStr})`;
+          }
+        } else {
+          document.getElementById('pipe-last-signal-time').textContent = 'No signals yet';
+        }
+        
+        // Step 5 status
+        const step5El = document.getElementById('pipe-step5-status');
+        step5El.innerHTML = `<span class="status-dot green"></span> ${sigArray.length} signals`;
+        step5El.style.background = 'rgba(170,102,255,0.08)';
+      }
+    } catch(e) {
+      console.warn('Pipeline status check failed:', e);
+    }
+  }
+
+  // Render static content
   renderCalendar();
   renderUpcomingSchedule();
   renderBotsTab([]); // Render with defaults
+  updatePipelineStatus(); // Initial pipeline status check
 
   // Fetch live data
   fetchData();
@@ -2701,6 +3446,7 @@ function init() {
     fetchData();
     updateCountdowns();
     renderUpcomingSchedule();
+    updatePipelineStatus();
   }, 30000);
 
   // Update countdowns every minute
@@ -2714,7 +3460,7 @@ init();
 
 // ═══ EDITABLE EXPENSES ═══
 const DEFAULT_EXPENSES = [
-  { cat: 'business', name: 'Apex Trader Funding', note: '$78.40 × 3 accounts + $50 data', cost: 285.20 },
+  { cat: 'business', name: 'Apex Trader Funding', note: '$78.40 × 4 accounts + $50 data', cost: 363.60 },
   { cat: 'business', name: 'TradersPost', note: 'Webhook automation', cost: 41.40 },
   { cat: 'business', name: 'TradingView', note: 'Charts & alerts', cost: 7.00 },
   { cat: 'business', name: 'Spline Design', note: '3D design tool', cost: 30.00 },
@@ -2739,7 +3485,28 @@ function loadExpenses() {
   } catch(e) { return [...DEFAULT_EXPENSES]; }
 }
 
-function saveExpenses() {
+async function loadExpensesFromAPI() {
+  try {
+    const res = await fetch('/api/expenses');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        // API is the source of truth — always use it over localStorage
+        localStorage.setItem('decrypt-expenses', JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch(e) { console.warn('API expenses load failed, using localStorage fallback'); }
+  // Fallback: localStorage, then defaults
+  const local = loadExpenses();
+  // If we have local data that isn't defaults, push it to the API
+  if (local.length > 0) {
+    fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(local) }).catch(() => {});
+  }
+  return local;
+}
+
+async function saveExpenses() {
   const rows = document.querySelectorAll('#expense-body tr[data-idx]');
   const expenses = [];
   rows.forEach(row => {
@@ -2752,9 +3519,22 @@ function saveExpenses() {
       cost: parseFloat(costText) || 0
     });
   });
+  // Save to localStorage as cache
   localStorage.setItem('decrypt-expenses', JSON.stringify(expenses));
-  renderExpenses();
-  alert('✅ Expenses saved!');
+  // Save to server as source of truth
+  try {
+    const res = await fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(expenses) });
+    if (res.ok) {
+      renderExpenses();
+      alert('✅ Expenses saved to server!');
+    } else {
+      renderExpenses();
+      alert('⚠️ Saved locally but server save failed. Try again.');
+    }
+  } catch(e) {
+    renderExpenses();
+    alert('⚠️ Saved locally but server unreachable. Will sync next load.');
+  }
 }
 
 function addExpenseRow(cat) {
@@ -2808,6 +3588,7 @@ function renderExpenses() {
 }
 
 renderExpenses();
+loadExpensesFromAPI().then(data => { /* expenses loaded */ renderExpenses(); });
 
 // ═══ LAUNCH TO-DO WITH INPUT FIELDS ═══
 const LAUNCH_TASKS = [
@@ -3199,6 +3980,418 @@ origNavClick.forEach(tab => {
     }
   });
 });
+// ═══════════════════ PERSONAL TASK CALENDAR ═══════════════════
+const DAYS_OF_WEEK = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const CATEGORY_COLORS = {
+  trading: '#00ff88',
+  content: '#aa66ff',
+  business: '#00d4ff',
+  personal: '#ffdd44'
+};
+
+const DEFAULT_PERSONAL_TASKS = {
+  Mon: [
+    { name: 'Morning routine', time: '3:45 AM', cat: 'personal' },
+    { name: 'Check bot performance', time: '6:00 AM', cat: 'trading' },
+    { name: 'Weekly planning', time: '8:00 AM', cat: 'business' },
+    { name: 'Review expenses', time: '9:00 AM', cat: 'business' },
+    { name: 'Set weekly goals', time: '10:00 AM', cat: 'business' },
+    { name: 'Review trades', time: '12:00 PM', cat: 'trading' },
+    { name: 'Evening bot protocol', time: '4:00 PM', cat: 'trading' },
+  ],
+  Tue: [
+    { name: 'Morning routine', time: '3:45 AM', cat: 'personal' },
+    { name: 'Check bot performance', time: '6:00 AM', cat: 'trading' },
+    { name: 'Market Analysis Post', time: '7:00 AM', cat: 'content' },
+    { name: 'Review trades', time: '12:00 PM', cat: 'trading' },
+    { name: 'Evening bot protocol', time: '4:00 PM', cat: 'trading' },
+  ],
+  Wed: [
+    { name: 'Morning routine', time: '3:45 AM', cat: 'personal' },
+    { name: 'Check bot performance', time: '6:00 AM', cat: 'trading' },
+    { name: 'Content creation day', time: '9:00 AM', cat: 'content' },
+    { name: 'Discord community', time: '11:00 AM', cat: 'content' },
+    { name: 'Review trades', time: '12:00 PM', cat: 'trading' },
+    { name: 'Evening bot protocol', time: '4:00 PM', cat: 'trading' },
+  ],
+  Thu: [
+    { name: 'Morning routine', time: '3:45 AM', cat: 'personal' },
+    { name: 'Check bot performance', time: '6:00 AM', cat: 'trading' },
+    { name: 'Market Analysis Post', time: '7:00 AM', cat: 'content' },
+    { name: 'Review bot strategies', time: '10:00 AM', cat: 'trading' },
+    { name: 'Review trades', time: '12:00 PM', cat: 'trading' },
+    { name: 'Evening bot protocol', time: '4:00 PM', cat: 'trading' },
+  ],
+  Fri: [
+    { name: 'Morning routine', time: '3:45 AM', cat: 'personal' },
+    { name: 'Check bot performance', time: '6:00 AM', cat: 'trading' },
+    { name: 'Weekly P&L review', time: '9:00 AM', cat: 'business' },
+    { name: 'Update dashboard data', time: '10:00 AM', cat: 'business' },
+    { name: 'Review trades', time: '12:00 PM', cat: 'trading' },
+    { name: 'Plan next week', time: '2:00 PM', cat: 'business' },
+    { name: 'Evening bot protocol', time: '4:00 PM', cat: 'trading' },
+  ],
+  Sat: [
+    { name: 'Light monitoring', time: '9:00 AM', cat: 'trading' },
+    { name: 'Off / Rest day', time: '—', cat: 'personal' },
+  ],
+  Sun: [
+    { name: 'Prep for trading week', time: '4:00 PM', cat: 'trading' },
+    { name: 'Check news/events', time: '5:00 PM', cat: 'business' },
+  ]
+};
+
+let personalTasks = null;
+let personalEditOverlay = null;
+
+function loadPersonalTasks() {
+  try {
+    const saved = localStorage.getItem('personal-tasks');
+    return saved ? JSON.parse(saved) : JSON.parse(JSON.stringify(DEFAULT_PERSONAL_TASKS));
+  } catch(e) { return JSON.parse(JSON.stringify(DEFAULT_PERSONAL_TASKS)); }
+}
+
+async function loadPersonalTasksFromAPI() {
+  try {
+    const res = await fetch('/api/personal-tasks');
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Object.keys(data).length > 0) {
+        localStorage.setItem('personal-tasks', JSON.stringify(data));
+        return data;
+      }
+    }
+  } catch(e) { console.warn('API personal-tasks load failed, using localStorage'); }
+  const local = loadPersonalTasks();
+  if (local && Object.keys(local).length > 0) {
+    fetch('/api/personal-tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(local) }).catch(() => {});
+  }
+  return local;
+}
+
+async function savePersonalTasks() {
+  localStorage.setItem('personal-tasks', JSON.stringify(personalTasks));
+  try {
+    await fetch('/api/personal-tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(personalTasks) });
+  } catch(e) { console.warn('Failed to save personal tasks to server'); }
+}
+
+function parseTimeToMinutes(timeStr) {
+  if (!timeStr || timeStr === '—') return 9999;
+  const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+  if (!match) return 9999;
+  let h = parseInt(match[1]);
+  const m = parseInt(match[2]);
+  const ampm = match[3].toUpperCase();
+  if (ampm === 'PM' && h < 12) h += 12;
+  if (ampm === 'AM' && h === 12) h = 0;
+  return h * 60 + m;
+}
+
+function renderPersonalCalendar() {
+  if (!personalTasks) personalTasks = loadPersonalTasks();
+  const grid = document.getElementById('personal-cal-grid');
+  if (!grid) return;
+
+  const now = new Date();
+  const todayIdx = (now.getDay() + 6) % 7; // 0=Mon
+
+  let html = '';
+  DAYS_OF_WEEK.forEach((day, idx) => {
+    const isToday = idx === todayIdx;
+    const tasks = personalTasks[day] || [];
+    html += '<div class="pcal-day' + (isToday ? ' pcal-today' : '') + '">';
+    html += '<div class="pcal-day-header">' + day;
+    if (isToday) html += ' <span class="pcal-today-badge">TODAY</span>';
+    html += '</div>';
+    html += '<div class="pcal-tasks">';
+    tasks.forEach((task, ti) => {
+      const catClass = 'cat-' + (task.cat || 'personal');
+      html += '<div class="pcal-task ' + catClass + '" onclick="editPersonalTask(\'' + day + '\',' + ti + ')">';
+      html += '<div class="pcal-task-name">' + escapeHtml(task.name) + '</div>';
+      html += '<div class="pcal-task-time">' + escapeHtml(task.time || '') + '</div>';
+      html += '</div>';
+    });
+    html += '<button class="pcal-add-btn" onclick="addPersonalTask(\'' + day + '\')">+</button>';
+    html += '</div></div>';
+  });
+  grid.innerHTML = html;
+  renderPersonalNextUp();
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function editPersonalTask(day, idx) {
+  const task = personalTasks[day][idx];
+  showTaskEditModal(day, idx, task);
+}
+
+function addPersonalTask(day) {
+  showTaskEditModal(day, -1, { name: '', time: '', cat: 'personal' });
+}
+
+function showTaskEditModal(day, idx, task) {
+  let overlay = document.getElementById('pcal-edit-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'pcal-edit-overlay';
+    overlay.className = 'pcal-edit-overlay';
+    overlay.innerHTML = '<div class="pcal-edit-modal" id="pcal-edit-modal"></div>';
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeTaskEditModal(); });
+    document.body.appendChild(overlay);
+  }
+
+  const isNew = idx === -1;
+  const modal = document.getElementById('pcal-edit-modal');
+  modal.innerHTML = `
+    <h3>${isNew ? '➕ Add Task' : '✏️ Edit Task'} — ${day}</h3>
+    <label>Task Name</label>
+    <input type="text" id="pcal-edit-name" value="${escapeHtml(task.name)}" placeholder="Task name...">
+    <label>Time</label>
+    <input type="text" id="pcal-edit-time" value="${escapeHtml(task.time || '')}" placeholder="e.g. 9:00 AM">
+    <label>Category</label>
+    <select id="pcal-edit-cat">
+      <option value="trading" ${task.cat==='trading'?'selected':''}>🟢 Trading/Bots</option>
+      <option value="content" ${task.cat==='content'?'selected':''}>🟣 Content/Social</option>
+      <option value="business" ${task.cat==='business'?'selected':''}>🔵 Business/Admin</option>
+      <option value="personal" ${task.cat==='personal'?'selected':''}>🟡 Personal</option>
+    </select>
+    <div class="pcal-edit-actions">
+      ${!isNew ? '<button class="pcal-delete-btn" onclick="deletePersonalTask(\''+day+'\','+idx+')">🗑</button>' : ''}
+      <button class="pcal-cancel-btn" onclick="closeTaskEditModal()">CANCEL</button>
+      <button class="pcal-save-btn" onclick="saveTaskEdit(\'${day}\',${idx})">SAVE</button>
+    </div>
+  `;
+
+  overlay.classList.add('active');
+  setTimeout(() => document.getElementById('pcal-edit-name').focus(), 100);
+}
+
+function closeTaskEditModal() {
+  const overlay = document.getElementById('pcal-edit-overlay');
+  if (overlay) overlay.classList.remove('active');
+}
+
+function saveTaskEdit(day, idx) {
+  const name = document.getElementById('pcal-edit-name').value.trim();
+  const time = document.getElementById('pcal-edit-time').value.trim();
+  const cat = document.getElementById('pcal-edit-cat').value;
+
+  if (!name) return;
+
+  if (!personalTasks[day]) personalTasks[day] = [];
+
+  const task = { name, time: time || '—', cat };
+
+  if (idx === -1) {
+    personalTasks[day].push(task);
+  } else {
+    personalTasks[day][idx] = task;
+  }
+
+  // Sort by time
+  personalTasks[day].sort((a, b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
+
+  savePersonalTasks();
+  renderPersonalCalendar();
+  closeTaskEditModal();
+}
+
+function deletePersonalTask(day, idx) {
+  if (!personalTasks[day]) return;
+  personalTasks[day].splice(idx, 1);
+  savePersonalTasks();
+  renderPersonalCalendar();
+  closeTaskEditModal();
+}
+
+function renderPersonalNextUp() {
+  const container = document.getElementById('personal-countdown-list');
+  if (!container) return;
+
+  const now = new Date();
+  const currentDay = (now.getDay() + 6) % 7; // 0=Mon
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+  // Collect upcoming tasks from today and next 7 days
+  let upcoming = [];
+  for (let offset = 0; offset < 7; offset++) {
+    const dayIdx = (currentDay + offset) % 7;
+    const dayName = DAYS_OF_WEEK[dayIdx];
+    const tasks = personalTasks[dayName] || [];
+    tasks.forEach(task => {
+      const taskMin = parseTimeToMinutes(task.time);
+      if (taskMin >= 9999) return; // skip tasks with no time
+      let minutesUntil;
+      if (offset === 0) {
+        minutesUntil = taskMin - currentMinutes;
+        if (minutesUntil <= 0) return; // already passed today
+      } else {
+        minutesUntil = (offset * 1440) + taskMin - currentMinutes;
+      }
+      upcoming.push({ ...task, minutesUntil, dayName });
+    });
+  }
+
+  upcoming.sort((a, b) => a.minutesUntil - b.minutesUntil);
+  upcoming = upcoming.slice(0, 8);
+
+  if (upcoming.length === 0) {
+    container.innerHTML = '<div class="personal-next-item"><span style="color:var(--text-dim);">No upcoming tasks</span></div>';
+    return;
+  }
+
+  container.innerHTML = upcoming.map(t => {
+    const color = CATEGORY_COLORS[t.cat] || '#888';
+    let timeStr;
+    if (t.minutesUntil < 60) {
+      timeStr = 'in ' + t.minutesUntil + ' min';
+    } else if (t.minutesUntil < 1440) {
+      const h = Math.floor(t.minutesUntil / 60);
+      const m = t.minutesUntil % 60;
+      timeStr = 'in ' + h + 'h ' + m + 'm';
+    } else {
+      const d = Math.floor(t.minutesUntil / 1440);
+      const h = Math.floor((t.minutesUntil % 1440) / 60);
+      timeStr = 'in ' + d + 'd ' + h + 'h';
+    }
+    return '<div class="personal-next-item">' +
+      '<div class="personal-next-label"><span class="dot" style="background:' + color + ';"></span> <strong>' + escapeHtml(t.name) + '</strong></div>' +
+      '<div class="personal-next-value">' + timeStr + '</div></div>';
+  }).join('');
+}
+
+// Initialize personal calendar when tab is shown
+loadPersonalTasksFromAPI().then(data => {
+  personalTasks = data;
+  renderPersonalCalendar();
+});
+
+// Update next-up countdowns every minute
+setInterval(() => {
+  if (document.getElementById('tab-personal')?.classList.contains('active')) {
+    renderPersonalNextUp();
+  }
+}, 60000);
+
+// Also render when personal tab is clicked
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.getAttribute('data-tab') === 'personal') {
+      renderPersonalCalendar();
+    }
+  });
+});
+
+// ═══════════════════ IDEAS LAB ═══════════════════
+const DEFAULT_IDEAS = [
+  { id: 1, title: 'Polymarket Arbitrage Scanner', desc: 'Scan Polymarket API for arbitrage opportunities across prediction markets', status: 'backlog', category: 'trading', priority: 'hot', created: '2026-01-27' },
+  { id: 2, title: '$CIPHER Token Launch', desc: 'Launch on Virtuals Protocol — buyback from bot profits', status: 'in-progress', category: 'token', priority: 'hot', created: '2026-01-25' },
+  { id: 3, title: 'ICT Indicator Landing Page', desc: 'Marketing site for the indicator — pricing tiers, strategy breakdowns', status: 'in-progress', category: 'product', priority: 'hot', created: '2026-01-24' },
+  { id: 4, title: 'YouTube Channel', desc: 'Bot performance videos, ICT education, transparent trading journey', status: 'backlog', category: 'content', priority: 'normal', created: '2026-02-01' },
+  { id: 5, title: 'Pitch Video for Investors', desc: 'Professional video showcasing Decrypt Labs, bot performance, roadmap', status: 'in-progress', category: 'product', priority: 'hot', created: '2026-02-05' },
+  { id: 6, title: 'AR Glasses Dashboard', desc: 'Real-time bot stats on XREAL One Pro glasses via web overlay', status: 'backlog', category: 'product', priority: 'normal', created: '2026-01-27' },
+  { id: 7, title: 'Auto Tweet Pipeline Expansion', desc: 'Add chart screenshots, trade results, and win streak posts to auto-tweet flow', status: 'in-progress', category: 'content', priority: 'normal', created: '2026-02-09' },
+  { id: 8, title: 'Multi-Exchange Bridge', desc: 'Expand beyond Apex/Tradovate — support NinjaTrader, Rithmic', status: 'backlog', category: 'trading', priority: 'normal', created: '2026-02-03' },
+];
+
+let ideasData = [...DEFAULT_IDEAS];
+let nextIdeaId = 100;
+
+async function loadIdeas() {
+  try {
+    const res = await fetch('/api/ideas');
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        ideasData = data;
+        nextIdeaId = Math.max(...data.map(i => i.id || 0)) + 1;
+        localStorage.setItem('decrypt-ideas', JSON.stringify(data));
+        return;
+      }
+    }
+  } catch(e) {}
+  const saved = localStorage.getItem('decrypt-ideas');
+  if (saved) { try { ideasData = JSON.parse(saved); nextIdeaId = Math.max(...ideasData.map(i => i.id || 0)) + 1; } catch(e) {} }
+}
+
+async function saveIdeas() {
+  localStorage.setItem('decrypt-ideas', JSON.stringify(ideasData));
+  try { await fetch('/api/ideas', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(ideasData) }); } catch(e) {}
+}
+
+function renderIdeas() {
+  const grid = document.getElementById('ideas-grid');
+  if (!grid) return;
+  const filter = document.getElementById('idea-filter')?.value || 'all';
+  let filtered = ideasData;
+  if (filter !== 'all') {
+    filtered = ideasData.filter(i => i.status === filter || i.category === filter || i.priority === filter);
+  }
+  // Sort: hot first, then by created desc
+  filtered.sort((a, b) => {
+    if (a.priority === 'hot' && b.priority !== 'hot') return -1;
+    if (b.priority === 'hot' && a.priority !== 'hot') return 1;
+    return (b.created || '').localeCompare(a.created || '');
+  });
+
+  const statusColors = { 'hot': '#ff6b6b', 'backlog': '#6c7a89', 'in-progress': '#f39c12', 'done': '#2ecc71' };
+  const statusLabels = { 'hot': '🔥 Hot', 'backlog': '📋 Backlog', 'in-progress': '🚧 In Progress', 'done': '✅ Done' };
+  const catEmoji = { 'trading': '📈', 'content': '🎬', 'product': '🛠️', 'token': '🪙' };
+
+  grid.innerHTML = filtered.map(idea => `
+    <div style="background:#141824;border:1px solid #2a2e3e;border-radius:12px;padding:16px;position:relative;border-left:4px solid ${statusColors[idea.status] || '#6c7a89'};">
+      <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:8px;">
+        <span style="font-size:11px;padding:3px 8px;border-radius:4px;background:${statusColors[idea.status] || '#6c7a89'}22;color:${statusColors[idea.status] || '#6c7a89'};font-weight:600;">${statusLabels[idea.status] || idea.status}</span>
+        <span style="font-size:11px;color:#666;">${catEmoji[idea.category] || '💡'} ${idea.category || 'general'}</span>
+      </div>
+      <h3 style="color:#e0e0e0;font-size:15px;margin:0 0 6px 0;font-weight:700;" contenteditable="true" onblur="updateIdea(${idea.id},'title',this.textContent)">${idea.title}</h3>
+      <p style="color:#888;font-size:12px;margin:0 0 10px 0;line-height:1.4;" contenteditable="true" onblur="updateIdea(${idea.id},'desc',this.textContent)">${idea.desc}</p>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <select onchange="updateIdea(${idea.id},'status',this.value);renderIdeas()" style="background:#1a1e2e;color:#aaa;border:1px solid #2a2e3e;padding:3px 6px;border-radius:4px;font-size:11px;">
+          ${['backlog','in-progress','done'].map(s => `<option value="${s}" ${idea.status===s?'selected':''}>${statusLabels[s]}</option>`).join('')}
+        </select>
+        <select onchange="updateIdea(${idea.id},'category',this.value);renderIdeas()" style="background:#1a1e2e;color:#aaa;border:1px solid #2a2e3e;padding:3px 6px;border-radius:4px;font-size:11px;">
+          ${['trading','content','product','token'].map(c => `<option value="${c}" ${idea.category===c?'selected':''}>${catEmoji[c]} ${c}</option>`).join('')}
+        </select>
+        <button onclick="toggleHot(${idea.id})" style="background:none;border:1px solid #2a2e3e;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;color:${idea.priority==='hot'?'#ff6b6b':'#666'};">${idea.priority==='hot'?'🔥':'☆'}</button>
+        <button onclick="deleteIdea(${idea.id})" style="background:none;border:1px solid #2a2e3e;padding:3px 8px;border-radius:4px;font-size:11px;cursor:pointer;color:#666;">🗑</button>
+      </div>
+      <div style="color:#555;font-size:10px;margin-top:8px;">${idea.created || ''}</div>
+    </div>
+  `).join('');
+}
+
+function addIdea() {
+  const idea = { id: nextIdeaId++, title: 'New Idea', desc: 'Describe it here...', status: 'backlog', category: 'product', priority: 'normal', created: new Date().toISOString().split('T')[0] };
+  ideasData.unshift(idea);
+  saveIdeas();
+  renderIdeas();
+}
+
+function updateIdea(id, field, value) {
+  const idea = ideasData.find(i => i.id === id);
+  if (idea) { idea[field] = value.trim(); saveIdeas(); }
+}
+
+function toggleHot(id) {
+  const idea = ideasData.find(i => i.id === id);
+  if (idea) { idea.priority = idea.priority === 'hot' ? 'normal' : 'hot'; saveIdeas(); renderIdeas(); }
+}
+
+function deleteIdea(id) {
+  if (!confirm('Delete this idea?')) return;
+  ideasData = ideasData.filter(i => i.id !== id);
+  saveIdeas();
+  renderIdeas();
+}
+
+// Load and render on init
+loadIdeas().then(() => renderIdeas());
 </script>
 </div><!-- end #app-content -->
 </body>

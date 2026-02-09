@@ -2312,7 +2312,7 @@
             <div class="hero-content">
                 <div class="status-badge">
                     <span class="pulse"></span>
-                    <span>SYSTEMS ONLINE — 4 BOTS ACTIVE</span>
+                    <span data-stat="bots">SYSTEMS ONLINE — 4 BOTS ACTIVE</span>
                 </div>
 
                 <h1>
@@ -2355,7 +2355,7 @@
                         <span class="terminal-output dim">──────────────────────────────</span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">BOTS ACTIVE:&nbsp; <span class="highlight">4</span></span>
+                        <span class="terminal-output">BOTS ACTIVE:&nbsp; <span class="highlight" data-stat="bots-count">4</span></span>
                     </div>
                     <div class="terminal-line">
                         <span class="terminal-output">├─ Technical Tina&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; FVG+IFVG</span>
@@ -2373,13 +2373,13 @@
                         <span class="terminal-output dim">──────────────────────────────</span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">TOTAL AUM:&nbsp;&nbsp;&nbsp; <span class="success">$755,090</span></span>
+                        <span class="terminal-output">TOTAL AUM:&nbsp;&nbsp;&nbsp; <span class="success" data-stat="aum">$755,090</span></span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">WIN RATE:&nbsp;&nbsp;&nbsp;&nbsp; <span class="highlight">69.4%</span></span>
+                        <span class="terminal-output">WIN RATE:&nbsp;&nbsp;&nbsp;&nbsp; <span class="highlight" data-stat="winrate">76.5%</span></span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">TOTAL TRADES: <span class="highlight">14,567</span></span>
+                        <span class="terminal-output">TOTAL TRADES: <span class="highlight" data-stat="trades">5,204</span></span>
                     </div>
                     <div class="terminal-line">
                         <span class="terminal-output dim">──────────────────────────────</span>
@@ -3335,5 +3335,44 @@
             });
         }
     </script>
+<script>
+// Auto-update stats from API (single source of truth)
+(async function() {
+  try {
+    const res = await fetch('https://decrypt-caretaker-production.up.railway.app/api/site-config');
+    if (!res.ok) return;
+    const cfg = await res.json();
+    
+    // Update terminal AUM
+    const aumEl = document.querySelector('[data-stat="aum"]');
+    if (aumEl) aumEl.textContent = cfg.global.totalAUMFormatted;
+    
+    // Update bot count badge
+    const botsEl = document.querySelector('[data-stat="bots"]');
+    if (botsEl) botsEl.textContent = 'SYSTEMS ONLINE — ' + cfg.global.activeBots + ' BOTS ACTIVE';
+    
+    // Update total trades
+    const tradesEl = document.querySelector('[data-stat="trades"]');
+    if (tradesEl) tradesEl.textContent = cfg.global.totalTrades.toLocaleString();
+    
+    // Update bots active count in terminal
+    const botsCountEl = document.querySelector('[data-stat="bots-count"]');
+    if (botsCountEl) botsCountEl.textContent = cfg.global.totalBots;
+    
+    // Update win rate (weighted average from bots with trades)
+    const winrateEl = document.querySelector('[data-stat="winrate"]');
+    if (winrateEl && cfg.bots) {
+      const botsWithTrades = cfg.bots.filter(b => b.totalTrades > 0 && b.winRate != null);
+      if (botsWithTrades.length > 0) {
+        const totalTr = botsWithTrades.reduce((s, b) => s + b.totalTrades, 0);
+        const weightedWR = botsWithTrades.reduce((s, b) => s + (b.winRate * b.totalTrades), 0) / totalTr;
+        winrateEl.textContent = weightedWR.toFixed(1) + '%';
+      }
+    }
+    
+    console.log('[DecryptLabs] Stats updated from API — AUM: ' + cfg.global.totalAUMFormatted);
+  } catch(e) { console.warn('[DecryptLabs] API fetch failed:', e); }
+})();
+</script>
 </body>
 </html>

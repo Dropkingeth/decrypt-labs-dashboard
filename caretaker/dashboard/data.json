@@ -8,7 +8,7 @@
   "bots": {
     "fvg-ifvg-1": {
       "name": "Technical Tina",
-      "subtitle": "FVG+IFVG • Determining Order Flow",
+      "subtitle": "FVG+IFVG \u2022 Determining Order Flow",
       "status": "online",
       "accountId": "APEX2519120000018",
       "accountSize": 150000,
@@ -52,11 +52,11 @@
     },
     "ote-silver-bullet": {
       "name": "Diamond Hands Danny",
-      "subtitle": "OTE Silver Bullet • Optimal Trade Entry",
+      "subtitle": "OTE Silver Bullet \u2022 Optimal Trade Entry",
       "status": "online",
       "accountId": "APEX2519120000019",
       "accountSize": 150000,
-      "currentBalance": 152419.30,
+      "currentBalance": 152419.3,
       "strategy": "OTE Silver Bullet (Reduced Risk)",
       "nft": {
         "id": 1,
@@ -96,7 +96,7 @@
     },
     "ote-refined-small": {
       "name": "Algo Annie",
-      "subtitle": "OTE Refined [Small] • Conservative Entry",
+      "subtitle": "OTE Refined [Small] \u2022 Conservative Entry",
       "status": "online",
       "accountId": "APEX2519120000020",
       "accountSize": 150000,
@@ -140,7 +140,7 @@
     },
     "new-300k": {
       "name": "Moon Mission Mike",
-      "subtitle": "300K Account • The Big Gun",
+      "subtitle": "300K Account \u2022 The Big Gun",
       "status": "online",
       "accountId": "APEX2519120000021",
       "accountSize": 300000,
@@ -269,7 +269,8 @@
       "scores": {
         "fvg-ifvg-1": -1207.44,
         "ote-silver-bullet": 0,
-        "ote-refined-small": 0
+        "ote-refined-small": 0,
+        "new-300k": 3042.06
       }
     },
     "weekly": {
@@ -277,7 +278,8 @@
       "scores": {
         "fvg-ifvg-1": -2520.88,
         "ote-silver-bullet": 1283.76,
-        "ote-refined-small": 795.18
+        "ote-refined-small": 795.18,
+        "new-300k": 3042.06
       }
     },
     "monthly": {
@@ -285,7 +287,8 @@
       "scores": {
         "fvg-ifvg-1": -2520.88,
         "ote-silver-bullet": 1283.76,
-        "ote-refined-small": 795.18
+        "ote-refined-small": 795.18,
+        "new-300k": 3042.06
       }
     },
     "allTime": {
@@ -293,7 +296,8 @@
       "scores": {
         "fvg-ifvg-1": -2520.88,
         "ote-silver-bullet": 1283.76,
-        "ote-refined-small": 795.18
+        "ote-refined-small": 795.18,
+        "new-300k": 3042.06
       }
     }
   },
@@ -301,20 +305,20 @@
     {
       "id": "ote-apex-14",
       "name": "Rekt Riley",
-      "subtitle": "OTE Silver Bullet • The Original",
+      "subtitle": "OTE Silver Bullet \u2022 The Original",
       "accountId": "BOT-ALPHA",
       "nft": {
         "id": 10,
         "name": "Rekt Riley",
         "image": "https://gateway.pinata.cloud/ipfs/QmUsuGaZwZ1LQu8NZhbeoZu4er1teRUZNE9vBjGHCpY6ZN"
       },
-      "causeOfDeath": "Flagged by Apex — Rapid entry/exit pattern",
+      "causeOfDeath": "Flagged by Apex \u2014 Rapid entry/exit pattern",
       "dateOfDeath": "2026-02-03",
       "finalBalance": 149200,
       "finalPnl": -800,
       "totalTrades": 4900,
       "daysActive": 12,
-      "epitaph": "Traded fast, lived faster. RIP 🪦"
+      "epitaph": "Traded fast, lived faster. RIP \ud83e\udea6"
     }
   ],
   "hallOfFame": [],
@@ -322,7 +326,7 @@
     {
       "id": "new-week-2026-02-09",
       "type": "info",
-      "message": "🟢 All bots ENABLED — New week, new money. 300K account added!",
+      "message": "\ud83d\udfe2 All bots ENABLED \u2014 New week, new money. 300K account added!",
       "timestamp": "2026-02-09T16:00:00.000Z"
     }
   ]
