@@ -2186,9 +2186,10 @@
               </div>
               <div class="pipeline-status" id="pipe-step3-status"><span class="status-dot green"></span> Running</div>
             </div>
-            <div class="pipeline-detail">Pulls <code>/api/signals/ict</code> → compiles & logs → if conviction ≥ 60%: writes <code>pending-tweet-signal.json</code></div>
+            <div class="pipeline-detail">Pulls <code>/api/signals/ict</code> → compiles & logs → if conviction ≥ 60%: captures TradingView chart screenshot → writes <code>pending-tweet-signal.json</code> + <code>pending-chart.jpg</code></div>
             <div class="pipeline-meta">
               <span>Filter: Conviction ≥ 60% + trigger = CONVICTION_CROSSED or PRE_MARKET</span>
+              <span>Screenshot: <code style="color:var(--accent-cyan);">pending-chart.jpg</code></span>
               <span>Output: <code style="color:var(--accent-yellow);">pending-tweet-signal.json</code></span>
             </div>
           </div>
@@ -2206,9 +2207,9 @@
               </div>
               <div class="pipeline-status" id="pipe-step4-status"><span class="status-dot green"></span> Running</div>
             </div>
-            <div class="pipeline-detail">Reads pending signal → formats engaging tweet → posts to <a href="https://x.com/PriceCipherHQ" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">@PriceCipherHQ</a> → mirrors to Discord <code>#twitter-feed</code></div>
+            <div class="pipeline-detail">Reads pending signal + chart image → formats engaging tweet → attaches chart screenshot → posts to <a href="https://x.com/PriceCipherHQ" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">@PriceCipherHQ</a> → mirrors to Discord <code>#twitter-feed</code></div>
             <div class="pipeline-meta">
-              <span>X: @PriceCipherHQ</span>
+              <span>X: @PriceCipherHQ (with chart image)</span>
               <span>Discord: #twitter-feed (1466796654073217247)</span>
               <span>Sign-off: "— Jimmy 🧪"</span>
             </div>
