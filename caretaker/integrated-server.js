@@ -1267,19 +1267,22 @@ const server = http.createServer(async (req, res) => {
             bot.performance.netPnl = pnl;
             bot.performance.todayPnl = balanceData.todayPnl || (newBalance - oldBalance);
             
-            // Update eval progress
+            // Update eval progress (300K target = $20K, 150K target = $9K)
             bot.eval = bot.eval || {};
+            const profitGoal = bot.eval.profitTargetGoal || (startingBalance >= 300000 ? 20000 : 9000);
             bot.eval.profitTarget = pnl;
-            bot.eval.profitTargetPercent = Math.max(0, (pnl / 9000) * 100);
+            bot.eval.profitTargetGoal = profitGoal;
+            bot.eval.profitTargetPercent = Math.max(0, (pnl / profitGoal) * 100);
             
-            // Update trailing drawdown
+            // Update trailing drawdown (300K accounts have $7,500 max DD)
             bot.trailing = bot.trailing || {};
+            const ddMax = bot.trailing.ddMax || (startingBalance >= 300000 ? 7500 : startingBalance >= 250000 ? 6500 : 5000);
             const peakBalance = Math.max(bot.trailing.peakBalance || startingBalance, newBalance);
             bot.trailing.peakBalance = peakBalance;
-            bot.trailing.liquidation = peakBalance - 5000;
+            bot.trailing.liquidation = peakBalance - ddMax;
             bot.trailing.ddUsed = peakBalance - newBalance;
-            bot.trailing.ddMax = 5000;
-            bot.trailing.buffer = ((5000 - bot.trailing.ddUsed) / 5000) * 100;
+            bot.trailing.ddMax = ddMax;
+            bot.trailing.buffer = ((ddMax - bot.trailing.ddUsed) / ddMax) * 100;
             
             bot.eval.drawdownUsed = bot.trailing.ddUsed;
             bot.eval.drawdownPercent = (bot.trailing.ddUsed / 5000) * 100;
@@ -1473,6 +1476,33 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: err.message }));
     }
+    return;
+  }
+
+  // PUT /api/data - Full data.json replacement (admin only)
+  if (req.method === 'PUT' && pathname === '/api/data') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const newData = JSON.parse(body);
+        // Validate basic structure
+        if (!newData.bots || typeof newData.bots !== 'object') {
+          throw new Error('Missing or invalid bots field');
+        }
+        const DASHBOARD_DATA_PATH = path.join(__dirname, './dashboard/data.json');
+        fs.writeFileSync(DASHBOARD_DATA_PATH, JSON.stringify(newData, null, 2));
+        console.log(`[API] Full data.json replaced. Bots: ${Object.keys(newData.bots).join(', ')}`);
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ success: true, bots: Object.keys(newData.bots) }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
     return;
   }
 
