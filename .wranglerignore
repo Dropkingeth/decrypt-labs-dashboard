@@ -1,0 +1,13 @@
+# Exclude large files from Cloudflare Pages deploy
+pitch-video/
+_old-dashboard-subfolder/
+_old-mission-control.html
+city-v2-backup.html
+city-v3-backup.html
+city-v4-backup.html
+caretaker/
+contracts/
+nft-art/
+node_modules/
+.git/
+*.log

@@ -85,3 +85,24 @@ ehthumbs.db
 *.backup
 *.tmp
 *.temp
+
+# ============ LAUNCH / WALLET ============
+# NEVER commit wallet keys, launch secrets
+launch/*.key
+launch/*.json
+launch/wallet*
+launch/WALLET*
+*wallet*private*
+*seed*phrase*
+*mnemonic*
+
+# ============ ICT PIPELINE ============
+# API keys and secrets
+ict-ai-analyst/.env
+ict-ai-analyst/.env.*
+launch/.env
+launch/wallet*.json
+-e 
+# Large video files
+pitch-video/
+nft-art/

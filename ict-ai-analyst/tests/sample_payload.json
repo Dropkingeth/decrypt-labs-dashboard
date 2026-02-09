@@ -1,0 +1,75 @@
+{
+    "v": 1,
+    "trigger": "SETUP_FORMING",
+    "sym": "MNQ1!",
+    "tf": "5",
+    "px": 17845.25,
+    "ts": 1707321600000,
+    "bias": {
+        "dir": "BULL",
+        "dol": 17920.50,
+        "dol_src": "BSL x3",
+        "dol_status": "ACTIVE",
+        "reason": "ASIA_SWEEP"
+    },
+    "struct": {
+        "mss": "BULL",
+        "bos_bull": false,
+        "bos_bear": false,
+        "choch_bull": true,
+        "choch_bear": false,
+        "displaced": true
+    },
+    "levels": {
+        "pdh": 17900.00,
+        "pdl": 17750.00,
+        "asia_h": 17870.00,
+        "asia_l": 17810.00,
+        "asia_swept_h": false,
+        "asia_swept_l": true,
+        "eq": 17825.00,
+        "premium": 17862.50,
+        "discount": 17787.50,
+        "deal_h": 17900.00,
+        "deal_l": 17750.00,
+        "ote_h": 17806.50,
+        "ote_l": 17781.50,
+        "ipda20h": 18050.00,
+        "ipda20l": 17500.00,
+        "ipda40h": 18200.00,
+        "ipda40l": 17400.00,
+        "ipda60h": 18350.00,
+        "ipda60l": 17200.00
+    },
+    "narr": {
+        "state": "ACTIVE",
+        "dir": "BULL",
+        "score": 78,
+        "sweep": true,
+        "mss": true,
+        "entry": true,
+        "pd_aligned": true,
+        "kz": true,
+        "confirm": false
+    },
+    "entry": {
+        "found": true,
+        "type": "FVG",
+        "dir": "BULL",
+        "px": 17802.50,
+        "top": 17810.00,
+        "bot": 17795.00,
+        "score": 85.0
+    },
+    "model": {
+        "name": "2022_MODEL",
+        "conf": 0.85,
+        "flags": "2022,OTE,DISCOUNT,KZ,"
+    },
+    "session": {
+        "kz": "NY_AM",
+        "po3": "MANIPULATION",
+        "macro": false,
+        "sb_time": true
+    }
+}

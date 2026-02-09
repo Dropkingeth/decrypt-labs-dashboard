@@ -28,7 +28,7 @@ with proper risk management in place.
 
 | Metric | Value |
 |--------|-------|
-| Account ID | APEX-251912-18 |
+| Account ID | BOT-BRAVO |
 | Account Size | $150,000 |
 | Current Balance | $150,017 |
 | **Net PnL** | **+$17** |
@@ -50,7 +50,7 @@ with proper risk management in place.
 
 | Metric | Value |
 |--------|-------|
-| Account ID | APEX-251912-14 |
+| Account ID | BOT-ALPHA |
 | Account Size | $150,000 |
 | Current Balance | $151,958 |
 | **Net PnL** | **+$1,958** |

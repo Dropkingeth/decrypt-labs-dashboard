@@ -1,948 +1,963 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mint Your Trading Bot | Decrypt Labs</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
-  <style>
-    :root {
-      --bg-primary: #0a0b14;
-      --bg-secondary: #12141f;
-      --bg-card: #181a28;
-      --bg-hover: #1f2235;
-      --accent-purple: #8b5cf6;
-      --accent-purple-light: #a78bfa;
-      --accent-blue: #3b82f6;
-      --accent-cyan: #06b6d4;
-      --accent-green: #10b981;
-      --accent-orange: #f59e0b;
-      --accent-red: #ef4444;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --text-muted: #64748b;
-      --border-color: rgba(139, 92, 246, 0.2);
-      --glow-purple: rgba(139, 92, 246, 0.4);
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, sans-serif;
-      background: var(--bg-primary);
-      color: var(--text-primary);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* Background Effects */
-    .bg-gradient {
-      position: fixed;
-      inset: 0;
-      background: 
-        radial-gradient(ellipse 80% 50% at 50% -20%, rgba(139, 92, 246, 0.15), transparent),
-        radial-gradient(ellipse 60% 40% at 80% 100%, rgba(59, 130, 246, 0.1), transparent),
-        radial-gradient(ellipse 40% 30% at 10% 80%, rgba(6, 182, 212, 0.08), transparent);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .grid-overlay {
-      position: fixed;
-      inset: 0;
-      background-image: 
-        linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    /* Header */
-    header {
-      position: relative;
-      z-index: 10;
-      padding: 1.5rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-      backdrop-filter: blur(20px);
-      background: rgba(10, 11, 20, 0.8);
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      font-weight: 700;
-      font-size: 1.25rem;
-      text-decoration: none;
-      color: var(--text-primary);
-    }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-    }
-
-    .connect-btn {
-      padding: 0.75rem 1.5rem;
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
-      border: none;
-      border-radius: 12px;
-      color: white;
-      font-weight: 600;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-    }
-
-    .connect-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px var(--glow-purple);
-    }
-
-    .connect-btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .wallet-info {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      padding: 0.5rem 1rem;
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-    }
-
-    .wallet-address {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 0.85rem;
-      color: var(--text-secondary);
-    }
-
-    .wallet-balance {
-      font-weight: 600;
-      color: var(--accent-cyan);
-    }
-
-    /* Main Container */
-    main {
-      position: relative;
-      z-index: 10;
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 3rem 1.5rem;
-    }
-
-    /* Hero Section */
-    .hero {
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .hero h1 {
-      font-size: clamp(2rem, 5vw, 3rem);
-      font-weight: 800;
-      background: linear-gradient(135deg, var(--text-primary), var(--accent-purple-light));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-    }
-
-    .hero p {
-      font-size: 1.1rem;
-      color: var(--text-secondary);
-      max-width: 500px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-
-    /* Mint Card */
-    .mint-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-color);
-      border-radius: 24px;
-      padding: 2rem;
-      box-shadow: 
-        0 4px 40px rgba(0, 0, 0, 0.3),
-        0 0 80px rgba(139, 92, 246, 0.05);
-    }
-
-    /* Supply Section */
-    .supply-section {
-      text-align: center;
-      padding: 1.5rem;
-      background: var(--bg-secondary);
-      border-radius: 16px;
-      margin-bottom: 2rem;
-    }
-
-    .supply-label {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      margin-bottom: 0.5rem;
-    }
-
-    .supply-count {
-      font-size: 2.5rem;
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-    }
-
-    .supply-count .current {
-      color: var(--accent-cyan);
-    }
-
-    .supply-count .separator {
-      color: var(--text-muted);
-      margin: 0 0.25rem;
-    }
-
-    .supply-count .max {
-      color: var(--text-secondary);
-    }
-
-    .supply-bar {
-      height: 8px;
-      background: var(--bg-primary);
-      border-radius: 4px;
-      margin-top: 1rem;
-      overflow: hidden;
-    }
-
-    .supply-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
-      border-radius: 4px;
-      transition: width 0.5s ease;
-    }
-
-    /* Strategy Selector */
-    .strategy-section {
-      margin-bottom: 2rem;
-    }
-
-    .section-title {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--text-primary);
-      margin-bottom: 1rem;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .strategy-grid {
-      display: grid;
-      gap: 0.75rem;
-    }
-
-    .strategy-option {
-      padding: 1rem 1.25rem;
-      background: var(--bg-secondary);
-      border: 2px solid transparent;
-      border-radius: 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      text-align: left;
-    }
-
-    .strategy-option:hover {
-      background: var(--bg-hover);
-      border-color: rgba(139, 92, 246, 0.3);
-    }
-
-    .strategy-option.selected {
-      background: rgba(139, 92, 246, 0.1);
-      border-color: var(--accent-purple);
-    }
-
-    .strategy-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 0.5rem;
-    }
-
-    .strategy-name {
-      font-weight: 600;
-      font-size: 0.95rem;
-    }
-
-    .strategy-risk {
-      font-size: 0.75rem;
-      font-weight: 600;
-      padding: 0.25rem 0.6rem;
-      border-radius: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .risk-low {
-      background: rgba(16, 185, 129, 0.15);
-      color: var(--accent-green);
-    }
-
-    .risk-medium {
-      background: rgba(245, 158, 11, 0.15);
-      color: var(--accent-orange);
-    }
-
-    .risk-high {
-      background: rgba(239, 68, 68, 0.15);
-      color: var(--accent-red);
-    }
-
-    .strategy-desc {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    /* Price Section */
-    .price-section {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.25rem;
-      background: var(--bg-secondary);
-      border-radius: 14px;
-      margin-bottom: 1.5rem;
-    }
-
-    .price-label {
-      color: var(--text-secondary);
-      font-size: 0.9rem;
-    }
-
-    .price-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--accent-purple-light);
-    }
-
-    .price-value span {
-      font-size: 1rem;
-      color: var(--text-muted);
-      font-weight: 500;
-    }
-
-    /* Mint Button */
-    .mint-btn {
-      width: 100%;
-      padding: 1.25rem;
-      background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
-      border: none;
-      border-radius: 16px;
-      color: white;
-      font-size: 1.1rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-family: inherit;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .mint-btn::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, transparent, rgba(255,255,255,0.1), transparent);
-      transform: translateX(-100%);
-      transition: transform 0.5s ease;
-    }
-
-    .mint-btn:hover:not(:disabled)::before {
-      transform: translateX(100%);
-    }
-
-    .mint-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px var(--glow-purple);
-    }
-
-    .mint-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      transform: none;
-    }
-
-    .mint-btn.loading {
-      pointer-events: none;
-    }
-
-    .mint-btn .spinner {
-      display: none;
-      width: 20px;
-      height: 20px;
-      border: 2px solid rgba(255,255,255,0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin-right: 0.5rem;
-    }
-
-    .mint-btn.loading .spinner {
-      display: inline-block;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    /* Status Messages */
-    .status {
-      margin-top: 1.5rem;
-      padding: 1rem;
-      border-radius: 12px;
-      font-size: 0.9rem;
-      display: none;
-    }
-
-    .status.show {
-      display: block;
-    }
-
-    .status.info {
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: var(--accent-blue);
-    }
-
-    .status.success {
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: var(--accent-green);
-    }
-
-    .status.error {
-      background: rgba(239, 68, 68, 0.1);
-      border: 1px solid rgba(239, 68, 68, 0.3);
-      color: var(--accent-red);
-    }
-
-    .status a {
-      color: inherit;
-      text-decoration: underline;
-    }
-
-    /* Network Warning */
-    .network-warning {
-      display: none;
-      padding: 1rem;
-      background: rgba(245, 158, 11, 0.1);
-      border: 1px solid rgba(245, 158, 11, 0.3);
-      border-radius: 12px;
-      margin-bottom: 1.5rem;
-      text-align: center;
-    }
-
-    .network-warning.show {
-      display: block;
-    }
-
-    .network-warning p {
-      color: var(--accent-orange);
-      font-size: 0.9rem;
-      margin-bottom: 0.75rem;
-    }
-
-    .network-warning button {
-      padding: 0.5rem 1rem;
-      background: var(--accent-orange);
-      border: none;
-      border-radius: 8px;
-      color: var(--bg-primary);
-      font-weight: 600;
-      font-size: 0.85rem;
-      cursor: pointer;
-      font-family: inherit;
-    }
-
-    /* Footer */
-    footer {
-      position: relative;
-      z-index: 10;
-      text-align: center;
-      padding: 2rem;
-      color: var(--text-muted);
-      font-size: 0.85rem;
-    }
-
-    footer a {
-      color: var(--accent-purple-light);
-      text-decoration: none;
-    }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-      header {
-        padding: 1rem;
-        flex-direction: column;
-        gap: 1rem;
-      }
-
-      .wallet-info {
-        width: 100%;
-        justify-content: center;
-      }
-
-      main {
-        padding: 2rem 1rem;
-      }
-
-      .mint-card {
-        padding: 1.5rem;
-      }
-
-      .supply-count {
-        font-size: 2rem;
-      }
-
-      .price-section {
-        flex-direction: column;
-        gap: 0.5rem;
-        text-align: center;
-      }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mint Your Cipher Bot | Decrypt Labs</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Orbitron:wght@500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-dark: #0a0e17;
+            --bg-card: #111827;
+            --accent-cyan: #00ffff;
+            --accent-green: #00ff99;
+            --accent-pink: #ff22bb;
+            --accent-purple: #bf5fff;
+            --text-primary: #ffffff;
+            --text-secondary: #8899aa;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Animated Background */
+        .bg-grid {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridPulse 8s ease-in-out infinite;
+        }
+        
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+        
+        /* Floating Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: 0;
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+        
+        .orb-1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.15) 0%, transparent 70%);
+            top: -200px; left: -200px;
+        }
+        
+        .orb-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(191, 95, 255, 0.12) 0%, transparent 70%);
+            bottom: -150px; right: -150px;
+            animation-delay: -10s;
+        }
+        
+        .orb-3 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(0, 255, 153, 0.1) 0%, transparent 70%);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            animation-delay: -5s;
+        }
+        
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            25% { transform: translate(30px, -30px) scale(1.05); }
+            50% { transform: translate(-20px, 20px) scale(0.95); }
+            75% { transform: translate(20px, 10px) scale(1.02); }
+        }
+        
+        /* Nav */
+        nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 14, 23, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+            z-index: 100;
+        }
+        
+        .logo-link {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .logo {
+            width: 40px; height: 40px;
+            animation: logoFloat 3s ease-in-out infinite;
+        }
+        
+        @keyframes logoFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .logo-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .nav-links a:hover {
+            color: var(--accent-cyan);
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+        }
+        
+        .nav-links a.active {
+            color: var(--accent-cyan);
+        }
+        
+        /* Main Content */
+        main {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 6rem 2rem 2rem;
+        }
+        
+        /* Hero Logo */
+        .hero-logo {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        
+        .logo-glow {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px; height: 300px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, transparent 70%);
+            filter: blur(40px);
+            animation: glowPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes glowPulse {
+            0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+        
+        .hero-logo img, .hero-logo svg {
+            position: relative;
+            width: 180px; height: 180px;
+            z-index: 1;
+            animation: logoBounce 4s ease-in-out infinite;
+            filter: drop-shadow(0 0 30px rgba(0, 255, 255, 0.5));
+        }
+        
+        @keyframes logoBounce {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            25% { transform: translateY(-15px) rotate(2deg); }
+            50% { transform: translateY(0) rotate(0deg); }
+            75% { transform: translateY(-10px) rotate(-2deg); }
+        }
+        
+        /* Flask Logo SVG */
+        .flask-logo {
+            width: 180px; height: 180px;
+        }
+        
+        h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, #fff 0%, var(--accent-cyan) 50%, var(--accent-purple) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: titleShine 3s ease-in-out infinite;
+        }
+        
+        @keyframes titleShine {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+        
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            max-width: 500px;
+        }
+        
+        /* Mint Card */
+        .mint-card {
+            background: rgba(17, 24, 39, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 0 60px rgba(0, 255, 255, 0.1);
+            animation: cardFloat 6s ease-in-out infinite;
+        }
+        
+        @keyframes cardFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .mint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .mint-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .network-badge {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(0, 255, 255, 0.1);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        
+        .network-dot {
+            width: 8px; height: 8px;
+            background: var(--accent-green);
+            border-radius: 50%;
+            animation: dotPulse 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes dotPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+        
+        /* Strategy Selection */
+        .strategy-label {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+        
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+        
+        .strategy-option {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .strategy-option input {
+            position: absolute;
+            opacity: 0;
+        }
+        
+        .strategy-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(255,255,255,0.03);
+            border: 2px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+        
+        .strategy-option input:checked + .strategy-box {
+            border-color: var(--accent-cyan);
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+        }
+        
+        .strategy-box:hover {
+            border-color: rgba(0, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+        
+        .strategy-icon {
+            font-size: 1.5rem;
+        }
+        
+        .strategy-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        /* Price Display */
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: rgba(0, 255, 255, 0.05);
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .price-label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .price-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        
+        .price-usd {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-left: 0.5rem;
+        }
+        
+        /* Balance Display */
+        .balance-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            margin-bottom: 1.5rem;
+        }
+        
+        .balance-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        
+        .balance-value {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-green);
+        }
+        
+        /* Mint Button */
+        .mint-btn {
+            width: 100%;
+            padding: 1.25rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #000;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-green));
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mint-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            transition: left 0.5s;
+        }
+        
+        .mint-btn:hover::before {
+            left: 100%;
+        }
+        
+        .mint-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 40px rgba(0, 255, 255, 0.4);
+        }
+        
+        .mint-btn:disabled {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-secondary);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .mint-btn:disabled::before {
+            display: none;
+        }
+        
+        /* Connect Wallet Button */
+        .connect-btn {
+            width: 100%;
+            padding: 1.25rem 2rem;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            background: transparent;
+            border: 2px solid var(--accent-cyan);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .connect-btn:hover {
+            background: rgba(0, 255, 255, 0.1);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        /* Status Messages */
+        .status {
+            text-align: center;
+            padding: 1rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            display: none;
+        }
+        
+        .status.show { display: block; }
+        
+        .status.success {
+            background: rgba(0, 255, 153, 0.1);
+            border: 1px solid rgba(0, 255, 153, 0.3);
+            color: var(--accent-green);
+        }
+        
+        .status.error {
+            background: rgba(255, 34, 187, 0.1);
+            border: 1px solid rgba(255, 34, 187, 0.3);
+            color: var(--accent-pink);
+        }
+        
+        .status.loading {
+            background: rgba(0, 255, 255, 0.1);
+            border: 1px solid rgba(0, 255, 255, 0.3);
+            color: var(--accent-cyan);
+        }
+        
+        /* Spinning loader */
+        .loader {
+            display: inline-block;
+            width: 16px; height: 16px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-top-color: var(--accent-cyan);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Stats */
+        .mint-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--accent-cyan);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+        
+        /* Footer Link */
+        .lab-link {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .lab-link a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .lab-link a:hover {
+            color: var(--accent-cyan);
+        }
+        
+        /* Particles */
+        .particle {
+            position: fixed;
+            width: 4px; height: 4px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 0;
+            animation: particleFloat 15s linear infinite;
+            opacity: 0.3;
+        }
+        
+        @keyframes particleFloat {
+            0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+        
+        /* Mobile */
+        @media (max-width: 640px) {
+            h1 { font-size: 2rem; }
+            .mint-card { padding: 1.5rem; }
+            .strategy-grid { grid-template-columns: 1fr; }
+            .nav-links { gap: 1rem; }
+            .nav-links a { font-size: 0.8rem; }
+        }
+    </style>
 </head>
 <body>
-  <div class="bg-gradient"></div>
-  <div class="grid-overlay"></div>
-
-  <header>
-    <a href="/" class="logo">
-      <div class="logo-icon">🤖</div>
-      <span>Decrypt Labs</span>
-    </a>
-    <div id="walletArea">
-      <button class="connect-btn" id="connectBtn" onclick="connectWallet()">
-        Connect Wallet
-      </button>
-    </div>
-  </header>
-
-  <main>
-    <section class="hero">
-      <h1>Mint Your Trading Bot</h1>
-      <p>Claim ownership of an AI-powered futures trading bot. Earn real profits from automated ICT strategies.</p>
-    </section>
-
-    <div class="mint-card">
-      <!-- Supply -->
-      <div class="supply-section">
-        <div class="supply-label">Bots Minted</div>
-        <div class="supply-count">
-          <span class="current" id="currentSupply">—</span>
-          <span class="separator">/</span>
-          <span class="max">20</span>
+    <div class="bg-grid"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+    
+    <!-- Floating Particles -->
+    <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+    <div class="particle" style="left: 20%; animation-delay: 2s;"></div>
+    <div class="particle" style="left: 30%; animation-delay: 4s;"></div>
+    <div class="particle" style="left: 40%; animation-delay: 1s;"></div>
+    <div class="particle" style="left: 50%; animation-delay: 3s;"></div>
+    <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+    <div class="particle" style="left: 70%; animation-delay: 2.5s;"></div>
+    <div class="particle" style="left: 80%; animation-delay: 4.5s;"></div>
+    <div class="particle" style="left: 90%; animation-delay: 1.5s;"></div>
+    
+    <nav>
+        <a href="../" class="logo-link">
+            <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="flaskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00ffff"/>
+                        <stop offset="100%" style="stop-color:#bf5fff"/>
+                    </linearGradient>
+                </defs>
+                <!-- Flask body -->
+                <path d="M35 20 L35 40 L20 75 Q15 90 30 95 L70 95 Q85 90 80 75 L65 40 L65 20" 
+                      stroke="url(#flaskGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <!-- Flask neck -->
+                <path d="M35 20 L35 10 Q35 5 40 5 L60 5 Q65 5 65 10 L65 20" 
+                      stroke="url(#flaskGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+                <!-- Bubbles -->
+                <circle cx="40" cy="70" r="5" fill="#00ffff" opacity="0.6">
+                    <animate attributeName="cy" values="70;55;70" dur="2s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="55" cy="65" r="3" fill="#bf5fff" opacity="0.5">
+                    <animate attributeName="cy" values="65;50;65" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="50" cy="80" r="4" fill="#00ff99" opacity="0.4">
+                    <animate attributeName="cy" values="80;60;80" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <!-- Liquid level -->
+                <path d="M25 75 Q50 70 75 75 L80 75 Q85 90 70 93 L30 93 Q15 90 20 75 Z" 
+                      fill="url(#flaskGrad)" opacity="0.3"/>
+            </svg>
+            <span class="logo-text">DECRYPT LABS</span>
+        </a>
+        <div class="nav-links">
+            <a href="../">Home</a>
+            <a href="../city.html">Dashboard</a>
+            <a href="index.html" class="active">Mint</a>
+            <a href="../laboratory/">Laboratory</a>
+            <a href="../whitepaper.html">Whitepaper</a>
         </div>
-        <div class="supply-bar">
-          <div class="supply-fill" id="supplyBar" style="width: 0%"></div>
+    </nav>
+    
+    <main>
+        <div class="hero-logo">
+            <div class="logo-glow"></div>
+            <svg class="flask-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="heroFlaskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#00ffff"/>
+                        <stop offset="50%" style="stop-color:#bf5fff"/>
+                        <stop offset="100%" style="stop-color:#00ff99"/>
+                    </linearGradient>
+                    <filter id="glow">
+                        <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+                        <feMerge>
+                            <feMergeNode in="coloredBlur"/>
+                            <feMergeNode in="SourceGraphic"/>
+                        </feMerge>
+                    </filter>
+                </defs>
+                <!-- Flask body -->
+                <path d="M35 20 L35 40 L20 75 Q15 90 30 95 L70 95 Q85 90 80 75 L65 40 L65 20" 
+                      stroke="url(#heroFlaskGrad)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+                <!-- Flask neck -->
+                <path d="M35 20 L35 10 Q35 5 40 5 L60 5 Q65 5 65 10 L65 20" 
+                      stroke="url(#heroFlaskGrad)" stroke-width="3" fill="none" stroke-linecap="round" filter="url(#glow)"/>
+                <!-- Animated Bubbles -->
+                <circle cx="40" cy="70" r="6" fill="#00ffff" opacity="0.7">
+                    <animate attributeName="cy" values="75;45;75" dur="3s" repeatCount="indefinite"/>
+                    <animate attributeName="r" values="6;8;6" dur="3s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="55" cy="65" r="4" fill="#bf5fff" opacity="0.6">
+                    <animate attributeName="cy" values="70;40;70" dur="2s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="48" cy="80" r="5" fill="#00ff99" opacity="0.5">
+                    <animate attributeName="cy" values="80;50;80" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="60" cy="75" r="3" fill="#ffaa00" opacity="0.4">
+                    <animate attributeName="cy" values="78;48;78" dur="1.8s" repeatCount="indefinite"/>
+                </circle>
+                <!-- Liquid -->
+                <path d="M23 75 Q50 68 77 75 L80 78 Q83 92 70 94 L30 94 Q17 92 20 78 Z" 
+                      fill="url(#heroFlaskGrad)" opacity="0.25"/>
+            </svg>
         </div>
-      </div>
-
-      <!-- Network Warning -->
-      <div class="network-warning" id="networkWarning">
-        <p>⚠️ Please switch to Base Sepolia network</p>
-        <button onclick="switchNetwork()">Switch Network</button>
-      </div>
-
-      <!-- Strategy Selector -->
-      <div class="strategy-section">
-        <div class="section-title">
-          <span>🎯</span> Select Strategy
+        
+        <h1>MINT YOUR CIPHER BOT</h1>
+        <p class="subtitle">Deploy your AI trading companion. Each Cipher Bot represents a real, funded trading strategy.</p>
+        
+        <div class="mint-card">
+            <div class="mint-header">
+                <span class="mint-title">🤖 Bot Deployment</span>
+                <div class="network-badge">
+                    <span class="network-dot"></span>
+                    <span>Base Sepolia</span>
+                </div>
+            </div>
+            
+            <label class="strategy-label">Select Your Strategy</label>
+            <div class="strategy-grid">
+                <label class="strategy-option">
+                    <input type="radio" name="strategy" value="1" checked>
+                    <div class="strategy-box">
+                        <span class="strategy-icon">⚡</span>
+                        <span class="strategy-name">OTE Silver Bullet</span>
+                    </div>
+                </label>
+                <label class="strategy-option">
+                    <input type="radio" name="strategy" value="2">
+                    <div class="strategy-box">
+                        <span class="strategy-icon">🎯</span>
+                        <span class="strategy-name">FVG + IFVG</span>
+                    </div>
+                </label>
+                <label class="strategy-option">
+                    <input type="radio" name="strategy" value="3">
+                    <div class="strategy-box">
+                        <span class="strategy-icon">📈</span>
+                        <span class="strategy-name">OTE Refined (L)</span>
+                    </div>
+                </label>
+                <label class="strategy-option">
+                    <input type="radio" name="strategy" value="4">
+                    <div class="strategy-box">
+                        <span class="strategy-icon">📉</span>
+                        <span class="strategy-name">OTE Refined (S)</span>
+                    </div>
+                </label>
+            </div>
+            
+            <div class="price-row">
+                <span class="price-label">Mint Price</span>
+                <div>
+                    <span class="price-value">300 $CIPHER</span>
+                    <span class="price-usd">(~$3)</span>
+                </div>
+            </div>
+            
+            <div class="balance-row" id="balanceRow" style="display: none;">
+                <span class="balance-label">Your $CIPHER Balance</span>
+                <span class="balance-value" id="cipherBalance">0</span>
+            </div>
+            
+            <button class="connect-btn" id="connectBtn" onclick="connectWallet()">
+                🔗 Connect Wallet
+            </button>
+            
+            <button class="mint-btn" id="mintBtn" style="display: none;" onclick="mintBot()">
+                🧪 DEPLOY CIPHER BOT
+            </button>
+            
+            <div class="status" id="status"></div>
+            
+            <div class="mint-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalMinted">0</div>
+                    <div class="stat-label">Bots Deployed</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">20</div>
+                    <div class="stat-label">Max Supply</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="availableSlots">20</div>
+                    <div class="stat-label">Available</div>
+                </div>
+            </div>
         </div>
-        <div class="strategy-grid" id="strategyGrid">
-          <!-- Strategies populated by JS -->
+        
+        <div class="lab-link">
+            <a href="../laboratory/">Already minted? Enter The Laboratory →</a>
         </div>
-      </div>
-
-      <!-- Price -->
-      <div class="price-section">
-        <span class="price-label">Mint Price</span>
-        <span class="price-value">300 <span>$CIPHER</span></span>
-      </div>
-
-      <!-- Mint Button -->
-      <button class="mint-btn" id="mintBtn" onclick="mint()" disabled>
-        <span class="spinner"></span>
-        <span class="btn-text">Connect Wallet to Mint</span>
-      </button>
-
-      <!-- Status -->
-      <div class="status" id="status"></div>
-    </div>
-  </main>
-
-  <footer>
-    <p>
-      <a href="https://sepolia.basescan.org/address/0xc267113C4E6f4421B28e51093583eABeC9E201c8" target="_blank">View Contract</a>
-      &nbsp;•&nbsp;
-      <a href="https://decryptlabs.io" target="_blank">Back to Site</a>
-    </p>
-  </footer>
-
-  <script>
-    // ============================================
-    // CONTRACT CONFIGURATION
-    // ============================================
-    const CONFIG = {
-      chainId: 84532,
-      chainIdHex: '0x14a34',
-      chainName: 'Base Sepolia',
-      rpcUrl: 'https://sepolia.base.org',
-      blockExplorer: 'https://sepolia.basescan.org',
-      
-      addresses: {
-        cipher: '0x85075b6E79FEB545F30e60151f467ff17FD3E8BB',
-        botNFT: '0xc267113C4E6f4421B28e51093583eABeC9E201c8'
-      },
-      
-      mintPrice: ethers.parseUnits('300', 18), // 300 CIPHER
-      maxSupply: 20,
-      
-      strategies: [
-        { id: 0, name: 'OTE Silver Bullet', risk: 'Medium', description: 'Trades all valid OTE setups during kill zones' },
-        { id: 1, name: 'FVG + IFVG', risk: 'Medium', description: 'Fair Value Gap & Inverse FVG entries' },
-        { id: 2, name: 'OTE Refined (High Risk)', risk: 'High', description: 'Selective days, larger position sizing' },
-        { id: 3, name: 'OTE Refined (Low Risk)', risk: 'Low', description: 'Conservative sizing, max consistency' }
-      ]
-    };
-
-    // Minimal ABIs
-    const CIPHER_ABI = [
-      'function approve(address spender, uint256 amount) returns (bool)',
-      'function allowance(address owner, address spender) view returns (uint256)',
-      'function balanceOf(address account) view returns (uint256)'
-    ];
-
-    const BOTNFT_ABI = [
-      'function mint(uint8 strategy, string uri) external',
-      'function totalSupply() view returns (uint256)',
-      'function MAX_SUPPLY() view returns (uint256)'
-    ];
-
-    // ============================================
-    // STATE
-    // ============================================
-    let provider = null;
-    let signer = null;
-    let userAddress = null;
-    let selectedStrategy = 0;
-    let cipherContract = null;
-    let botNFTContract = null;
-
-    // ============================================
-    // INIT
-    // ============================================
-    document.addEventListener('DOMContentLoaded', async () => {
-      renderStrategies();
-      
-      // Try to connect if already authorized
-      if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          await connectWallet();
-        }
-      }
-      
-      // Fetch supply even without wallet
-      await fetchSupply();
-    });
-
-    // ============================================
-    // WALLET CONNECTION
-    // ============================================
-    async function connectWallet() {
-      const btn = document.getElementById('connectBtn');
-      
-      if (!window.ethereum) {
-        showStatus('Please install MetaMask or another Web3 wallet', 'error');
-        return;
-      }
-
-      try {
-        btn.disabled = true;
-        btn.textContent = 'Connecting...';
-
-        provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.send('eth_requestAccounts', []);
-        userAddress = accounts[0];
-        signer = await provider.getSigner();
-
-        // Check network
-        const network = await provider.getNetwork();
-        if (Number(network.chainId) !== CONFIG.chainId) {
-          document.getElementById('networkWarning').classList.add('show');
-        } else {
-          document.getElementById('networkWarning').classList.remove('show');
-        }
-
-        // Init contracts
-        cipherContract = new ethers.Contract(CONFIG.addresses.cipher, CIPHER_ABI, signer);
-        botNFTContract = new ethers.Contract(CONFIG.addresses.botNFT, BOTNFT_ABI, signer);
-
-        // Update UI
-        await updateWalletUI();
-        await fetchSupply();
-        updateMintButton();
-
-        // Listen for account/network changes
-        window.ethereum.on('accountsChanged', handleAccountsChanged);
-        window.ethereum.on('chainChanged', () => window.location.reload());
-
-      } catch (error) {
-        console.error('Connection error:', error);
-        showStatus('Failed to connect wallet', 'error');
-        btn.disabled = false;
-        btn.textContent = 'Connect Wallet';
-      }
-    }
-
-    async function handleAccountsChanged(accounts) {
-      if (accounts.length === 0) {
-        userAddress = null;
-        signer = null;
-        document.getElementById('walletArea').innerHTML = `
-          <button class="connect-btn" id="connectBtn" onclick="connectWallet()">
-            Connect Wallet
-          </button>
-        `;
-        updateMintButton();
-      } else {
-        userAddress = accounts[0];
-        signer = await provider.getSigner();
-        await updateWalletUI();
-      }
-    }
-
-    async function updateWalletUI() {
-      const cipherBalance = await cipherContract.balanceOf(userAddress);
-      const formatted = Number(ethers.formatUnits(cipherBalance, 18)).toLocaleString();
-      const shortAddr = `${userAddress.slice(0, 6)}...${userAddress.slice(-4)}`;
-
-      document.getElementById('walletArea').innerHTML = `
-        <div class="wallet-info">
-          <span class="wallet-balance">${formatted} CIPHER</span>
-          <span class="wallet-address">${shortAddr}</span>
-        </div>
-      `;
-    }
-
-    async function switchNetwork() {
-      try {
-        await window.ethereum.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: CONFIG.chainIdHex }]
-        });
-      } catch (switchError) {
-        // Chain not added, try to add it
-        if (switchError.code === 4902) {
-          try {
-            await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
-              params: [{
-                chainId: CONFIG.chainIdHex,
-                chainName: CONFIG.chainName,
-                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                rpcUrls: [CONFIG.rpcUrl],
-                blockExplorerUrls: [CONFIG.blockExplorer]
-              }]
-            });
-          } catch (addError) {
-            showStatus('Failed to add network', 'error');
-          }
-        }
-      }
-    }
-
-    // ============================================
-    // SUPPLY
-    // ============================================
-    async function fetchSupply() {
-      try {
-        // Create read-only provider
-        const readProvider = new ethers.JsonRpcProvider(CONFIG.rpcUrl);
-        const readContract = new ethers.Contract(CONFIG.addresses.botNFT, BOTNFT_ABI, readProvider);
+    </main>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script>
+        // Contract addresses (Base Sepolia)
+        const CONTRACTS = {
+            cipher: '0x85075b6E79FEB545F30e60151f467ff17FD3E8BB',
+            botNFT: '0xc267113C4E6f4421B28e51093583eABeC9E201c8'
+        };
         
-        const supply = await readContract.totalSupply();
-        const current = Number(supply);
+        // ABIs
+        const CIPHER_ABI = [
+            'function balanceOf(address) view returns (uint256)',
+            'function approve(address spender, uint256 amount) returns (bool)',
+            'function allowance(address owner, address spender) view returns (uint256)'
+        ];
         
-        document.getElementById('currentSupply').textContent = current;
-        document.getElementById('supplyBar').style.width = `${(current / CONFIG.maxSupply) * 100}%`;
+        const BOTNFT_ABI = [
+            'function mint(uint8 strategy, string uri) external',
+            'function totalSupply() view returns (uint256)',
+            'function mintPriceInCipher() view returns (uint256)',
+            'function balanceOf(address) view returns (uint256)'
+        ];
         
-        return current;
-      } catch (error) {
-        console.error('Failed to fetch supply:', error);
-        document.getElementById('currentSupply').textContent = '?';
-        return null;
-      }
-    }
-
-    // ============================================
-    // STRATEGIES
-    // ============================================
-    function renderStrategies() {
-      const grid = document.getElementById('strategyGrid');
-      grid.innerHTML = CONFIG.strategies.map((s, i) => `
-        <div class="strategy-option ${i === 0 ? 'selected' : ''}" onclick="selectStrategy(${s.id})" data-id="${s.id}">
-          <div class="strategy-header">
-            <span class="strategy-name">${s.name}</span>
-            <span class="strategy-risk risk-${s.risk.toLowerCase()}">${s.risk}</span>
-          </div>
-          <div class="strategy-desc">${s.description}</div>
-        </div>
-      `).join('');
-    }
-
-    function selectStrategy(id) {
-      selectedStrategy = id;
-      document.querySelectorAll('.strategy-option').forEach(el => {
-        el.classList.toggle('selected', Number(el.dataset.id) === id);
-      });
-    }
-
-    // ============================================
-    // MINTING
-    // ============================================
-    function updateMintButton() {
-      const btn = document.getElementById('mintBtn');
-      const text = btn.querySelector('.btn-text');
-      
-      if (!userAddress) {
-        btn.disabled = true;
-        text.textContent = 'Connect Wallet to Mint';
-      } else {
-        btn.disabled = false;
-        text.textContent = 'Mint Bot NFT';
-      }
-    }
-
-    async function mint() {
-      if (!userAddress || !signer) {
-        showStatus('Please connect your wallet first', 'error');
-        return;
-      }
-
-      const btn = document.getElementById('mintBtn');
-      const text = btn.querySelector('.btn-text');
-      
-      try {
-        btn.classList.add('loading');
-        btn.disabled = true;
-
-        // Check network
-        const network = await provider.getNetwork();
-        if (Number(network.chainId) !== CONFIG.chainId) {
-          showStatus('Please switch to Base Sepolia network', 'error');
-          btn.classList.remove('loading');
-          btn.disabled = false;
-          return;
-        }
-
-        // Check CIPHER balance
-        const balance = await cipherContract.balanceOf(userAddress);
-        if (balance < CONFIG.mintPrice) {
-          showStatus('Insufficient CIPHER balance. You need 300 CIPHER to mint.', 'error');
-          btn.classList.remove('loading');
-          btn.disabled = false;
-          return;
-        }
-
-        // Check allowance
-        text.textContent = 'Checking allowance...';
-        const allowance = await cipherContract.allowance(userAddress, CONFIG.addresses.botNFT);
+        // All 20 Cipher Bot metadata URIs (indexed by tokenId)
+        const METADATA_URIS = [
+            'ipfs://Qman9ZkeTKHKg4em9jUwTRYPRJtuSiXFW8BKCwvLzfKi5f',  // 0: Diamond Hands Danny
+            'ipfs://QmcU4AN39KHD1VAZLqJ9Dp1mdMYGQCNP63b5oi6k8A37J3',  // 1: Paper Hands Pete
+            'ipfs://QmXvDGWKpeMsE5Wnuvbh1BunMavzbfYbSoZxxkZnuZKfmx',  // 2: Moon Mission Mike
+            'ipfs://QmeFgyiHonyTAq1FUEe4D91waHJYJiqNFA141ddypv32xa',  // 3: FOMO Fred
+            'ipfs://QmNsLMETF8zdG1TSyfHnh9nB62MdJD7GJmaTdq6AFGmPUM',  // 4: Algo Annie
+            'ipfs://QmYxNpruhGdFiy1u1zzgVmB6rkqm7C5HNha9Y88WXgqraH',  // 5: Leverage Larry
+            'ipfs://QmZvsKojwxp9SHA3uqmDnKQ8KdRviWuByMGdcUyCCsXjwn',  // 6: Buy The Dip Beatrice
+            'ipfs://QmX7oSj41b4SwrVrwhULHWtvvfEdK5UwnxAJ8r2qbN1w4b',  // 7: Whale Watcher Wendy
+            'ipfs://QmdvW69ut5AJcZmFxsu26cNF5easxtUZzvsME4FFefiTPu',  // 8: Rug Pull Randy
+            'ipfs://QmU7FahvwuVDgzd4XUDQJQsg8T87zA9BJ3VuTzBagh45Wf',  // 9: Rekt Riley
+            'ipfs://QmXiFNZ3cfbhB99VqSQN8qoBsg7Qnbewsi15DuwTe1xoqK',  // 10: Degen Dave
+            'ipfs://QmeWikeac38NhTA9ApJavothknFvqVmt9snDn6gyuAE4y8',  // 11: Bag Holder Bob
+            'ipfs://QmZq54KvNQTBxDJnLURPu9J9z9puYAqjv5zuU3oLfkjahH',  // 12: Technical Tina
+            'ipfs://QmZQ1sAfcxBz7j6XBTY55yBuUwNLSHzH3rarEN5toxpYqs',  // 13: Shill Sammy
+            'ipfs://QmRmKZ7cvQbCNqSL4b1QerPmUXovqfLE3HL79our2WvqAq',  // 14: Copy Trader Carl
+            'ipfs://QmcUoUxxzRhXa17ifGg36NqM1h9pBhHT7LsyKTLeY6ShEY',  // 15: Pump Patty
+            'ipfs://QmPNtUTHz7W5rGasn9WhXzZWWKq2FRY7MBe2Q32e9acUN7',  // 16: Normie Nick
+            'ipfs://QmbmNqA2NXEgEVvbQvnrXFr4cQw9W77nNdNdAQcpXXLfB4',  // 17: Giga Chad Charlie
+            'ipfs://QmQ6nCzL9mSDEtyTq3Fvk89AzUbHFLHFkUp6jtHWAvvdpm',  // 18: FUD Francis
+            'ipfs://QmY48Bn8TFTbMXScEL4YfbV6ntHu2Sq1FpimBRNjXF6G7G'   // 19: Exit Liquidity Eddie
+        ];
         
-        if (allowance < CONFIG.mintPrice) {
-          // Need to approve
-          text.textContent = 'Approving CIPHER...';
-          showStatus('Please approve CIPHER spending in your wallet', 'info');
-          
-          const approveTx = await cipherContract.approve(CONFIG.addresses.botNFT, CONFIG.mintPrice);
-          showStatus('Waiting for approval confirmation...', 'info');
-          await approveTx.wait();
-          showStatus('CIPHER approved! Now minting...', 'success');
-        }
-
-        // Mint
-        text.textContent = 'Minting...';
-        showStatus('Please confirm the mint transaction', 'info');
+        let provider, signer, userAddress;
+        let cipherContract, nftContract;
         
-        // Generate simple metadata URI (could be IPFS in production)
-        const metadataUri = `https://decryptlabs.io/api/metadata/${selectedStrategy}`;
-        
-        const mintTx = await botNFTContract.mint(selectedStrategy, metadataUri);
-        showStatus(`Transaction submitted! <a href="${CONFIG.blockExplorer}/tx/${mintTx.hash}" target="_blank">View on BaseScan</a>`, 'info');
-        
-        text.textContent = 'Confirming...';
-        const receipt = await mintTx.wait();
-        
-        // Success!
-        showStatus(`
-          🎉 Mint successful! Welcome to Decrypt Labs!<br>
-          <a href="${CONFIG.blockExplorer}/tx/${receipt.hash}" target="_blank">View transaction</a>
-        `, 'success');
-        
-        // Refresh supply
-        await fetchSupply();
-        await updateWalletUI();
-        
-        text.textContent = 'Mint Another';
-
-      } catch (error) {
-        console.error('Mint error:', error);
-        
-        let message = 'Mint failed';
-        if (error.code === 'ACTION_REJECTED' || error.code === 4001) {
-          message = 'Transaction cancelled by user';
-        } else if (error.message?.includes('insufficient funds')) {
-          message = 'Insufficient ETH for gas fees';
-        } else if (error.reason) {
-          message = error.reason;
+        async function connectWallet() {
+            try {
+                if (!window.ethereum) {
+                    showStatus('Please install MetaMask!', 'error');
+                    return;
+                }
+                
+                showStatus('<span class="loader"></span> Connecting...', 'loading');
+                
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send('eth_requestAccounts', []);
+                
+                // Check network (Base Sepolia = 84532)
+                const network = await provider.getNetwork();
+                if (network.chainId !== 84532) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x14a34' }]
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x14a34',
+                                    chainName: 'Base Sepolia',
+                                    nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+                                    rpcUrls: ['https://sepolia.base.org'],
+                                    blockExplorerUrls: ['https://sepolia.basescan.org']
+                                }]
+                            });
+                        }
+                    }
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                }
+                
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+                
+                // Init contracts
+                cipherContract = new ethers.Contract(CONTRACTS.cipher, CIPHER_ABI, signer);
+                nftContract = new ethers.Contract(CONTRACTS.botNFT, BOTNFT_ABI, signer);
+                
+                // Update UI
+                document.getElementById('connectBtn').style.display = 'none';
+                document.getElementById('mintBtn').style.display = 'block';
+                document.getElementById('balanceRow').style.display = 'flex';
+                
+                // Fetch balances
+                await updateBalances();
+                
+                hideStatus();
+                
+            } catch (err) {
+                console.error(err);
+                showStatus('Connection failed: ' + err.message, 'error');
+            }
         }
         
-        showStatus(message, 'error');
-        text.textContent = 'Mint Bot NFT';
+        async function updateBalances() {
+            try {
+                const balance = await cipherContract.balanceOf(userAddress);
+                document.getElementById('cipherBalance').textContent = 
+                    ethers.utils.formatUnits(balance, 18) + ' $CIPHER';
+                
+                const totalSupply = await nftContract.totalSupply();
+                document.getElementById('totalMinted').textContent = totalSupply.toString();
+                document.getElementById('availableSlots').textContent = (20 - totalSupply.toNumber()).toString();
+                
+            } catch (err) {
+                console.error('Error fetching balances:', err);
+            }
+        }
         
-      } finally {
-        btn.classList.remove('loading');
-        btn.disabled = false;
-      }
-    }
-
-    // ============================================
-    // UI HELPERS
-    // ============================================
-    function showStatus(message, type) {
-      const status = document.getElementById('status');
-      status.innerHTML = message;
-      status.className = `status show ${type}`;
-    }
-  </script>
+        async function mintBot() {
+            try {
+                const strategyId = parseInt(document.querySelector('input[name="strategy"]:checked').value);
+                const mintPrice = ethers.utils.parseUnits('300', 18);
+                
+                // Strategy mapping: UI values 1-4 map to contract enum 0-3
+                const contractStrategy = strategyId - 1;
+                
+                // Get next tokenId to assign unique metadata
+                const totalSupply = await nftContract.totalSupply();
+                const nextTokenId = totalSupply.toNumber();
+                const metadataIndex = nextTokenId % 20;  // Wrap around if > 20
+                const metadataUri = METADATA_URIS[metadataIndex];
+                
+                showStatus('<span class="loader"></span> Checking approval...', 'loading');
+                
+                // Check allowance
+                const allowance = await cipherContract.allowance(userAddress, CONTRACTS.botNFT);
+                
+                if (allowance.lt(mintPrice)) {
+                    showStatus('<span class="loader"></span> Approving $CIPHER...', 'loading');
+                    const approveTx = await cipherContract.approve(CONTRACTS.botNFT, mintPrice);
+                    await approveTx.wait();
+                }
+                
+                showStatus('<span class="loader"></span> Deploying your Cipher Bot...', 'loading');
+                
+                // Mint with strategy (0-3) and metadata URI
+                const mintTx = await nftContract.mint(contractStrategy, metadataUri);
+                await mintTx.wait();
+                
+                showStatus('🎉 Cipher Bot deployed! Redirecting to Laboratory...', 'success');
+                
+                // Redirect to laboratory
+                setTimeout(() => {
+                    window.location.href = '../laboratory/';
+                }, 2000);
+                
+            } catch (err) {
+                console.error(err);
+                if (err.message.includes('insufficient')) {
+                    showStatus('Insufficient $CIPHER balance. Need 300 $CIPHER to mint.', 'error');
+                } else {
+                    showStatus('Mint failed: ' + (err.reason || err.message), 'error');
+                }
+            }
+        }
+        
+        function showStatus(message, type) {
+            const status = document.getElementById('status');
+            status.innerHTML = message;
+            status.className = 'status show ' + type;
+        }
+        
+        function hideStatus() {
+            document.getElementById('status').className = 'status';
+        }
+        
+        // Check if already connected
+        if (window.ethereum && window.ethereum.selectedAddress) {
+            connectWallet();
+        }
+    </script>
 </body>
 </html>

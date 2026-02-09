@@ -198,7 +198,7 @@ function buildDashboardFromAPI(apiData, accounts) {
                 name: 'FVG+IFVG', // Full name
                 subtitle: 'Determining Order Flow',
                 status: botStatus,
-                accountId: fvgIfvg.accountId || 'APEX2519120000014',
+                accountId: fvgIfvg.accountId || 'BOT-ALPHA',
                 accountSize: CONFIG.ACCOUNT_SIZE,
                 currentBalance: fvgIfvg.balance || CONFIG.ACCOUNT_SIZE,
                 maxContracts: CONFIG.MAX_CONTRACTS,
@@ -230,7 +230,7 @@ function buildDashboardFromAPI(apiData, accounts) {
                 name: 'OTE Silver Bullet', // Full name
                 subtitle: 'Optimal Trade Entry',
                 status: botStatus,
-                accountId: oteSB.accountId || 'APEX2519120000018',
+                accountId: oteSB.accountId || 'BOT-BRAVO',
                 accountSize: CONFIG.ACCOUNT_SIZE,
                 currentBalance: oteSB.balance || CONFIG.ACCOUNT_SIZE,
                 maxContracts: CONFIG.MAX_CONTRACTS,

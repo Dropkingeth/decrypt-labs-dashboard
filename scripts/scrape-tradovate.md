@@ -4,8 +4,8 @@
 
 | Bot | Tradovate Account | Starting Balance |
 |-----|-------------------|------------------|
-| FVG+IFVG #1 | APEX2519120000014 | $150,000 |
-| OTE Silver Bullet | APEX2519120000018 | $150,000 |
+| FVG+IFVG #1 | BOT-ALPHA | $150,000 |
+| OTE Silver Bullet | BOT-BRAVO | $150,000 |
 
 ## How to Update (Manual)
 
@@ -31,7 +31,7 @@ Daily at 5:00 AM PST, Jimmy will:
 ## Last Scraped
 
 - **Date:** 2026-01-31 05:19 PST
-- **APEX2519120000014 (FVG+IFVG):** $151,133.32 (+$1,133.32)
-- **APEX2519120000018 (OTE Silver Bullet):** $151,296.32 (+$1,296.32)
+- **BOT-ALPHA (FVG+IFVG):** $151,133.32 (+$1,133.32)
+- **BOT-BRAVO (OTE Silver Bullet):** $151,296.32 (+$1,296.32)
 - **Combined AUM:** $302,429.64
 - **Total Profit:** +$2,429.64

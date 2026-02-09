@@ -1,9 +1,9 @@
 /**
- * 🤖 Integrated Trading Server with Caretaker
+ * 🚀 Mission Control — Integrated Trading Server
  * 
  * Combines:
  * - Webhook receiver (for TradingView alerts)
- * - Trade Caretaker (monitoring & retry)
+ * - Trade monitoring & retry
  * - Position verification (via Tradovate browser)
  * - Telegram alerts
  * 
@@ -43,8 +43,9 @@ const positionChecker = new PositionChecker();
 
 // State
 let lastPositionData = {
-  'APEX2519120000014': { position: 0, equity: 0, openPL: 0, lastCheck: null },
-  'APEX2519120000018': { position: 0, equity: 0, openPL: 0, lastCheck: null }
+  'BOT-BRAVO': { position: 0, equity: 150177.52, openPL: 0, lastCheck: null },
+  'BOT-CHARLIE': { position: 0, equity: 150000, openPL: 0, lastCheck: null },
+  'BOT-DELTA': { position: 0, equity: 150000, openPL: 0, lastCheck: null }
 };
 
 // Session storage (in-memory, resets on restart)
@@ -76,7 +77,7 @@ function saveAccessRequests() {
 
 // Load access requests on startup
 loadAccessRequests();
-console.log('[DEPLOY] 🚀 NEW CODE ACTIVE - Build Feb 1 2026 3:00pm');
+console.log('[DEPLOY] 🚀 MISSION CONTROL v1.0 — Build Feb 9 2026');
 
 // Auth helpers
 function generateSessionId() {
@@ -97,7 +98,7 @@ function parseCookies(cookieHeader) {
 function isAuthenticated(req) {
   if (!config.auth?.enabled) return true;
   const cookies = parseCookies(req.headers.cookie);
-  const sessionId = cookies['caretaker_session'];
+  const sessionId = cookies['mc_session'];
   return sessionId && sessions.has(sessionId);
 }
 
@@ -107,7 +108,7 @@ function getLoginPage(error = '') {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🔐 Bot Caretaker — Login</title>
+  <title>🚀 Mission Control — Login</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -210,8 +211,8 @@ function getLoginPage(error = '') {
 <body>
   <div class="login-box">
     <div class="logo">
-      <div class="logo-icon">🤖</div>
-      <div class="logo-text">Bot Caretaker</div>
+      <div class="logo-icon">🚀</div>
+      <div class="logo-text">Mission Control</div>
     </div>
     ${error ? '<div class="error">' + error + '</div>' : ''}
     <form method="POST" action="/login">
@@ -221,7 +222,7 @@ function getLoginPage(error = '') {
       </div>
       <button type="submit">Access Dashboard</button>
     </form>
-    <div class="footer">🔒 Internal monitoring tool</div>
+    <div class="footer">Mission Control v1.0 — Decrypt Labs</div>
   </div>
 </body>
 </html>`;
@@ -230,6 +231,40 @@ function getLoginPage(error = '') {
 // Logging
 const LOG_DIR = path.join(__dirname, 'logs');
 fs.mkdirSync(LOG_DIR, { recursive: true });
+
+// Persistent data directory (survives deploys on Railway with volume mount)
+const PERSIST_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, 'persist');
+fs.mkdirSync(PERSIST_DIR, { recursive: true });
+const TRADES_HISTORY_PATH = path.join(PERSIST_DIR, 'trades-history.json');
+
+// Initialize persistent trades file if not exists
+if (!fs.existsSync(TRADES_HISTORY_PATH)) {
+  fs.writeFileSync(TRADES_HISTORY_PATH, JSON.stringify([], null, 2));
+  console.log('[Server] Created trades-history.json');
+}
+
+// Helper to load persistent trades
+function loadPersistentTrades() {
+  try {
+    return JSON.parse(fs.readFileSync(TRADES_HISTORY_PATH, 'utf8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+// Helper to save trade to persistent storage
+function saveTradeToPersist(trade) {
+  try {
+    const trades = loadPersistentTrades();
+    trades.unshift(trade);
+    // Keep last 500 trades in history
+    const trimmed = trades.slice(0, 500);
+    fs.writeFileSync(TRADES_HISTORY_PATH, JSON.stringify(trimmed, null, 2));
+    console.log(`[Server] Trade saved to persistent storage: ${trade.bot}`);
+  } catch (e) {
+    console.error('[Server] Failed to save trade to persist:', e.message);
+  }
+}
 
 function log(type, data) {
   const entry = { type, timestamp: new Date().toISOString(), ...data };
@@ -395,7 +430,7 @@ const server = http.createServer(async (req, res) => {
           sessions.set(sessionId, { created: Date.now() });
           
           res.writeHead(302, {
-            'Set-Cookie': `caretaker_session=${sessionId}; Path=/; HttpOnly; SameSite=Strict`,
+            'Set-Cookie': `mc_session=${sessionId}; Path=/; HttpOnly; SameSite=Strict`,
             'Location': '/'
           });
           res.end();
@@ -412,11 +447,11 @@ const server = http.createServer(async (req, res) => {
   
   if (pathname === '/logout') {
     const cookies = parseCookies(req.headers.cookie);
-    const sessionId = cookies['caretaker_session'];
+    const sessionId = cookies['mc_session'];
     if (sessionId) sessions.delete(sessionId);
     
     res.writeHead(302, {
-      'Set-Cookie': 'caretaker_session=; Path=/; HttpOnly; Max-Age=0',
+      'Set-Cookie': 'mc_session=; Path=/; HttpOnly; Max-Age=0',
       'Location': '/login'
     });
     res.end();
@@ -453,16 +488,16 @@ const server = http.createServer(async (req, res) => {
         const ote = storedData.bots?.['ote-silver-bullet'] || {};
         
         positions = {
-          'APEX2519120000014': {
-            position: positions['APEX2519120000014']?.position || 0,
+          'BOT-ALPHA': {
+            position: positions['BOT-ALPHA']?.position || 0,
             equity: fvg.currentBalance || 0,
             openPL: 0,
             lastCheck: storedData.lastUpdated || null,
             pnl: fvg.performance?.netPnl || 0,
             progress: fvg.eval?.profitTargetPercent || 0
           },
-          'APEX2519120000018': {
-            position: positions['APEX2519120000018']?.position || 0,
+          'BOT-BRAVO': {
+            position: positions['BOT-BRAVO']?.position || 0,
             equity: ote.currentBalance || 0,
             openPL: 0,
             lastCheck: storedData.lastUpdated || null,
@@ -516,7 +551,7 @@ const server = http.createServer(async (req, res) => {
 <!DOCTYPE html>
 <html>
 <head>
-  <title>🤖 Trade Caretaker</title>
+  <title>🚀 Mission Control</title>
   <meta http-equiv="refresh" content="30">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -558,7 +593,7 @@ const server = http.createServer(async (req, res) => {
   </style>
 </head>
 <body>
-  <h1>🤖 Trade Caretaker</h1>
+  <h1>🚀 Mission Control</h1>
   <div class="status ${sessionActive ? 'active' : 'inactive'}">
     ${sessionActive ? '● SESSION ACTIVE' : '○ SESSION CLOSED'}
   </div>
@@ -708,6 +743,10 @@ const server = http.createServer(async (req, res) => {
             data.lastUpdated = new Date().toISOString();
             
             fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+            
+            // Also save to persistent storage (survives deploys)
+            saveTradeToPersist(trade);
+            
             console.log(`[Trades] Saved trade: ${trade.side} ${trade.symbol} @ ${trade.price}`);
           }
         } catch (saveErr) {
@@ -808,30 +847,12 @@ const server = http.createServer(async (req, res) => {
       // Transform to expected format for decryptlabs.io
       const accounts = {};
       
-      if (bots['ote-silver-bullet']) {
-        const bot = bots['ote-silver-bullet'];
-        accounts['ote-silver-bullet'] = {
-          name: bot.name || 'OTE Silver Bullet',
+      // Dynamically build accounts from all bots in data.json
+      for (const [botId, bot] of Object.entries(bots)) {
+        accounts[botId] = {
+          name: bot.name || botId,
           status: bot.status || 'online',
-          accountId: bot.accountId || 'APEX-251912-14',
-          balance: bot.currentBalance || 150000,
-          pnl: bot.performance?.netPnl || (bot.currentBalance - 150000) || 0,
-          profitNeeded: 9000,
-          progress: bot.eval?.profitTargetPercent || ((bot.currentBalance - 150000) / 9000 * 100) || 0,
-          drawdown: bot.trailing?.ddUsed || bot.eval?.drawdownUsed || 0,
-          drawdownMax: 5000,
-          drawdownRemaining: bot.trailing?.buffer ? (bot.trailing.ddMax * bot.trailing.buffer / 100) : 5000,
-          peakBalance: bot.trailing?.peakBalance || bot.currentBalance || 150000,
-          trailingThreshold: bot.trailing?.liquidation || ((bot.currentBalance || 150000) - 5000)
-        };
-      }
-      
-      if (bots['fvg-ifvg-1']) {
-        const bot = bots['fvg-ifvg-1'];
-        accounts['fvg-ifvg'] = {
-          name: bot.name || 'FVG+IFVG',
-          status: bot.status || 'online',
-          accountId: bot.accountId || 'APEX-251912-18',
+          accountId: bot.accountId || botId,
           balance: bot.currentBalance || 150000,
           pnl: bot.performance?.netPnl || (bot.currentBalance - 150000) || 0,
           profitNeeded: 9000,
@@ -856,12 +877,11 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   
-  // GET /api/trades - Recent trades
+  // GET /api/trades - Recent trades (from persistent storage)
   if (req.method === 'GET' && pathname === '/api/trades') {
     try {
-      const data = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
       const limit = parseInt(parsedUrl.query.limit) || 20;
-      const trades = (data.trades || []).slice(0, limit);
+      const trades = loadPersistentTrades().slice(0, limit);
       res.writeHead(200, { 
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
@@ -871,6 +891,37 @@ const server = http.createServer(async (req, res) => {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Failed to load trades' }));
     }
+    return;
+  }
+
+  // POST /api/trades - Add trades manually (saves to persistent storage)
+  if (req.method === 'POST' && pathname === '/api/trades') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const newTrades = JSON.parse(body);
+        
+        // Accept array or single trade
+        const tradesToAdd = Array.isArray(newTrades) ? newTrades : [newTrades];
+        
+        tradesToAdd.forEach(trade => {
+          trade.id = trade.id || Date.now() + Math.random();
+          trade.timestamp = trade.timestamp || new Date().toISOString();
+          // Save to persistent storage
+          saveTradeToPersist(trade);
+        });
+        
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ success: true, added: tradesToAdd.length }));
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid trade data' }));
+      }
+    });
     return;
   }
   
@@ -890,23 +941,71 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   
+  // POST /api/todo-update - Receive task notes from dashboard
+  if (req.method === 'POST' && pathname === '/api/todo-update') {
+    try {
+      let body = '';
+      req.on('data', chunk => body += chunk);
+      req.on('end', () => {
+        const data = JSON.parse(body);
+        const logPath = path.join(LOG_DIR, 'todo-updates.jsonl');
+        fs.appendFileSync(logPath, JSON.stringify(data) + '\n');
+        console.log(`📋 Todo update: [${data.taskId}] ${data.task} — "${data.note}"`);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ ok: true }));
+      });
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // GET /api/todo-updates - Poll for task updates
+  if (req.method === 'GET' && pathname === '/api/todo-updates') {
+    try {
+      const logPath = path.join(LOG_DIR, 'todo-updates.jsonl');
+      const updates = [];
+      if (fs.existsSync(logPath)) {
+        const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
+        for (const line of lines) {
+          try { updates.push(JSON.parse(line)); } catch(e) {}
+        }
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify(updates.slice(-50)));
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
   // GET /api/signals - Recent signals for dashboard
+  // Optional query params: ?bot=fvg-ifvg or ?grouped=true
   if (req.method === 'GET' && pathname === '/api/signals') {
     try {
       const logPath = path.join(LOG_DIR, 'caretaker.jsonl');
       const signals = [];
+      const urlParams = new URL(req.url, `http://${req.headers.host}`).searchParams;
+      const botFilter = urlParams.get('bot');
+      const grouped = urlParams.get('grouped') === 'true';
       
       if (fs.existsSync(logPath)) {
         const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
-        const recentLines = lines.slice(-100); // Last 100 entries
+        const recentLines = lines.slice(-200); // Last 200 entries for grouping
         
         for (const line of recentLines) {
           try {
             const entry = JSON.parse(line);
             if (entry.type === 'webhook' || entry.type === 'alert' || entry.type === 'discrepancy') {
+              // Filter by bot if specified
+              if (botFilter && entry.bot !== botFilter) continue;
+              
               signals.push({
                 timestamp: entry.timestamp,
                 type: entry.type,
+                bot: entry.bot || 'unknown',
                 icon: entry.type === 'webhook' ? '📥' : entry.type === 'alert' ? '🚨' : '⚠️',
                 title: formatSignalTitle(entry),
                 details: formatSignalDetails(entry),
@@ -917,11 +1016,34 @@ const server = http.createServer(async (req, res) => {
         }
       }
       
+      // Sort by timestamp descending
+      signals.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      
+      // If grouped, organize by bot
+      if (grouped) {
+        const groupedSignals = {};
+        for (const signal of signals.slice(0, 100)) {
+          const bot = signal.bot || 'unknown';
+          if (!groupedSignals[bot]) {
+            groupedSignals[bot] = [];
+          }
+          if (groupedSignals[bot].length < 20) { // Max 20 per bot
+            groupedSignals[bot].push(signal);
+          }
+        }
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify(groupedSignals));
+        return;
+      }
+      
       res.writeHead(200, { 
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*'
       });
-      res.end(JSON.stringify(signals.reverse().slice(0, 50)));
+      res.end(JSON.stringify(signals.slice(0, 50)));
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Failed to load signals' }));
@@ -1039,13 +1161,321 @@ const server = http.createServer(async (req, res) => {
   if (req.method === 'OPTIONS') {
     res.writeHead(204, {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type'
     });
     res.end();
     return;
   }
   
+  // ============================================
+  // TRADINGVIEW TIER ACCESS SYSTEM
+  // ============================================
+  
+  // POST /api/tradingview-access - Submit new TradingView access request
+  if (req.method === 'POST' && pathname === '/api/tradingview-access') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const data = JSON.parse(body);
+        const request = {
+          id: Date.now(),
+          wallet: data.wallet,
+          tradingViewUsername: data.tradingViewUsername,
+          cipherBalance: data.cipherBalance,
+          tier: data.tier,
+          selectedStrategy: data.selectedStrategy,
+          accessList: data.accessList,
+          timestamp: data.timestamp || new Date().toISOString(),
+          status: 'pending'
+        };
+        
+        // Check for duplicate
+        const existing = accessRequests.find(r => 
+          r.tradingViewUsername?.toLowerCase() === request.tradingViewUsername.toLowerCase()
+        );
+        if (existing) {
+          // Update existing request
+          Object.assign(existing, request);
+          existing.updatedAt = new Date().toISOString();
+          saveAccessRequests();
+          console.log(`[TV Access] Updated request for @${request.tradingViewUsername} (${request.tier})`);
+        } else {
+          accessRequests.push(request);
+          saveAccessRequests();
+          console.log(`[TV Access] New ${request.tier} request: @${request.tradingViewUsername}`);
+          console.log(`  → Access: ${request.accessList.join(', ')}`);
+        }
+        
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ success: true, id: request.id }));
+      } catch (e) {
+        console.error('[TV Access] Error:', e);
+        res.writeHead(400, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ error: 'Invalid request' }));
+      }
+    });
+    return;
+  }
+  
+  // GET /api/tradingview-access - Get all TV access requests (admin)
+  if (req.method === 'GET' && pathname === '/api/tradingview-access') {
+    const tvRequests = accessRequests.filter(r => r.tradingViewUsername);
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify({
+      pending: tvRequests.filter(r => r.status === 'pending'),
+      approved: tvRequests.filter(r => r.status === 'approved'),
+      total: tvRequests.length
+    }));
+    return;
+  }
+  
+  // POST /api/balances - Update account balances (from Jimmy's scraper)
+  if (req.method === 'POST' && pathname === '/api/balances') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const updates = JSON.parse(body);
+        const DASHBOARD_DATA_PATH = path.join(__dirname, './dashboard/data.json');
+        const data = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
+        
+        // Update each bot's balance
+        for (const [botId, balanceData] of Object.entries(updates)) {
+          if (data.bots[botId]) {
+            const bot = data.bots[botId];
+            const oldBalance = bot.currentBalance || 150000;
+            const newBalance = balanceData.balance;
+            const startingBalance = bot.accountSize || 150000;
+            
+            // Update balance
+            bot.currentBalance = newBalance;
+            
+            // Update P&L
+            const pnl = newBalance - startingBalance;
+            bot.performance = bot.performance || {};
+            bot.performance.netPnl = pnl;
+            bot.performance.todayPnl = balanceData.todayPnl || (newBalance - oldBalance);
+            
+            // Update eval progress
+            bot.eval = bot.eval || {};
+            bot.eval.profitTarget = pnl;
+            bot.eval.profitTargetPercent = Math.max(0, (pnl / 9000) * 100);
+            
+            // Update trailing drawdown
+            bot.trailing = bot.trailing || {};
+            const peakBalance = Math.max(bot.trailing.peakBalance || startingBalance, newBalance);
+            bot.trailing.peakBalance = peakBalance;
+            bot.trailing.liquidation = peakBalance - 5000;
+            bot.trailing.ddUsed = peakBalance - newBalance;
+            bot.trailing.ddMax = 5000;
+            bot.trailing.buffer = ((5000 - bot.trailing.ddUsed) / 5000) * 100;
+            
+            bot.eval.drawdownUsed = bot.trailing.ddUsed;
+            bot.eval.drawdownPercent = (bot.trailing.ddUsed / 5000) * 100;
+            
+            console.log(`[Balances] Updated ${botId}: $${oldBalance.toFixed(2)} -> $${newBalance.toFixed(2)}`);
+          }
+        }
+        
+        // Update AUM
+        let totalAum = 0;
+        for (const bot of Object.values(data.bots)) {
+          totalAum += bot.currentBalance || 0;
+        }
+        data.aum = data.aum || {};
+        data.aum.total = Math.round(totalAum);
+        
+        // Update timestamp
+        data.lastUpdated = new Date().toISOString();
+        
+        // Save
+        fs.writeFileSync(DASHBOARD_DATA_PATH, JSON.stringify(data, null, 2));
+        
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ success: true, updated: Object.keys(updates), aum: totalAum }));
+      } catch (err) {
+        console.error('[Balances] Error:', err);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+  
+  // GET /api/holder/:wallet - Get holder's account data
+  if (req.method === 'GET' && pathname.startsWith('/api/holder/')) {
+    const walletAddress = pathname.split('/api/holder/')[1]?.toLowerCase();
+    
+    if (!walletAddress || walletAddress.length !== 42) {
+      res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ error: 'Invalid wallet address' }));
+      return;
+    }
+    
+    try {
+      const DASHBOARD_DATA_PATH = path.join(__dirname, './dashboard/data.json');
+      const data = JSON.parse(fs.readFileSync(DASHBOARD_DATA_PATH, 'utf8'));
+      
+      // Build accounts array with current data
+      const accounts = [];
+      for (const [botId, bot] of Object.entries(data.bots || {})) {
+        accounts.push({
+          id: bot.accountId || botId,
+          botId: botId,
+          name: bot.name || botId,
+          strategy: bot.strategy || 'Unknown',
+          balance: bot.currentBalance || 150000,
+          pnl: bot.performance?.netPnl || 0,
+          drawdownUsed: bot.trailing?.ddUsed || 0,
+          drawdownMax: bot.trailing?.ddMax || 5000,
+          status: bot.status || 'online',
+          lastTrade: bot.lastTrade || null
+        });
+      }
+      
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ 
+        wallet: walletAddress,
+        accounts: accounts,
+        aum: data.aum || { total: 0 }
+      }));
+    } catch (err) {
+      console.error('[Holder API] Error:', err);
+      res.writeHead(500, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // ============================================================================
+  // ICT ANALYSIS WEBHOOK (receives TradingView ICT Smart Entry alerts)
+  // Stores the alert and forwards to local pipeline via stored webhook
+  // ============================================================================
+  
+  if (req.method === 'POST' && pathname === '/ict-webhook') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const payload = JSON.parse(body);
+        
+        console.log(`\n${'═'.repeat(60)}`);
+        console.log(`🧠 ICT ANALYSIS WEBHOOK RECEIVED`);
+        console.log(`${'═'.repeat(60)}`);
+        console.log(JSON.stringify(payload, null, 2));
+        
+        // Log it
+        log('ict_analysis', { payload });
+        
+        // Store latest alert for local pipeline to pick up
+        const ictAlertPath = path.join(PERSIST_DIR, 'ict-latest-alert.json');
+        fs.writeFileSync(ictAlertPath, JSON.stringify({
+          payload,
+          receivedAt: new Date().toISOString(),
+          processed: false
+        }, null, 2));
+        
+        // Also append to alert history
+        const ictHistoryPath = path.join(PERSIST_DIR, 'ict-alert-history.json');
+        let history = [];
+        try { history = JSON.parse(fs.readFileSync(ictHistoryPath, 'utf8')); } catch(e) {}
+        history.unshift({ payload, receivedAt: new Date().toISOString() });
+        history = history.slice(0, 100); // Keep last 100
+        fs.writeFileSync(ictHistoryPath, JSON.stringify(history, null, 2));
+        
+        // Forward to local pipeline if configured
+        const localWebhook = process.env.ICT_LOCAL_WEBHOOK;
+        if (localWebhook) {
+          const forwardUrl = new URL(localWebhook + '/webhook');
+          const options = {
+            hostname: forwardUrl.hostname,
+            port: forwardUrl.port || 443,
+            path: forwardUrl.pathname,
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' }
+          };
+          const proto = forwardUrl.protocol === 'https:' ? https : http;
+          const fwdReq = proto.request(options, (fwdRes) => {
+            console.log(`[ICT] Forwarded to local pipeline: ${fwdRes.statusCode}`);
+          });
+          fwdReq.on('error', (e) => {
+            console.log(`[ICT] Forward failed (local pipeline may be offline): ${e.message}`);
+          });
+          fwdReq.write(body);
+          fwdReq.end();
+        }
+        
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ 
+          success: true, 
+          message: 'ICT alert received and queued for analysis',
+          timestamp: new Date().toISOString()
+        }));
+        
+      } catch (err) {
+        console.error('[ICT Webhook] Error:', err.message);
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+  
+  // GET /ict-webhook/latest - Get latest ICT alert (for local pipeline polling)
+  if (req.method === 'GET' && pathname === '/ict-webhook/latest') {
+    try {
+      const ictAlertPath = path.join(PERSIST_DIR, 'ict-latest-alert.json');
+      if (fs.existsSync(ictAlertPath)) {
+        const alert = JSON.parse(fs.readFileSync(ictAlertPath, 'utf8'));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify(alert));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ message: 'No alerts yet' }));
+      }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+  
+  // GET /ict-webhook/history - Get ICT alert history
+  if (req.method === 'GET' && pathname === '/ict-webhook/history') {
+    try {
+      const ictHistoryPath = path.join(PERSIST_DIR, 'ict-alert-history.json');
+      if (fs.existsSync(ictHistoryPath)) {
+        const history = JSON.parse(fs.readFileSync(ictHistoryPath, 'utf8'));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify(history));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify([]));
+      }
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: err.message }));
+    }
+    return;
+  }
+
   // 404
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Not found' }));
@@ -1059,7 +1489,7 @@ const PORT = process.env.PORT || 3458;
 
 console.log(`
 ╔══════════════════════════════════════════════════════════════╗
-║  🤖 Trade Caretaker - Integrated Server                      ║
+║  🚀 Mission Control v1.0 — Decrypt Labs                      ║
 ╠══════════════════════════════════════════════════════════════╣
 ║  Webhook receiver + Position monitoring + Auto-retry         ║
 ╚══════════════════════════════════════════════════════════════╝

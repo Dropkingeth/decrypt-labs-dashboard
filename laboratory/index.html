@@ -1,0 +1,1537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Laboratory | Decrypt Labs</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700;900&family=JetBrains+Mono:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0a0e17;
+      --bg-secondary: #0f1520;
+      --bg-card: #131a28;
+      --bg-card-hover: #1a2235;
+      --border-color: #1e2a3d;
+      --border-glow: #2a3f5f;
+      
+      --cyan: #00ffff;
+      --cyan-dim: #00b0bb;
+      --magenta: #ff22bb;
+      --green: #00ff99;
+      --green-dim: #00bb66;
+      --yellow: #ffdd00;
+      --red: #ff4477;
+      --orange: #ffaa00;
+      --purple: #bf5fff;
+      
+      --text-primary: #e8f0ff;
+      --text-secondary: #8892a8;
+      --text-dim: #4a5568;
+      
+      --font-display: 'Orbitron', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --font-body: 'Inter', sans-serif;
+      
+      --glow-cyan: 0 0 20px rgba(0, 240, 255, 0.5), 0 0 40px rgba(0, 240, 255, 0.2);
+      --glow-green: 0 0 20px rgba(0, 255, 136, 0.5), 0 0 40px rgba(0, 255, 136, 0.2);
+    }
+    
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    
+    /* Background grid */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: 
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      padding: 1rem 2rem;
+      background: rgba(10, 14, 23, 0.95);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 1000;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+    }
+    
+    .logo svg {
+      width: 36px;
+      height: 36px;
+      animation: logoFloat 3s ease-in-out infinite;
+    }
+    
+    @keyframes logoFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+    
+    .logo-text {
+      font-family: var(--font-display);
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--cyan);
+      text-shadow: var(--glow-cyan);
+      letter-spacing: 2px;
+    }
+    
+    .logo-text span { color: var(--text-primary); text-shadow: none; }
+    
+    .nav-links {
+      display: flex;
+      gap: 1.5rem;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+    
+    .nav-links a:hover { color: var(--cyan); }
+    
+    .wallet-btn {
+      padding: 0.6rem 1.25rem;
+      background: linear-gradient(135deg, var(--cyan-dim), #006688);
+      border: 1px solid var(--cyan);
+      border-radius: 10px;
+      color: white;
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: var(--font-mono);
+    }
+    
+    .wallet-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--glow-cyan);
+    }
+    
+    .wallet-connected {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+    }
+    
+    .wallet-addr {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    
+    .wallet-balance {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      color: var(--cyan);
+      font-weight: 600;
+    }
+    
+    /* Main */
+    .main {
+      padding: 6rem 2rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 2rem 0 3rem;
+    }
+    
+    .hero h1 {
+      font-family: var(--font-display);
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--cyan), var(--magenta));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    
+    .hero p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+    
+    /* Connect Prompt */
+    .connect-prompt {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    
+    .connect-prompt .icon {
+      font-size: 4rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .connect-prompt h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    
+    .connect-prompt p {
+      color: var(--text-secondary);
+      margin-bottom: 2rem;
+    }
+    
+    .connect-prompt .wallet-btn {
+      font-size: 1rem;
+      padding: 1rem 2rem;
+    }
+    
+    /* No NFTs */
+    .no-nfts {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .no-nfts .icon { font-size: 4rem; margin-bottom: 1.5rem; }
+    .no-nfts h2 { font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1rem; }
+    .no-nfts p { color: var(--text-secondary); margin-bottom: 2rem; }
+    
+    .mint-cta {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background: linear-gradient(135deg, var(--magenta), var(--purple));
+      border-radius: 12px;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1rem;
+      transition: all 0.3s;
+    }
+    
+    .mint-cta:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 30px rgba(255, 34, 187, 0.4);
+    }
+    
+    /* Stats Overview */
+    .stats-overview {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 1.5rem;
+      text-align: center;
+      transition: all 0.3s;
+    }
+    
+    .stat-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-3px);
+    }
+    
+    .stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+      font-family: var(--font-display);
+      font-size: 1.75rem;
+      font-weight: 700;
+    }
+    
+    .stat-value.cyan { color: var(--cyan); }
+    .stat-value.green { color: var(--green); }
+    .stat-value.yellow { color: var(--yellow); }
+    .stat-value.red { color: var(--red); }
+    
+    /* Bot Cards Grid */
+    .bots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 1.5rem;
+    }
+    
+    /* Bot Card */
+    .bot-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 20px;
+      overflow: hidden;
+      transition: all 0.3s;
+    }
+    
+    .bot-card:hover {
+      border-color: var(--cyan);
+      transform: translateY(-5px);
+      box-shadow: 0 10px 40px rgba(0, 255, 255, 0.15);
+    }
+    
+    .bot-card-header {
+      display: flex;
+      gap: 1.25rem;
+      padding: 1.5rem;
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .nft-image {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 2px solid var(--border-glow);
+      box-shadow: 0 0 20px rgba(0, 255, 255, 0.2);
+    }
+    
+    .bot-info {
+      flex: 1;
+    }
+    
+    .bot-name {
+      font-family: var(--font-display);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--cyan);
+      margin-bottom: 0.25rem;
+    }
+    
+    .bot-strategy {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    
+    .bot-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+    
+    .bot-status.online {
+      background: rgba(0, 255, 136, 0.1);
+      color: var(--green);
+      border: 1px solid var(--green-dim);
+    }
+    
+    .bot-status.paused {
+      background: rgba(255, 221, 0, 0.1);
+      color: var(--yellow);
+      border: 1px solid rgba(255, 221, 0, 0.3);
+    }
+    
+    .bot-status.offline {
+      background: rgba(255, 68, 119, 0.1);
+      color: var(--red);
+      border: 1px solid rgba(255, 68, 119, 0.3);
+    }
+    
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .bot-card-body {
+      padding: 1.5rem;
+    }
+    
+    /* Stats Grid */
+    .bot-stats {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .bot-stat {
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      padding: 1rem;
+    }
+    
+    .bot-stat-label {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 0.3rem;
+    }
+    
+    .bot-stat-value {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+    
+    .bot-stat-value.positive { color: var(--green); }
+    .bot-stat-value.negative { color: var(--red); }
+    
+    /* Progress Bar */
+    .progress-section {
+      margin-bottom: 1.5rem;
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.5rem;
+    }
+    
+    .progress-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+    
+    .progress-value {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--cyan);
+    }
+    
+    .progress-bar {
+      height: 12px;
+      background: var(--bg-primary);
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan-dim), var(--cyan));
+      border-radius: 6px;
+      transition: width 1s ease;
+      position: relative;
+    }
+    
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      animation: shimmer 2s infinite;
+    }
+    
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+    
+    /* Drawdown Meter */
+    .drawdown-section {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 1rem;
+    }
+    
+    .drawdown-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.75rem;
+    }
+    
+    .drawdown-label {
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+    }
+    
+    .drawdown-value {
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+    
+    .drawdown-bar {
+      height: 8px;
+      background: linear-gradient(90deg, var(--green), var(--yellow), var(--orange), var(--red));
+      border-radius: 4px;
+      position: relative;
+    }
+    
+    .drawdown-marker {
+      position: absolute;
+      top: -4px;
+      width: 4px;
+      height: 16px;
+      background: white;
+      border-radius: 2px;
+      box-shadow: 0 0 10px rgba(255,255,255,0.5);
+      transition: left 1s ease;
+    }
+    
+    /* Recent Trades */
+    .trades-section {
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .trades-title {
+      font-family: var(--font-display);
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-bottom: 1rem;
+      letter-spacing: 1px;
+    }
+    
+    .trade-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+    }
+    
+    .trade-time { color: var(--text-dim); }
+    .trade-side { font-weight: 600; }
+    .trade-side.long { color: var(--green); }
+    .trade-side.short { color: var(--red); }
+    .trade-pnl { font-weight: 700; }
+    .trade-pnl.positive { color: var(--green); }
+    .trade-pnl.negative { color: var(--red); }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 4rem;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid var(--border-color);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Tier Section */
+    .tier-section {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border-color);
+    }
+    
+    .tier-header h2 {
+      font-family: var(--font-display);
+      font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      color: var(--cyan);
+    }
+    
+    .tier-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+    }
+    
+    .tier-card.no-tier {
+      text-align: center;
+    }
+    
+    .tier-card .tier-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    .tier-card h3 {
+      font-family: var(--font-display);
+      margin-bottom: 0.5rem;
+    }
+    
+    .tier-requirements {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+    
+    .req-item {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .req-item:last-child {
+      border-bottom: none;
+    }
+    
+    .tier-badge {
+      display: inline-block;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      font-family: var(--font-display);
+      font-weight: 700;
+      font-size: 1rem;
+      color: #000;
+      margin-bottom: 1rem;
+    }
+    
+    .tier-access {
+      font-size: 1.1rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .balance-info {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      margin-bottom: 1.5rem;
+    }
+    
+    .tv-form {
+      margin-top: 1.5rem;
+    }
+    
+    .tv-form label {
+      display: block;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+      margin-top: 1rem;
+    }
+    
+    .tv-form input, .tv-form select {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      color: var(--text-primary);
+      font-size: 1rem;
+      font-family: var(--font-mono);
+    }
+    
+    .tv-form input:focus, .tv-form select:focus {
+      outline: none;
+      border-color: var(--cyan);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
+    }
+    
+    .tv-access-list {
+      background: var(--bg-secondary);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1.5rem;
+    }
+    
+    .tv-access-list ul {
+      list-style: none;
+      margin-top: 0.5rem;
+    }
+    
+    .tv-access-list li {
+      padding: 0.25rem 0;
+      color: var(--green);
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 1rem;
+      margin-top: 1.5rem;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      border: none;
+      border-radius: 12px;
+      color: #000;
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+    }
+    
+    .tv-status {
+      margin-top: 1rem;
+      padding: 1rem;
+      border-radius: 8px;
+      text-align: center;
+      display: none;
+    }
+    
+    .tv-status.show { display: block; }
+    .tv-status.success { background: rgba(0, 255, 153, 0.1); color: var(--green); }
+    .tv-status.error { background: rgba(255, 68, 119, 0.1); color: var(--red); }
+    .tv-status.loading { background: rgba(0, 255, 255, 0.1); color: var(--cyan); }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+      .header { padding: 1rem; }
+      .nav-links { gap: 1rem; }
+      .main { padding: 5rem 1rem 1rem; }
+      .hero h1 { font-size: 1.75rem; }
+      .bots-grid { grid-template-columns: 1fr; }
+      .stats-overview { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="../" class="logo">
+      <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="flaskGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" style="stop-color:#00ffff"/>
+            <stop offset="100%" style="stop-color:#bf5fff"/>
+          </linearGradient>
+        </defs>
+        <path d="M35 20 L35 40 L20 75 Q15 90 30 95 L70 95 Q85 90 80 75 L65 40 L65 20" stroke="url(#flaskGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path d="M35 20 L35 10 Q35 5 40 5 L60 5 Q65 5 65 10 L65 20" stroke="url(#flaskGrad)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <circle cx="40" cy="70" r="5" fill="#00ffff" opacity="0.6"><animate attributeName="cy" values="70;55;70" dur="2s" repeatCount="indefinite"/></circle>
+        <circle cx="55" cy="65" r="3" fill="#bf5fff" opacity="0.5"><animate attributeName="cy" values="65;50;65" dur="1.5s" repeatCount="indefinite"/></circle>
+        <circle cx="50" cy="80" r="4" fill="#00ff99" opacity="0.4"><animate attributeName="cy" values="80;60;80" dur="2.5s" repeatCount="indefinite"/></circle>
+        <path d="M25 75 Q50 70 75 75 L80 75 Q85 90 70 93 L30 93 Q15 90 20 75 Z" fill="url(#flaskGrad)" opacity="0.3"/>
+      </svg>
+      <span class="logo-text">DECRYPT<span>LABS</span></span>
+    </a>
+    <nav class="nav-links">
+      <a href="../">Home</a>
+      <a href="../city.html">Dashboard</a>
+      <a href="../mint/">Mint</a>
+      <a href="./" style="color: var(--cyan);">Laboratory</a>
+      <a href="../whitepaper.html">Whitepaper</a>
+      <div id="walletArea">
+        <button class="wallet-btn" onclick="connectWallet()">Connect Wallet</button>
+      </div>
+    </nav>
+  </header>
+
+  <main class="main">
+    <section class="hero">
+      <h1>🤖 My Trading Bots</h1>
+      <p>Your personal Decrypt Labs dashboard</p>
+    </section>
+
+    <!-- Access Tiers Section -->
+    <section class="tiers-section" style="margin-bottom: 2rem;">
+      <h2 style="font-size: 1.2rem; color: var(--cyan); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        <span>🎫</span> Access Tiers
+      </h2>
+      <div class="tiers-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem;">
+        
+        <div class="tier-card" style="background: linear-gradient(135deg, rgba(40,40,50,0.9), rgba(30,30,40,0.95)); border: 1px solid rgba(100,100,120,0.3); border-radius: 12px; padding: 1rem; text-align: center;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🌑</div>
+          <div style="font-weight: 700; color: #888; margin-bottom: 0.25rem;">Spectator</div>
+          <div style="font-size: 0.75rem; color: #666;">0 $DECRYPT</div>
+          <div style="font-size: 0.65rem; color: #555; margin-top: 0.5rem;">Dashboard View Only</div>
+        </div>
+        
+        <div class="tier-card" style="background: linear-gradient(135deg, rgba(205,127,50,0.15), rgba(139,69,19,0.1)); border: 1px solid rgba(205,127,50,0.4); border-radius: 12px; padding: 1rem; text-align: center;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🔥</div>
+          <div style="font-weight: 700; color: #cd7f32; margin-bottom: 0.25rem;">Bronze</div>
+          <div style="font-size: 0.75rem; color: #a86b2a;">15,000 $DECRYPT</div>
+          <div style="font-size: 0.65rem; color: #886644; margin-top: 0.5rem;">+ Indicator Access</div>
+        </div>
+        
+        <div class="tier-card" style="background: linear-gradient(135deg, rgba(192,192,192,0.15), rgba(128,128,128,0.1)); border: 1px solid rgba(192,192,192,0.4); border-radius: 12px; padding: 1rem; text-align: center;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">🛡️</div>
+          <div style="font-weight: 700; color: #c0c0c0; margin-bottom: 0.25rem;">Silver</div>
+          <div style="font-size: 0.75rem; color: #a8a8a8;">30,000 $DECRYPT</div>
+          <div style="font-size: 0.65rem; color: #888888; margin-top: 0.5rem;">+ 2 Strategies + Daily Alerts</div>
+        </div>
+        
+        <div class="tier-card" style="background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,149,0,0.1)); border: 1px solid rgba(255,215,0,0.4); border-radius: 12px; padding: 1rem; text-align: center;">
+          <div style="font-size: 1.5rem; margin-bottom: 0.5rem;">⚡</div>
+          <div style="font-weight: 700; color: #ffd700; margin-bottom: 0.25rem;">Gold</div>
+          <div style="font-size: 0.75rem; color: #ccaa00;">50,000 $DECRYPT</div>
+          <div style="font-size: 0.65rem; color: #aa8800; margin-top: 0.5rem;">+ All Strategies + Real-time Alerts</div>
+        </div>
+        
+      </div>
+    </section>
+
+    <div id="content">
+      <!-- Content loaded dynamically -->
+      <div class="connect-prompt" id="connectPrompt">
+        <div class="icon">🔐</div>
+        <h2>Connect Your Wallet</h2>
+        <p>Connect your wallet to view your minted trading bots and their performance.</p>
+        <button class="wallet-btn" onclick="connectWallet()">Connect Wallet</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    // ============================================
+    // CONFIG
+    // ============================================
+    const CONFIG = {
+      chainId: 84532,
+      chainIdHex: '0x14a34',
+      chainName: 'Base Sepolia',
+      rpcUrl: 'https://sepolia.base.org',
+      blockExplorer: 'https://sepolia.basescan.org',
+      
+      addresses: {
+        botNFT: '0xc267113C4E6f4421B28e51093583eABeC9E201c8',
+        cipher: '0x85075b6E79FEB545F30e60151f467ff17FD3E8BB'
+      },
+      
+      // Tier thresholds
+      tiers: {
+        bronze: 15000,
+        silver: 30000,
+        gold: 50000
+      },
+      
+      // TradingView products
+      tradingView: {
+        indicator: 'HTF-ICT-Arrays',
+        strategies: ['IFVG+FVG', 'Silver-Bullet', 'OTE-High', 'OTE-Low']
+      },
+      
+      // Caretaker API
+      apiBase: 'https://decrypt-caretaker-production.up.railway.app',
+      
+      // Strategy mapping
+      strategies: {
+        0: 'OTE Silver Bullet',
+        1: 'FVG + IFVG',
+        2: 'OTE Refined (High Risk)',
+        3: 'OTE Refined (Low Risk)'
+      },
+      
+      // Account mapping (strategy → account)
+      strategyAccounts: {
+        0: 'BOT-ALPHA', // OTE Silver Bullet
+        1: 'BOT-BRAVO', // FVG+IFVG
+        2: 'BOT-ALPHA', // OTE Refined High
+        3: 'BOT-ALPHA'  // OTE Refined Low
+      }
+    };
+
+    // NFT ABI (minimal) - Note: No ERC721Enumerable, so we iterate all tokens
+    const BOTNFT_ABI = [
+      'function balanceOf(address owner) view returns (uint256)',
+      'function ownerOf(uint256 tokenId) view returns (address)',
+      'function tokenURI(uint256 tokenId) view returns (string)',
+      'function getStrategy(uint256 tokenId) view returns (uint8)',
+      'function totalSupply() view returns (uint256)'
+    ];
+    
+    // CIPHER Token ABI
+    const CIPHER_ABI = [
+      'function balanceOf(address owner) view returns (uint256)'
+    ];
+
+    // ============================================
+    // STATE
+    // ============================================
+    let provider = null;
+    let signer = null;
+    let userAddress = null;
+    let botNFTContract = null;
+    let cipherContract = null;
+    let userNFTs = [];
+    let accountsData = {};
+    let cipherBalance = 0;
+    let userTier = null; // null, 'bronze', 'silver', 'gold'
+
+    // ============================================
+    // INIT
+    // ============================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      // Check if already connected
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          await connectWallet();
+        }
+      }
+    });
+
+    // ============================================
+    // WALLET
+    // ============================================
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert('Please install MetaMask or another Web3 wallet');
+        return;
+      }
+
+      try {
+        showLoading('Connecting wallet...');
+        
+        provider = new ethers.BrowserProvider(window.ethereum);
+        const accounts = await provider.send('eth_requestAccounts', []);
+        userAddress = accounts[0];
+        signer = await provider.getSigner();
+
+        // Check network
+        const network = await provider.getNetwork();
+        if (Number(network.chainId) !== CONFIG.chainId) {
+          await switchNetwork();
+        }
+
+        // Init contracts
+        botNFTContract = new ethers.Contract(CONFIG.addresses.botNFT, BOTNFT_ABI, provider);
+        cipherContract = new ethers.Contract(CONFIG.addresses.cipher, CIPHER_ABI, provider);
+
+        // Update header
+        updateWalletUI();
+
+        // Load CIPHER balance and determine tier
+        await loadCipherBalance();
+
+        // Load user's NFTs
+        await loadUserNFTs();
+
+        // Listen for changes
+        window.ethereum.on('accountsChanged', handleAccountChange);
+        window.ethereum.on('chainChanged', () => window.location.reload());
+
+      } catch (error) {
+        console.error('Connect error:', error);
+        showConnectPrompt();
+      }
+    }
+
+    async function switchNetwork() {
+      try {
+        await window.ethereum.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: CONFIG.chainIdHex }]
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: CONFIG.chainIdHex,
+              chainName: CONFIG.chainName,
+              nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+              rpcUrls: [CONFIG.rpcUrl],
+              blockExplorerUrls: [CONFIG.blockExplorer]
+            }]
+          });
+        }
+      }
+    }
+
+    function handleAccountChange(accounts) {
+      if (accounts.length === 0) {
+        userAddress = null;
+        showConnectPrompt();
+        updateWalletUI();
+      } else {
+        userAddress = accounts[0];
+        updateWalletUI();
+        loadUserNFTs();
+      }
+    }
+
+    function updateWalletUI() {
+      const walletArea = document.getElementById('walletArea');
+      if (userAddress) {
+        const short = `${userAddress.slice(0,6)}...${userAddress.slice(-4)}`;
+        walletArea.innerHTML = `
+          <div class="wallet-connected">
+            <span class="wallet-addr">${short}</span>
+          </div>
+        `;
+      } else {
+        walletArea.innerHTML = `<button class="wallet-btn" onclick="connectWallet()">Connect Wallet</button>`;
+      }
+    }
+
+    // ============================================
+    // CIPHER BALANCE & TIER
+    // ============================================
+    async function loadCipherBalance() {
+      try {
+        const balance = await cipherContract.balanceOf(userAddress);
+        cipherBalance = Number(ethers.formatUnits(balance, 18));
+        
+        // Determine tier
+        if (cipherBalance >= CONFIG.tiers.gold) {
+          userTier = 'gold';
+        } else if (cipherBalance >= CONFIG.tiers.silver) {
+          userTier = 'silver';
+        } else if (cipherBalance >= CONFIG.tiers.bronze) {
+          userTier = 'bronze';
+        } else {
+          userTier = null;
+        }
+        
+        console.log('CIPHER Balance:', cipherBalance, 'Tier:', userTier);
+      } catch (error) {
+        console.error('Error loading CIPHER balance:', error);
+        cipherBalance = 0;
+        userTier = null;
+      }
+    }
+    
+    function getTierInfo(tier) {
+      const tiers = {
+        gold: {
+          name: 'Gold',
+          emoji: '🥇',
+          color: '#ffd700',
+          access: 'Everything (Indicator + All Strategies)',
+          canPickStrategy: false,
+          allAccess: true
+        },
+        silver: {
+          name: 'Silver', 
+          emoji: '🥈',
+          color: '#c0c0c0',
+          access: 'Indicator + 1 Strategy (pick one)',
+          canPickStrategy: true,
+          allAccess: false
+        },
+        bronze: {
+          name: 'Bronze',
+          emoji: '🥉',
+          color: '#cd7f32',
+          access: 'Indicator Only (HTF-ICT-Arrays)',
+          canPickStrategy: false,
+          allAccess: false
+        }
+      };
+      return tiers[tier] || null;
+    }
+
+    // ============================================
+    // LOAD NFTs
+    // ============================================
+    async function loadUserNFTs() {
+      try {
+        showLoading('Loading your bots...');
+
+        // Get total supply and iterate through all tokens to find user's
+        const totalSupply = await botNFTContract.totalSupply();
+        const total = Number(totalSupply);
+
+        userNFTs = [];
+        
+        // Iterate through all minted tokens (token IDs start at 1)
+        for (let tokenId = 1; tokenId <= total; tokenId++) {
+          try {
+            const owner = await botNFTContract.ownerOf(tokenId);
+            
+            // Check if this token belongs to user
+            if (owner.toLowerCase() === userAddress.toLowerCase()) {
+              let strategy = 0;
+              let tokenURI = '';
+              
+              try {
+                strategy = await botNFTContract.getStrategy(tokenId);
+              } catch (e) {
+                console.log('Could not get strategy for token', tokenId);
+              }
+              
+              try {
+                tokenURI = await botNFTContract.tokenURI(tokenId);
+              } catch (e) {
+                console.log('Could not get tokenURI for token', tokenId);
+              }
+              
+              // Fetch metadata
+              let metadata = { name: `Bot #${tokenId}`, image: '' };
+              try {
+                if (tokenURI && (tokenURI.startsWith('http') || tokenURI.startsWith('ipfs'))) {
+                  const uri = tokenURI.replace('ipfs://', 'https://ipfs.io/ipfs/');
+                  const res = await fetch(uri);
+                  metadata = await res.json();
+                }
+              } catch (e) {
+                console.log('Could not fetch metadata for token', tokenId);
+              }
+
+              userNFTs.push({
+                tokenId: tokenId,
+                strategy: Number(strategy),
+                strategyName: CONFIG.strategies[Number(strategy)] || 'Unknown',
+                accountId: CONFIG.strategyAccounts[Number(strategy)],
+                name: metadata.name || `Bot #${tokenId}`,
+                image: metadata.image || '',
+                attributes: metadata.attributes || []
+              });
+            }
+          } catch (e) {
+            // Token might not exist or be burned, skip
+            console.log('Token', tokenId, 'error:', e.message);
+          }
+        }
+
+        if (userNFTs.length === 0) {
+          showNoNFTs();
+          return;
+        }
+
+        // Fetch account data from API
+        await loadAccountsData();
+
+        // Render dashboard
+        renderDashboard();
+
+      } catch (error) {
+        console.error('Load NFTs error:', error);
+        document.getElementById('content').innerHTML = `
+          <div class="no-nfts">
+            <div class="icon">⚠️</div>
+            <h2>Error Loading Bots</h2>
+            <p>${error.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    async function loadAccountsData() {
+      try {
+        const res = await fetch(`${CONFIG.apiBase}/api/accounts`);
+        const data = await res.json();
+        
+        // Index by account ID
+        accountsData = {};
+        if (data.accounts) {
+          data.accounts.forEach(acc => {
+            accountsData[acc.id] = acc;
+          });
+        }
+      } catch (e) {
+        console.error('Failed to load accounts:', e);
+      }
+    }
+
+    // ============================================
+    // RENDER
+    // ============================================
+    function renderDashboard() {
+      // Calculate totals
+      let totalBalance = 0;
+      let totalPnL = 0;
+      let totalDrawdown = 0;
+
+      userNFTs.forEach(nft => {
+        const acc = accountsData[nft.accountId];
+        if (acc) {
+          totalBalance += acc.balance || 0;
+          totalPnL += acc.pnl || 0;
+          totalDrawdown += acc.drawdownUsed || 0;
+        }
+      });
+
+      const content = document.getElementById('content');
+      content.innerHTML = `
+        <!-- Stats Overview -->
+        <div class="stats-overview">
+          <div class="stat-card">
+            <div class="stat-label">Total Bots</div>
+            <div class="stat-value cyan">${userNFTs.length}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total Balance</div>
+            <div class="stat-value cyan">$${totalBalance.toLocaleString()}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Total P&L</div>
+            <div class="stat-value ${totalPnL >= 0 ? 'green' : 'red'}">${totalPnL >= 0 ? '+' : ''}$${totalPnL.toLocaleString()}</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label">Drawdown Used</div>
+            <div class="stat-value ${totalDrawdown > 3000 ? 'red' : totalDrawdown > 1500 ? 'yellow' : 'green'}">$${totalDrawdown.toLocaleString()}</div>
+          </div>
+        </div>
+
+        <!-- Bot Cards -->
+        <div class="bots-grid">
+          ${userNFTs.map(nft => renderBotCard(nft)).join('')}
+        </div>
+        
+        <!-- TradingView Access Section -->
+        ${renderTierSection()}
+      `;
+    }
+    
+    function renderTierSection() {
+      const tierInfo = getTierInfo(userTier);
+      
+      if (!tierInfo) {
+        // Not enough CIPHER for any tier
+        return `
+          <div class="tier-section">
+            <div class="tier-header">
+              <h2>📊 TradingView Access</h2>
+            </div>
+            <div class="tier-card no-tier">
+              <div class="tier-icon">🔒</div>
+              <h3>Unlock TradingView Access</h3>
+              <p>Hold $CIPHER tokens to access our TradingView indicators and strategies!</p>
+              <div class="tier-requirements">
+                <div class="req-item">🥉 <strong>15,000+</strong> → Indicator</div>
+                <div class="req-item">🥈 <strong>30,000+</strong> → Indicator + 1 Strategy</div>
+                <div class="req-item">🥇 <strong>50,000+</strong> → Everything</div>
+              </div>
+              <p class="balance-info">Your balance: <span class="cyan">${cipherBalance.toLocaleString()} $CIPHER</span></p>
+            </div>
+          </div>
+        `;
+      }
+      
+      // User has a tier - show access form
+      return `
+        <div class="tier-section">
+          <div class="tier-header">
+            <h2>📊 TradingView Access</h2>
+          </div>
+          <div class="tier-card has-tier" style="border-color: ${tierInfo.color}">
+            <div class="tier-badge" style="background: ${tierInfo.color}">
+              ${tierInfo.emoji} ${tierInfo.name} Tier
+            </div>
+            <p class="tier-access">${tierInfo.access}</p>
+            <p class="balance-info">Balance: <span class="cyan">${cipherBalance.toLocaleString()} $CIPHER</span></p>
+            
+            <div class="tv-form">
+              <label>TradingView Username</label>
+              <input type="text" id="tvUsername" placeholder="Enter your exact TradingView username" />
+              
+              ${tierInfo.canPickStrategy ? `
+                <label>Select Your Strategy</label>
+                <select id="tvStrategy">
+                  <option value="">-- Pick one strategy --</option>
+                  ${CONFIG.tradingView.strategies.map(s => `<option value="${s}">${s}</option>`).join('')}
+                </select>
+              ` : ''}
+              
+              <div class="tv-access-list">
+                <strong>You'll receive access to:</strong>
+                <ul>
+                  <li>✅ ${CONFIG.tradingView.indicator} (Indicator)</li>
+                  ${tierInfo.allAccess ? CONFIG.tradingView.strategies.map(s => `<li>✅ ${s}</li>`).join('') : ''}
+                  ${tierInfo.canPickStrategy ? '<li>✅ <span id="selectedStrategy">Pick a strategy above</span></li>' : ''}
+                </ul>
+              </div>
+              
+              <button class="submit-btn" onclick="submitTVAccess()">
+                🚀 Request Access
+              </button>
+              
+              <div id="tvStatus" class="tv-status"></div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderBotCard(nft) {
+      const acc = accountsData[nft.accountId] || {};
+      const balance = acc.balance || 150000;
+      const pnl = acc.pnl || 0;
+      const drawdownUsed = acc.drawdownUsed || 0;
+      const drawdownMax = 5000;
+      const target = 159000;
+      const progress = Math.max(0, ((balance - 150000) / 9000) * 100);
+      const drawdownPercent = (drawdownUsed / drawdownMax) * 100;
+      
+      // Determine status
+      let status = 'online';
+      let statusText = 'ONLINE';
+      if (acc.status === 'paused' || acc.status === 'flagged') {
+        status = 'paused';
+        statusText = acc.status === 'flagged' ? 'FLAGGED' : 'PAUSED';
+      }
+
+      // All 20 Cipher Bot images (indexed by tokenId, wraps if > 20)
+      const BOT_IMAGES = [
+        'QmTPry2erfozbH6p7NW3hF1ufUEAWH7h7ASf2DQ2Y3uRnV',  // 0: Diamond Hands Danny
+        'QmSPskFtepQFTQ5td8sjjoQmgBgyfZkw4BbuzFwzjvekya',  // 1: Paper Hands Pete
+        'QmPjVDwqkeWJbwfLCu82K7Ds1NAT4gyp4WapcmEoTxpSkm',  // 2: Moon Mission Mike
+        'QmTJKrxTqkTLPGeFDjbb4CpDiXeams4j2sc1qMNZzTQh4m',  // 3: FOMO Fred
+        'QmP6rZ9G2mZEJrHKZAU1WpDCgDKGAD9a8YKvwAoUk2TQDL',  // 4: Algo Annie
+        'QmUMKRcqCLGawRVCaw3QfawqYYpoB7TYagmJrrimNPodth',  // 5: Leverage Larry
+        'QmbqiLWpYJBpJWrmQ1ybU7tK1BxwBgZoqPsGNLde6EP1Tu',  // 6: Buy The Dip Beatrice
+        'QmRKSLG3a915rwBmMSaw7hf7pEG7P6PKuKrzHjPiNLbJSP',  // 7: Whale Watcher Wendy
+        'QmXeTJ5cvJudgo7A5gQ48wwa2kshJpzDY8dFKuguxuZfUa',  // 8: Rug Pull Randy
+        'QmUsuGaZwZ1LQu8NZhbeoZu4er1teRUZNE9vBjGHCpY6ZN',  // 9: Rekt Riley
+        'QmZDcp6nQAw4zvm1Pw5xUFYRmvFrkSjAwH88wuMk6CWfGA',  // 10: Degen Dave
+        'QmaiBSsa2w4DMcX62rCBjGeprLzxNLpAFgWfbgMs7E86hN',  // 11: Bag Holder Bob
+        'QmbPVrAMQGkEwL9NX417aNHPyEh1HEodQ8ch5DQnG9jifB',  // 12: Technical Tina
+        'QmdctHWWd4P1tw6BxC6eS68h93j8VLU8roGBY7CPNCUGiP',  // 13: Shill Sammy
+        'QmSmic3uxeoA8v5FyGmfqVWTDeWWDDih76fka7jasE7KXE',  // 14: Copy Trader Carl
+        'QmUbH228K9hBaYrYi2jEvhh5mz4EqtMTzmEgYCYLoXwqwy',  // 15: Pump Patty
+        'Qmdj2DuN28VBc4GppHnZnwxsemXjrnCYz7N1gqFD8UUh1n',  // 16: Normie Nick
+        'QmfJr7222n4ftKEfYf7FWRqUu2mJ6tvHPgiuZ9zDDYyeUj',  // 17: Giga Chad Charlie
+        'QmXh7bpQXtqfTA37CioH8ZCPGKrfNGAdotdkgVPFtyYNFB',  // 18: FUD Francis
+        'QmQmbGibJmrpgLivX2XjskRtTH6nLvFVJXb27gi8k1FgnZ'   // 19: Exit Liquidity Eddie
+      ];
+      
+      const BOT_NAMES = [
+        'Diamond Hands Danny', 'Paper Hands Pete', 'Moon Mission Mike', 'FOMO Fred',
+        'Algo Annie', 'Leverage Larry', 'Buy The Dip Beatrice', 'Whale Watcher Wendy',
+        'Rug Pull Randy', 'Rekt Riley', 'Degen Dave', 'Bag Holder Bob',
+        'Technical Tina', 'Shill Sammy', 'Copy Trader Carl', 'Pump Patty',
+        'Normie Nick', 'Giga Chad Charlie', 'FUD Francis', 'Exit Liquidity Eddie'
+      ];
+      
+      // Get unique image based on tokenId (wraps around if > 20)
+      const imageIndex = nft.tokenId % 20;
+      const botImageCid = BOT_IMAGES[imageIndex];
+      const botName = BOT_NAMES[imageIndex];
+      
+      // Use on-chain metadata image if valid, otherwise use tokenId-based image
+      let imageUrl;
+      if (nft.image && nft.image.startsWith('ipfs://')) {
+        imageUrl = nft.image.replace('ipfs://', 'https://ipfs.io/ipfs/');
+      } else {
+        imageUrl = `https://ipfs.io/ipfs/${botImageCid}`;
+      }
+      
+      // Use on-chain name if valid, otherwise use tokenId-based name
+      const displayName = (nft.name && !nft.name.startsWith('Bot #')) ? nft.name : `Cipher Bot #${nft.tokenId} - ${botName}`;
+
+      return `
+        <div class="bot-card">
+          <div class="bot-card-header">
+            <img src="${imageUrl}" alt="${displayName}" class="nft-image" onerror="this.src='https://ipfs.io/ipfs/${botImageCid}'">
+            <div class="bot-info">
+              <div class="bot-name">${displayName}</div>
+              <div class="bot-strategy">${nft.strategyName}</div>
+              <div class="bot-status ${status}">
+                <span class="status-dot"></span>
+                ${statusText}
+              </div>
+            </div>
+          </div>
+          <div class="bot-card-body">
+            <!-- Stats -->
+            <div class="bot-stats">
+              <div class="bot-stat">
+                <div class="bot-stat-label">Balance</div>
+                <div class="bot-stat-value">$${balance.toLocaleString()}</div>
+              </div>
+              <div class="bot-stat">
+                <div class="bot-stat-label">P&L</div>
+                <div class="bot-stat-value ${pnl >= 0 ? 'positive' : 'negative'}">${pnl >= 0 ? '+' : ''}$${pnl.toLocaleString()}</div>
+              </div>
+              <div class="bot-stat">
+                <div class="bot-stat-label">To Funded</div>
+                <div class="bot-stat-value">$${Math.max(0, target - balance).toLocaleString()}</div>
+              </div>
+              <div class="bot-stat">
+                <div class="bot-stat-label">DD Remaining</div>
+                <div class="bot-stat-value ${drawdownUsed > 3000 ? 'negative' : ''}">$${(drawdownMax - drawdownUsed).toLocaleString()}</div>
+              </div>
+            </div>
+
+            <!-- Progress to Funded -->
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-label">Road to Funded</span>
+                <span class="progress-value">${progress.toFixed(1)}%</span>
+              </div>
+              <div class="progress-bar">
+                <div class="progress-fill" style="width: ${Math.min(100, progress)}%"></div>
+              </div>
+            </div>
+
+            <!-- Drawdown Meter -->
+            <div class="drawdown-section">
+              <div class="drawdown-header">
+                <span class="drawdown-label">Drawdown Buffer</span>
+                <span class="drawdown-value">$${drawdownUsed.toLocaleString()} / $${drawdownMax.toLocaleString()}</span>
+              </div>
+              <div class="drawdown-bar">
+                <div class="drawdown-marker" style="left: ${Math.min(100, drawdownPercent)}%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // UI HELPERS
+    // ============================================
+    function showLoading(msg = 'Loading...') {
+      document.getElementById('content').innerHTML = `
+        <div class="loading">
+          <div class="spinner"></div>
+          <p>${msg}</p>
+        </div>
+      `;
+    }
+
+    function showConnectPrompt() {
+      document.getElementById('content').innerHTML = `
+        <div class="connect-prompt">
+          <div class="icon">🔐</div>
+          <h2>Connect Your Wallet</h2>
+          <p>Connect your wallet to view your minted trading bots and their performance.</p>
+          <button class="wallet-btn" onclick="connectWallet()">Connect Wallet</button>
+        </div>
+      `;
+    }
+
+    // ============================================
+    // TRADINGVIEW ACCESS SUBMISSION
+    // ============================================
+    async function submitTVAccess() {
+      const username = document.getElementById('tvUsername')?.value?.trim();
+      const strategySelect = document.getElementById('tvStrategy');
+      const selectedStrategy = strategySelect?.value || null;
+      const tierInfo = getTierInfo(userTier);
+      const statusEl = document.getElementById('tvStatus');
+      
+      // Validation
+      if (!username) {
+        showTVStatus('Please enter your TradingView username', 'error');
+        return;
+      }
+      
+      if (tierInfo?.canPickStrategy && !selectedStrategy) {
+        showTVStatus('Please select a strategy', 'error');
+        return;
+      }
+      
+      // Build access list
+      let accessList = [CONFIG.tradingView.indicator];
+      if (tierInfo?.allAccess) {
+        accessList = [CONFIG.tradingView.indicator, ...CONFIG.tradingView.strategies];
+      } else if (tierInfo?.canPickStrategy && selectedStrategy) {
+        accessList.push(selectedStrategy);
+      }
+      
+      const payload = {
+        wallet: userAddress,
+        tradingViewUsername: username,
+        cipherBalance: cipherBalance,
+        tier: userTier,
+        selectedStrategy: selectedStrategy,
+        accessList: accessList,
+        timestamp: new Date().toISOString()
+      };
+      
+      showTVStatus('Submitting request...', 'loading');
+      
+      try {
+        const response = await fetch(`${CONFIG.apiBase}/api/tradingview-access`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to submit request');
+        }
+        
+        const result = await response.json();
+        showTVStatus('✅ Request submitted! You will be added within 24 hours.', 'success');
+        
+      } catch (error) {
+        console.error('Submit error:', error);
+        showTVStatus('❌ Failed to submit. Please try again or contact support.', 'error');
+      }
+    }
+    
+    function showTVStatus(message, type) {
+      const statusEl = document.getElementById('tvStatus');
+      if (statusEl) {
+        statusEl.textContent = message;
+        statusEl.className = `tv-status show ${type}`;
+      }
+    }
+    
+    // Update selected strategy display
+    document.addEventListener('change', (e) => {
+      if (e.target.id === 'tvStrategy') {
+        const display = document.getElementById('selectedStrategy');
+        if (display) {
+          display.textContent = e.target.value || 'Pick a strategy above';
+        }
+      }
+    });
+
+    function showNoNFTs() {
+      document.getElementById('content').innerHTML = `
+        <div class="no-nfts">
+          <div class="icon">🧪</div>
+          <h2>Welcome to The Laboratory</h2>
+          <p>You haven't minted any Cipher Bots yet. Deploy your first bot to start earning!</p>
+          <a href="../mint/" class="mint-cta">🚀 Deploy Your First Bot</a>
+        </div>
+      `;
+    }
+  </script>
+</body>
+</html>

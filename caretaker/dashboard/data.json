@@ -1,82 +1,138 @@
 {
-  "lastUpdated": "2026-02-02T00:26:08.860Z",
+  "lastUpdated": "2026-02-09T00:19:14.929Z",
   "aum": {
-    "total": 302430,
-    "milestone": 300000,
-    "milestoneLabel": "2x Buyback Power"
+    "total": 449492,
+    "milestone": 500000,
+    "milestoneLabel": "3x Buyback Power"
   },
   "bots": {
     "fvg-ifvg-1": {
-      "name": "FVG+IFVG #1",
-      "subtitle": "Determining Order Flow",
-      "status": "online",
-      "accountId": "APEX2519120000018",
+      "name": "Technical Tina",
+      "subtitle": "FVG+IFVG • Determining Order Flow",
+      "status": "paused",
+      "accountId": "BOT-BRAVO",
       "accountSize": 150000,
-      "currentBalance": 151133.32,
+      "currentBalance": 147412.64,
+      "strategy": "FVG + IFVG",
+      "nft": {
+        "id": 13,
+        "name": "Technical Tina",
+        "image": "https://gateway.pinata.cloud/ipfs/QmbPVrAMQGkEwL9NX417aNHPyEh1HEodQ8ch5DQnG9jifB"
+      },
       "stats": {
-        "power": 75,
+        "power": 45,
         "fuel": 100,
-        "condition": 88,
-        "heat": 25
+        "condition": 60,
+        "heat": 55
       },
       "performance": {
-        "totalTrades": 5200,
-        "winRate": 76.8,
-        "netPnl": 1133.32,
+        "totalTrades": 5202,
+        "winRate": 76.5,
+        "netPnl": -2587.359999999986,
+        "todayPnl": -66.47999999998137
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": -2587.359999999986,
+        "profitTargetGoal": 9000,
+        "profitTargetPercent": 0,
+        "drawdownUsed": 2764.8799999999756,
+        "drawdownMax": 5000,
+        "drawdownPercent": 55.29759999999951,
+        "daysRemaining": 10,
+        "daysTotal": 30
+      },
+      "trailing": {
+        "peakBalance": 150177.52,
+        "liquidation": 145177.52,
+        "ddUsed": 2764.8799999999756,
+        "ddMax": 5000,
+        "buffer": 44.70240000000049
+      }
+    },
+    "ote-silver-bullet": {
+      "name": "Diamond Hands Danny",
+      "subtitle": "OTE Silver Bullet • Optimal Trade Entry",
+      "status": "paused",
+      "accountId": "BOT-CHARLIE",
+      "accountSize": 150000,
+      "currentBalance": 151283.76,
+      "strategy": "OTE Silver Bullet (Reduced Risk)",
+      "nft": {
+        "id": 1,
+        "name": "Diamond Hands Danny",
+        "image": "https://gateway.pinata.cloud/ipfs/QmTPry2erfozbH6p7NW3hF1ufUEAWH7h7ASf2DQ2Y3uRnV"
+      },
+      "stats": {
+        "power": 85,
+        "fuel": 100,
+        "condition": 100,
+        "heat": 15
+      },
+      "performance": {
+        "totalTrades": 1,
+        "winRate": 100,
+        "netPnl": 1283.7600000000093,
         "todayPnl": 0
       },
       "eval": {
         "status": "evaluating",
-        "profitTarget": 1133.32,
+        "profitTarget": 1283.7600000000093,
         "profitTargetGoal": 9000,
-        "profitTargetPercent": 12.6,
+        "profitTargetPercent": 14.264000000000104,
         "drawdownUsed": 0,
         "drawdownMax": 5000,
         "drawdownPercent": 0,
-        "daysRemaining": 14,
+        "daysRemaining": 28,
         "daysTotal": 30
       },
       "trailing": {
-        "peakBalance": 151133.32,
-        "liquidation": 146133.32,
+        "peakBalance": 151283.76,
+        "liquidation": 146283.76,
         "ddUsed": 0,
         "ddMax": 5000,
         "buffer": 100
       }
     },
-    "ote-silver-bullet": {
-      "name": "OTE Silver Bullet",
-      "subtitle": "Optimal Trade Entry",
-      "status": "online",
-      "accountId": "APEX2519120000014",
+    "ote-refined-small": {
+      "name": "Algo Annie",
+      "subtitle": "OTE Refined [Small] • Conservative Entry",
+      "status": "paused",
+      "accountId": "BOT-DELTA",
       "accountSize": 150000,
-      "currentBalance": 151296.32,
+      "currentBalance": 150795.18,
+      "strategy": "OTE Refined (Small Size)",
+      "nft": {
+        "id": 5,
+        "name": "Algo Annie",
+        "image": "https://gateway.pinata.cloud/ipfs/QmP6rZ9G2mZEJrHKZAU1WpDCgDKGAD9a8YKvwAoUk2TQDL"
+      },
       "stats": {
-        "power": 88,
-        "fuel": 102,
-        "condition": 92,
-        "heat": 20
+        "power": 70,
+        "fuel": 100,
+        "condition": 100,
+        "heat": 10
       },
       "performance": {
-        "totalTrades": 4900,
-        "winRate": 63.2,
-        "netPnl": 1296.32,
+        "totalTrades": 1,
+        "winRate": 100,
+        "netPnl": 795.179999999993,
         "todayPnl": 0
       },
       "eval": {
         "status": "evaluating",
-        "profitTarget": 1296.32,
+        "profitTarget": 795.179999999993,
         "profitTargetGoal": 9000,
-        "profitTargetPercent": 14.4,
+        "profitTargetPercent": 8.835333333333256,
         "drawdownUsed": 0,
         "drawdownMax": 5000,
         "drawdownPercent": 0,
-        "daysRemaining": 0,
+        "daysRemaining": 28,
         "daysTotal": 30
       },
       "trailing": {
-        "peakBalance": 151296.32,
-        "liquidation": 146296.32,
+        "peakBalance": 150795.18,
+        "liquidation": 145795.18,
         "ddUsed": 0,
         "ddMax": 5000,
         "buffer": 100
@@ -85,70 +141,81 @@
   },
   "trades": [
     {
-      "id": 1706620800000,
+      "id": 1707058200000,
       "bot": "ote-silver-bullet",
-      "timestamp": "2026-01-30T08:15:00-0500",
-      "symbol": "MNQH2026",
+      "timestamp": "2026-02-04T09:30:00-0500",
+      "symbol": "MNQH6",
       "side": "long",
-      "action": "entry",
-      "price": 25742.5,
-      "size": 4,
-      "pnl": 0
+      "entry": 24850,
+      "exit": 25135,
+      "size": 3,
+      "pnl": 1283.76
+    },
+    {
+      "id": 1707059100000,
+      "bot": "ote-refined-small",
+      "timestamp": "2026-02-04T09:45:00-0500",
+      "symbol": "MNQH6",
+      "side": "long",
+      "entry": 24900,
+      "exit": 25097.5,
+      "size": 2,
+      "pnl": 795.18
+    },
+    {
+      "id": 1707044400000,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-02-04T06:00:00-0500",
+      "symbol": "MNQH6",
+      "side": "long",
+      "entry": 25200,
+      "exit": 25151.5,
+      "size": 1,
+      "pnl": -97.76
+    },
+    {
+      "id": 1706857500000,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-02-02T01:00:00-0500",
+      "symbol": "MNQH6",
+      "side": "long",
+      "entry": 25693,
+      "exit": 25454.5,
+      "size": 2,
+      "pnl": -477
     },
     {
       "id": 1706619000000,
-      "bot": "fvg-ifvg",
+      "bot": "fvg-ifvg-1",
       "timestamp": "2026-01-30T07:45:00-0500",
-      "symbol": "MNQH2026",
+      "symbol": "MNQH6",
       "side": "long",
-      "action": "exit",
-      "price": 25780.25,
+      "entry": 25731.75,
+      "exit": 25780.25,
       "size": 2,
       "pnl": 48.5
     },
     {
-      "id": 1706534400000,
-      "bot": "ote-silver-bullet",
-      "timestamp": "2026-01-29T14:30:00-0500",
-      "symbol": "MNQH2026",
+      "id": 1706520000000,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-29T10:00:00-0500",
+      "symbol": "MNQH6",
       "side": "short",
-      "action": "entry",
-      "price": 25869.5,
-      "size": 12,
-      "pnl": 0
-    },
-    {
-      "id": 1706530800000,
-      "bot": "fvg-ifvg",
-      "timestamp": "2026-01-29T13:20:00-0500",
-      "symbol": "MNQH2026",
-      "side": "long",
-      "action": "entry",
-      "price": 25580.5,
+      "entry": 25612.5,
+      "exit": 25580.5,
       "size": 1,
-      "pnl": 0
+      "pnl": 32
     },
     {
-      "id": 1706527200000,
-      "bot": "ote-silver-bullet",
-      "timestamp": "2026-01-29T12:00:00-0500",
-      "symbol": "MNQH2026",
+      "id": 1706443200000,
+      "bot": "fvg-ifvg-1",
+      "timestamp": "2026-01-28T12:40:00-0500",
+      "symbol": "MNQH6",
       "side": "long",
-      "action": "exit",
-      "price": 25615,
-      "size": 8,
-      "pnl": 156
-    },
-    {
-      "id": 1706523600000,
-      "bot": "fvg-ifvg",
-      "timestamp": "2026-01-29T11:00:00-0500",
-      "symbol": "MNQH2026",
-      "side": "long",
-      "action": "entry",
-      "price": 25593.85,
-      "size": 1,
-      "pnl": 26.7
+      "entry": 25385,
+      "exit": 25412.5,
+      "size": 2,
+      "pnl": 27.5
     }
   ],
   "buybacks": [],
@@ -156,32 +223,63 @@
     "daily": {
       "leader": "ote-silver-bullet",
       "scores": {
-        "fvg-ifvg-1": 0,
-        "ote-silver-bullet": 0
+        "fvg-ifvg-1": -1207.44,
+        "ote-silver-bullet": 0,
+        "ote-refined-small": 0
       }
     },
     "weekly": {
       "leader": "ote-silver-bullet",
       "scores": {
-        "fvg-ifvg-1": 1133.32,
-        "ote-silver-bullet": 1296.32
+        "fvg-ifvg-1": -2520.88,
+        "ote-silver-bullet": 1283.76,
+        "ote-refined-small": 795.18
       }
     },
     "monthly": {
       "leader": "ote-silver-bullet",
       "scores": {
-        "fvg-ifvg-1": 1133.32,
-        "ote-silver-bullet": 1296.32
+        "fvg-ifvg-1": -2520.88,
+        "ote-silver-bullet": 1283.76,
+        "ote-refined-small": 795.18
       }
     },
     "allTime": {
       "leader": "ote-silver-bullet",
       "scores": {
-        "fvg-ifvg-1": 1133.32,
-        "ote-silver-bullet": 1296.32
+        "fvg-ifvg-1": -2520.88,
+        "ote-silver-bullet": 1283.76,
+        "ote-refined-small": 795.18
       }
     }
   },
+  "graveyard": [
+    {
+      "id": "ote-apex-14",
+      "name": "Rekt Riley",
+      "subtitle": "OTE Silver Bullet • The Original",
+      "accountId": "BOT-ALPHA",
+      "nft": {
+        "id": 10,
+        "name": "Rekt Riley",
+        "image": "https://gateway.pinata.cloud/ipfs/QmUsuGaZwZ1LQu8NZhbeoZu4er1teRUZNE9vBjGHCpY6ZN"
+      },
+      "causeOfDeath": "Flagged by Apex — Rapid entry/exit pattern",
+      "dateOfDeath": "2026-02-03",
+      "finalBalance": 149200,
+      "finalPnl": -800,
+      "totalTrades": 4900,
+      "daysActive": 12,
+      "epitaph": "Traded fast, lived faster. RIP 🪦"
+    }
+  ],
   "hallOfFame": [],
-  "notices": []
+  "notices": [
+    {
+      "id": "paused-2026-02-06",
+      "type": "warning",
+      "message": "⏸️ All bots paused — Riding out the week. Saturday reset.",
+      "timestamp": "2026-02-06T12:01:00.000Z"
+    }
+  ]
 }

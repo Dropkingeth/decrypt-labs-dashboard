@@ -46,7 +46,7 @@ module.exports = {
   accounts: {
     'ote-silver-bullet': {
       accountId: 12345,           // Your Tradovate account ID
-      accountSpec: 'APEX-12345',  // Your account spec
+      accountSpec: 'BOT-EXAMPLE',  // Your account spec
       maxPosition: 12
     },
     // ... other bots ...

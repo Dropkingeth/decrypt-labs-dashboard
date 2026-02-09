@@ -10,7 +10,7 @@
       "name": "FVG+IFVG #1",
       "subtitle": "Determining Order Flow",
       "status": "online",
-      "accountId": "APEX2519120000018",
+      "accountId": "BOT-BRAVO",
       "accountSize": 150000,
       "currentBalance": 150017,
       "stats": {
@@ -53,7 +53,7 @@
       "name": "OTE Silver Bullet",
       "subtitle": "Optimal Trade Entry",
       "status": "online",
-      "accountId": "APEX2519120000014",
+      "accountId": "BOT-ALPHA",
       "accountSize": 150000,
       "currentBalance": 151958,
       "stats": {

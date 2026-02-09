@@ -28,7 +28,7 @@ let stats = {
 // Trailing drawdown: threshold = peakBalance - $5,000 (never stops on Tradovate)
 let accounts = {
   'ote-silver-bullet': {
-    accountId: 'APEX2519120000014',
+    accountId: 'BOT-ALPHA',
     name: 'OTE Silver Bullet',
     product: '150k Tradovate',
     pnl: 1296.32,
@@ -45,7 +45,7 @@ let accounts = {
     lastUpdated: new Date().toISOString()
   },
   'fvg-ifvg': {
-    accountId: 'APEX2519120000018',
+    accountId: 'BOT-BRAVO',
     name: 'FVG+IFVG',
     product: '150k Tradovate',
     pnl: 1133.32,

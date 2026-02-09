@@ -8,8 +8,8 @@
 class PositionChecker {
   constructor() {
     this.accounts = {
-      'APEX2519120000014': { name: 'Account 1 (014)', bots: ['ote-silver-bullet', 'fvg-ifvg'] },
-      'APEX2519120000018': { name: 'Account 2 (018)', bots: ['ote-refined', 'ote-refined-small'] }
+      'BOT-ALPHA': { name: 'Account 1 (014)', bots: ['ote-silver-bullet', 'fvg-ifvg'] },
+      'BOT-BRAVO': { name: 'Account 2 (018)', bots: ['ote-refined', 'ote-refined-small'] }
     };
     
     this.lastCheck = null;
@@ -33,8 +33,8 @@ class PositionChecker {
       timestamp: new Date().toISOString()
     };
     
-    // Extract account number (look for APEX pattern)
-    const accountMatch = snapshot.match(/APEX\d+/);
+    // Extract account number (look for BOT pattern)
+    const accountMatch = snapshot.match(/BOT-[A-Z]+/);
     if (accountMatch) {
       data.account = accountMatch[0];
     }

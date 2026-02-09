@@ -1,0 +1,79 @@
+[
+  {
+    "id": 1707058200000,
+    "bot": "ote-silver-bullet",
+    "timestamp": "2026-02-04T09:30:00-0500",
+    "symbol": "MNQH6",
+    "side": "long",
+    "entry": 24850.00,
+    "exit": 25135.00,
+    "size": 3,
+    "pnl": 1283.76
+  },
+  {
+    "id": 1707059100000,
+    "bot": "ote-refined-small",
+    "timestamp": "2026-02-04T09:45:00-0500",
+    "symbol": "MNQH6",
+    "side": "long",
+    "entry": 24900.00,
+    "exit": 25097.50,
+    "size": 2,
+    "pnl": 795.18
+  },
+  {
+    "id": 1707044400000,
+    "bot": "fvg-ifvg-1",
+    "timestamp": "2026-02-04T06:00:00-0500",
+    "symbol": "MNQH6",
+    "side": "long",
+    "entry": 25200.00,
+    "exit": 25151.50,
+    "size": 1,
+    "pnl": -97.76
+  },
+  {
+    "id": 1706857500000,
+    "bot": "fvg-ifvg-1",
+    "timestamp": "2026-02-02T01:00:00-0500",
+    "symbol": "MNQH6",
+    "side": "long",
+    "entry": 25693.00,
+    "exit": 25454.50,
+    "size": 2,
+    "pnl": -477.00
+  },
+  {
+    "id": 1706619000000,
+    "bot": "fvg-ifvg-1",
+    "timestamp": "2026-01-30T07:45:00-0500",
+    "symbol": "MNQH6",
+    "side": "long",
+    "entry": 25731.75,
+    "exit": 25780.25,
+    "size": 2,
+    "pnl": 48.50
+  },
+  {
+    "id": 1706520000000,
+    "bot": "fvg-ifvg-1",
+    "timestamp": "2026-01-29T10:00:00-0500",
+    "symbol": "MNQH6",
+    "side": "short",
+    "entry": 25612.50,
+    "exit": 25580.50,
+    "size": 1,
+    "pnl": 32.00
+  },
+  {
+    "id": 1706443200000,
+    "bot": "fvg-ifvg-1",
+    "timestamp": "2026-01-28T12:40:00-0500",
+    "symbol": "MNQH6",
+    "side": "long",
+    "entry": 25385.00,
+    "exit": 25412.50,
+    "size": 2,
+    "pnl": 27.50
+  }
+]
