@@ -631,6 +631,11 @@
     .cal-event.red { background: rgba(255,68,85,0.12); color: var(--accent-red); border-left: 3px solid var(--accent-red); }
     .cal-event.yellow { background: rgba(255,221,68,0.12); color: var(--accent-yellow); border-left: 3px solid var(--accent-yellow); }
 
+    .cal-today { border-color: var(--accent-cyan) !important; background: rgba(0,212,255,0.04) !important; }
+    .cal-today .cal-day-name { color: var(--accent-cyan); }
+    .cal-weekend { opacity: 0.5; }
+    .cal-weekend .cal-day-name { color: rgba(255,255,255,0.3); }
+
     .countdown-section {
       background: rgba(255,255,255,0.02);
       border: 1px solid var(--border-color);
@@ -2118,9 +2123,10 @@
         ⚡ Always Running (Background Automation)
       </div>
       <div class="always-running-pills">
-        <span class="cron-pill">📡 ICT Signal Compiler (Cindy) • Every 5 min</span>
-        <span class="cron-pill">🐦 X Post Pipeline (Sheen) • Every 5 min</span>
-        <span class="cron-pill">📊 Balance Scrape • 5 AM + 12:30 PM PT</span>
+        <span class="cron-pill">📡 ICT Signal Compiler (Cindy) • 5 AM–12 PM, Mon–Fri</span>
+        <span class="cron-pill">🐦 X Post Pipeline (Sheen) • 5 AM–12 PM, Mon–Fri</span>
+        <span class="cron-pill">📊 Balance Scrape (Cindy) • 5 AM + 12:30 PM PT</span>
+        <span class="cron-pill">📈 EOD Performance (Sheen) • 1 PM PT, Mon–Fri</span>
         <span class="cron-pill">🔄 Health Check • Every heartbeat</span>
         <span class="cron-pill">📥 Webhook Listeners • 24/7 (Caretaker)</span>
       </div>
@@ -2785,18 +2791,27 @@ let kanbanNextId = 100;
 
 // Schedule data
 const SCHEDULE = {
-  daily: [
-    { name: 'Accumulation Macro', time: '00:50', color: 'purple', hour: 0, min: 50 },
-    { name: 'Balance Scrape', time: '5:00 AM', color: 'cyan', hour: 5, min: 0 },
-    { name: 'Pre-NY Macro', time: '5:50 AM', color: 'green', hour: 5, min: 50 },
-    { name: 'NY Open Macro', time: '8:50 AM', color: 'orange', hour: 8, min: 50 },
-    { name: 'Silver Bullet', time: '9:50 AM', color: 'yellow', hour: 9, min: 50 },
-    { name: 'London Close', time: '10:50 AM', color: 'red', hour: 10, min: 50 },
+  // Weekday tasks (Mon-Fri) — AI bot automation schedule
+  weekday: [
+    { name: '🚀 Morning Bot Startup', time: '3:50 AM', color: 'green', hour: 3, min: 50, agent: 'Jimmy', desc: 'Enable OTE Silver Bullet, verify FVG+IFVG overnight' },
+    { name: '☀️ Morning Check-in', time: '4:00 AM', color: 'cyan', hour: 4, min: 0, agent: 'Jimmy', desc: 'Verify all bots online, check for overnight issues' },
+    { name: '📊 AM Balance Scrape', time: '5:00 AM', color: 'cyan', hour: 5, min: 0, agent: 'Cindy', desc: 'Scrape Tradovate balances, push to API' },
+    { name: '📡 ICT Signal Pipeline ON', time: '5:00 AM', color: 'orange', hour: 5, min: 0, agent: 'Cindy + Sheen', desc: 'Signal compiler + X post pipeline active (every 5 min until noon)' },
+    { name: '📰 Morning Market Breakdown', time: '6:00 AM', color: 'purple', hour: 6, min: 0, agent: 'Jimmy', desc: 'Pre-NY analysis, post to X + Discord' },
+    { name: '📢 X Posting Reminder', time: '10:00 AM', color: 'yellow', hour: 10, min: 0, agent: 'Jimmy', desc: 'Post trade results, engage with ICT community' },
+    { name: '📡 ICT Signal Pipeline OFF', time: '12:00 PM', color: 'orange', hour: 12, min: 0, agent: 'Cindy + Sheen', desc: 'Signal pipeline stops for the day' },
+    { name: '📊 PM Balance Scrape', time: '12:30 PM', color: 'cyan', hour: 12, min: 30, agent: 'Cindy', desc: 'Midday balance snapshot, push to API' },
+    { name: '📈 EOD Bot Performance', time: '1:00 PM', color: 'green', hour: 13, min: 0, agent: 'Sheen', desc: 'Post daily bot performance to Discord #general' },
+    { name: '🌙 Afternoon Wrap-up', time: '3:00 PM', color: 'purple', hour: 15, min: 0, agent: 'Jimmy', desc: 'Review trades, calculate PnL, post EOD to X' },
+    { name: '📊 Website Data Update', time: '4:00 PM', color: 'cyan', hour: 16, min: 0, agent: 'Jimmy', desc: 'Refresh decryptlabs.io dashboard data' },
+    { name: '🛑 Evening Bot Shutdown', time: '6:30 PM', color: 'red', hour: 18, min: 30, agent: 'Jimmy', desc: 'Pause OTE, verify FVG+IFVG running overnight' },
   ],
-  special: {
-    2: [{ name: 'Market Analysis Post', time: '7:00 AM', color: 'purple', hour: 7, min: 0 }], // Tuesday
-    4: [{ name: 'Market Analysis Post', time: '7:00 AM', color: 'purple', hour: 7, min: 0 }], // Thursday
-  }
+  // Weekend — minimal ops
+  weekend: [
+    { name: '📊 Daily Update', time: '5:00 AM', color: 'cyan', hour: 5, min: 0, agent: 'Jimmy', desc: 'Check systems, no trading (markets closed)' },
+  ],
+  // No more special — everything is in weekday/weekend
+  special: {}
 };
 
 // ═══════════════════ TAB SWITCHING ═══════════════════
@@ -3249,32 +3264,38 @@ function deleteKanbanTask(id) {
 }
 
 // ═══════════════════ CALENDAR ═══════════════════
+function getScheduleForDay(dayIdx) {
+  // 0=Sun, 6=Sat → weekend; 1-5 → weekday
+  const isWeekend = (dayIdx === 0 || dayIdx === 6);
+  const events = isWeekend ? [...SCHEDULE.weekend] : [...SCHEDULE.weekday];
+  if (SCHEDULE.special[dayIdx]) events.push(...SCHEDULE.special[dayIdx]);
+  return events;
+}
+
 function renderCalendar() {
   const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const today = new Date().getDay();
   const grid = document.getElementById('calendar-grid');
   
   grid.innerHTML = days.map((day, i) => {
-    let events = SCHEDULE.daily.map(e => `
-      <div class="cal-event ${e.color}">
-        ${e.name}
-        <div class="cal-event-time">${e.time}</div>
+    const events = getScheduleForDay(i);
+    const isToday = (i === today);
+    const isWeekend = (i === 0 || i === 6);
+    
+    const eventsHtml = events.map(e => `
+      <div class="cal-event ${e.color}" title="${e.agent ? e.agent + ': ' : ''}${e.desc || ''}">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <span>${e.name}</span>
+        </div>
+        <div class="cal-event-time">${e.time}${e.agent ? ' · ' + e.agent : ''}</div>
       </div>
     `).join('');
 
-    // Add special events
-    if (SCHEDULE.special[i]) {
-      events += SCHEDULE.special[i].map(e => `
-        <div class="cal-event ${e.color}">
-          ${e.name}
-          <div class="cal-event-time">${e.time}</div>
-        </div>
-      `).join('');
-    }
-
     return `
-      <div class="cal-day">
-        <div class="cal-day-name">${day}</div>
-        ${events}
+      <div class="cal-day${isToday ? ' cal-today' : ''}${isWeekend ? ' cal-weekend' : ''}">
+        <div class="cal-day-name">${day}${isToday ? ' ✦' : ''}</div>
+        ${isWeekend ? '<div style="font-size:9px;color:rgba(255,255,255,0.2);margin-bottom:4px;">Markets Closed</div>' : ''}
+        ${eventsHtml}
       </div>
     `;
   }).join('');
@@ -3287,13 +3308,11 @@ function updateCountdowns() {
   const now = new Date();
   const today = now.getDay();
   
-  // Build list of upcoming events
   const upcoming = [];
   
   for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
     const dayIdx = (today + dayOffset) % 7;
-    const events = [...SCHEDULE.daily];
-    if (SCHEDULE.special[dayIdx]) events.push(...SCHEDULE.special[dayIdx]);
+    const events = getScheduleForDay(dayIdx);
     
     events.forEach(e => {
       const eventDate = new Date(now);
@@ -3316,6 +3335,7 @@ function updateCountdowns() {
         upcoming.push({
           name: e.name,
           color: e.color,
+          agent: e.agent || '',
           timeStr,
           diff
         });
@@ -3331,7 +3351,7 @@ function updateCountdowns() {
       <div class="countdown-item">
         <div class="countdown-label">
           <span class="dot" style="background:${colorMap[u.color] || 'var(--text-dim)'}"></span>
-          ${u.name}
+          ${u.name}${u.agent ? ' <span style="color:rgba(255,255,255,0.3);font-size:10px;">(' + u.agent + ')</span>' : ''}
         </div>
         <div class="countdown-value">${u.timeStr}</div>
       </div>
@@ -3348,8 +3368,7 @@ function renderUpcomingSchedule() {
   
   for (let dayOffset = 0; dayOffset < 2; dayOffset++) {
     const dayIdx = (today + dayOffset) % 7;
-    const events = [...SCHEDULE.daily];
-    if (SCHEDULE.special[dayIdx]) events.push(...SCHEDULE.special[dayIdx]);
+    const events = getScheduleForDay(dayIdx);
     
     events.forEach(e => {
       const eventDate = new Date(now);
@@ -3362,7 +3381,7 @@ function renderUpcomingSchedule() {
         const mins = Math.floor((diff % 3600000) / 60000);
         let timeStr = hours > 0 ? `in ${hours}h ${mins}m` : `in ${mins} min`;
         
-        upcoming.push({ name: e.name, timeStr, diff });
+        upcoming.push({ name: e.name, agent: e.agent || '', timeStr, diff });
       }
     });
   }
@@ -3371,7 +3390,7 @@ function renderUpcomingSchedule() {
   
   container.innerHTML = upcoming.slice(0, 6).map(u => `
     <div class="upcoming-task">
-      <span class="upcoming-task-name">${u.name}</span>
+      <span class="upcoming-task-name">${u.name}${u.agent ? ' <span style="opacity:0.4;font-size:10px;">(' + u.agent + ')</span>' : ''}</span>
       <span class="upcoming-task-time">${u.timeStr}</span>
     </div>
   `).join('');
