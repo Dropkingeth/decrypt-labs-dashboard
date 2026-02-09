@@ -1,18 +1,18 @@
 {
-  "lastUpdated": "2026-02-09T00:19:14.929Z",
+  "lastUpdated": "2026-02-09T16:04:00.000Z",
   "aum": {
-    "total": 449492,
-    "milestone": 500000,
-    "milestoneLabel": "3x Buyback Power"
+    "total": 755090,
+    "milestone": 1000000,
+    "milestoneLabel": "$1M AUM"
   },
   "bots": {
     "fvg-ifvg-1": {
       "name": "Technical Tina",
       "subtitle": "FVG+IFVG • Determining Order Flow",
-      "status": "paused",
-      "accountId": "BOT-BRAVO",
+      "status": "online",
+      "accountId": "APEX2519120000018",
       "accountSize": 150000,
-      "currentBalance": 147412.64,
+      "currentBalance": 147245.18,
       "strategy": "FVG + IFVG",
       "nft": {
         "id": 13,
@@ -53,10 +53,10 @@
     "ote-silver-bullet": {
       "name": "Diamond Hands Danny",
       "subtitle": "OTE Silver Bullet • Optimal Trade Entry",
-      "status": "paused",
-      "accountId": "BOT-CHARLIE",
+      "status": "online",
+      "accountId": "APEX2519120000019",
       "accountSize": 150000,
-      "currentBalance": 151283.76,
+      "currentBalance": 152419.30,
       "strategy": "OTE Silver Bullet (Reduced Risk)",
       "nft": {
         "id": 1,
@@ -97,10 +97,10 @@
     "ote-refined-small": {
       "name": "Algo Annie",
       "subtitle": "OTE Refined [Small] • Conservative Entry",
-      "status": "paused",
-      "accountId": "BOT-DELTA",
+      "status": "online",
+      "accountId": "APEX2519120000020",
       "accountSize": 150000,
-      "currentBalance": 150795.18,
+      "currentBalance": 152383.88,
       "strategy": "OTE Refined (Small Size)",
       "nft": {
         "id": 5,
@@ -116,14 +116,14 @@
       "performance": {
         "totalTrades": 1,
         "winRate": 100,
-        "netPnl": 795.179999999993,
+        "netPnl": 2383.88,
         "todayPnl": 0
       },
       "eval": {
         "status": "evaluating",
-        "profitTarget": 795.179999999993,
+        "profitTarget": 2383.88,
         "profitTargetGoal": 9000,
-        "profitTargetPercent": 8.835333333333256,
+        "profitTargetPercent": 26.49,
         "drawdownUsed": 0,
         "drawdownMax": 5000,
         "drawdownPercent": 0,
@@ -131,10 +131,54 @@
         "daysTotal": 30
       },
       "trailing": {
-        "peakBalance": 150795.18,
-        "liquidation": 145795.18,
+        "peakBalance": 152383.88,
+        "liquidation": 147383.88,
         "ddUsed": 0,
         "ddMax": 5000,
+        "buffer": 100
+      }
+    },
+    "new-300k": {
+      "name": "??? (Unassigned)",
+      "subtitle": "300K Account • Awaiting Bot Assignment",
+      "status": "online",
+      "accountId": "APEX2519120000021",
+      "accountSize": 300000,
+      "currentBalance": 303042.06,
+      "strategy": "TBD",
+      "nft": {
+        "id": null,
+        "name": "Unassigned",
+        "image": null
+      },
+      "stats": {
+        "power": 50,
+        "fuel": 100,
+        "condition": 100,
+        "heat": 5
+      },
+      "performance": {
+        "totalTrades": 0,
+        "winRate": 0,
+        "netPnl": 3042.06,
+        "todayPnl": 405
+      },
+      "eval": {
+        "status": "evaluating",
+        "profitTarget": 3042.06,
+        "profitTargetGoal": 20000,
+        "profitTargetPercent": 15.21,
+        "drawdownUsed": 0,
+        "drawdownMax": 7500,
+        "drawdownPercent": 0,
+        "daysRemaining": 28,
+        "daysTotal": 30
+      },
+      "trailing": {
+        "peakBalance": 303042.06,
+        "liquidation": 295542.06,
+        "ddUsed": 0,
+        "ddMax": 7500,
         "buffer": 100
       }
     }
@@ -276,10 +320,10 @@
   "hallOfFame": [],
   "notices": [
     {
-      "id": "paused-2026-02-06",
-      "type": "warning",
-      "message": "⏸️ All bots paused — Riding out the week. Saturday reset.",
-      "timestamp": "2026-02-06T12:01:00.000Z"
+      "id": "new-week-2026-02-09",
+      "type": "info",
+      "message": "🟢 All bots ENABLED — New week, new money. 300K account added!",
+      "timestamp": "2026-02-09T16:00:00.000Z"
     }
   ]
 }
