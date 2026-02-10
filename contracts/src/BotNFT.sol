@@ -18,7 +18,7 @@ contract BotNFT is ERC721URIStorage, Ownable2Step, ReentrancyGuard, Pausable {
     using SafeERC20 for IERC20;
 
     // ============ Constants ============
-    uint256 public constant MAX_SUPPLY = 20;
+    uint256 public constant MAX_SUPPLY = 36;
     uint256 public constant MINT_PRICE_USD = 300; // $300 USD equivalent in $CIPHER
 
     // ============ State Variables ============

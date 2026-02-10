@@ -94,7 +94,7 @@ Want to see the indicator in action?
 📊 Check the dashboard
 🤖 Learn about automation
 
-Join the Discord: discord.gg/FSP8HZad
+Join the Discord: discord.gg/zcenXyTDer
 
 The future of trading is transparent. 🔮
 ```
@@ -156,7 +156,7 @@ Live results:
 Don't trust. Verify.
 🔗 decryptlabs.io
 
-Discord: discord.gg/FSP8HZad
+Discord: discord.gg/zcenXyTDer
 ```
 
 ---

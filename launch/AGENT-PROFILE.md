@@ -61,7 +61,7 @@ Unlike other "trading agents" that operate on paper or simulations, Decrypt Labs
 - 📊 Dashboard: https://decryptlabs.io/city.html
 - 📄 Whitepaper: https://decryptlabs.io/whitepaper.html
 - 🐦 X: https://x.com/PriceCipherHQ
-- 💬 Discord: https://discord.gg/FSP8HZad
+- 💬 Discord: https://discord.gg/zcenXyTDer
 - 🎬 Pitch Video: *(upload to YouTube/X before launch)*
 
 ### Tokenomics

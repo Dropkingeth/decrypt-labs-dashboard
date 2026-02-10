@@ -28,7 +28,7 @@ Everything needed to launch on Virtuals Protocol (Base).
 | **Website** | https://decryptlabs.io |
 | **Dashboard** | https://decryptlabs.io/city.html |
 | **X** | @PriceCipherHQ |
-| **Discord** | discord.gg/FSP8HZad |
+| **Discord** | discord.gg/zcenXyTDer |
 | **Creation Fee** | 100 $VIRTUAL (~$65) |
 
 ---
