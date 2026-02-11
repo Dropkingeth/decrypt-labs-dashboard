@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Cipher City — Mission Control | Decrypt Labs</title>
+<title>Cipher City | Decrypt Labs</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -267,7 +267,7 @@
 
 <!-- HUD TOP -->
 <div id="hud-top">
-  <div class="hud-title">Cipher City — Mission Control</div>
+  <div class="hud-title">Cipher City</div>
   <div class="hud-center">
     <div class="hud-aum"><span>AUM</span> $<span id="hud-aum-val">755,090.42</span></div>
     <div class="hud-status">
@@ -287,10 +287,10 @@
   <div class="hud-bottom-title">Road to Funded — Progress Tracker</div>
   <div id="progress-bars"></div>
   <div class="legend">
-    <div class="legend-item"><div class="legend-swatch" style="background:#ff8a00"></div> Technical Tina</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#00e5ff"></div> Diamond Hands Danny</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#a855f7"></div> Algo Annie</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:#22ff88"></div> Moon Mission Mike</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#ff8a00"></div> Code Screamer</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#00e5ff"></div> Neon Stalker</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#a855f7"></div> Rekt Reaper</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:#22ff88"></div> Signal Sage</div>
   </div>
 </div>
 
@@ -339,21 +339,52 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 // ─────────────────────────────────────────
 //  NFT IMAGE FALLBACK LOADER
 // ─────────────────────────────────────────
-const IPFS_GATEWAYS = [
-  'assets/nft/',
-  'https://ipfs.io/ipfs/bafybeiflk2w65tlpbkqo44bfk2lc424rhkcd2fs5a5iqn6wvhxmp5dxqzy/',
-  'https://gateway.pinata.cloud/ipfs/bafybeiflk2w65tlpbkqo44bfk2lc424rhkcd2fs5a5iqn6wvhxmp5dxqzy/',
-  'https://cloudflare-ipfs.com/ipfs/bafybeiflk2w65tlpbkqo44bfk2lc424rhkcd2fs5a5iqn6wvhxmp5dxqzy/',
-];
+// New collection individual IPFS CIDs (keyed by NFT number)
+const NFT_IPFS_CIDS = {
+  1:'QmTPry2erfozbH6p7NW3hF1ufUEAWH7h7ASf2DQ2Y3uRnV',
+  2:'QmSPskFtepQFTQ5td8sjjoQmgBgyfZkw4BbuzFwzjvekya',
+  3:'QmPjVDwqkeWJbwfLCu82K7Ds1NAT4gyp4WapcmEoTxpSkm',
+  4:'QmTJKrxTqkTLPGeFDjbb4CpDiXeams4j2sc1qMNZzTQh4m',
+  5:'QmP6rZ9G2mZEJrHKZAU1WpDCgDKGAD9a8YKvwAoUk2TQDL',
+  6:'QmUMKRcqCLGawRVCaw3QfawqYYpoB7TYagmJrrimNPodth',
+  7:'QmbqiLWpYJBpJWrmQ1ybU7tK1BxwBgZoqPsGNLde6EP1Tu',
+  8:'QmRKSLG3a915rwBmMSaw7hf7pEG7P6PKuKrzHjPiNLbJSP',
+  9:'QmXeTJ5cvJudgo7A5gQ48wwa2kshJpzDY8dFKuguxuZfUa',
+  10:'QmUsuGaZwZ1LQu8NZhbeoZu4er1teRUZNE9vBjGHCpY6ZN',
+  11:'QmZDcp6nQAw4zvm1Pw5xUFYRmvFrkSjAwH88wuMk6CWfGA',
+  12:'QmaiBSsa2w4DMcX62rCBjGeprLzxNLpAFgWfbgMs7E86hN',
+  13:'QmbPVrAMQGkEwL9NX417aNHPyEh1HEodQ8ch5DQnG9jifB',
+  14:'QmdctHWWd4P1tw6BxC6eS68h93j8VLU8roGBY7CPNCUGiP',
+  15:'QmSmic3uxeoA8v5FyGmfqVWTDeWWDDih76fka7jasE7KXE',
+  16:'QmUbH228K9hBaYrYi2jEvhh5mz4EqtMTzmEgYCYLoXwqwy',
+  17:'Qmdj2DuN28VBc4GppHnZnwxsemXjrnCYz7N1gqFD8UUh1n',
+  18:'QmfJr7222n4ftKEfYf7FWRqUu2mJ6tvHPgiuZ9zDDYyeUj',
+  19:'QmXh7bpQXtqfTA37CioH8ZCPGKrfNGAdotdkgVPFtyYNFB',
+  20:'QmQmbGibJmrpgLivX2XjskRtTH6nLvFVJXb27gi8k1FgnZ'
+};
+// Image name lookup by NFT number
+const NFT_NAMES = {1:'Neon-Stalker',2:'Panic-Protocol',3:'Rage-Demon',4:'Glitch-Meltdown',5:'Rekt-Reaper',6:'Circuit-Striker',7:'Pixel-Fury',8:'Signal-Sage',9:'Firewall-Chief',10:'Voxel-Phantom',11:'Data-Panic',12:'Cyber-Sentinel',13:'Code-Screamer',14:'Devils-Drawdown',15:'Algo-Architect',16:'Frequency-Hunter',17:'Data-Golem',18:'Shadow-Broker',19:'Scar-Cipher',20:'Half-Human'};
+function getNftImageUrls(nftNumId) {
+  const name = NFT_NAMES[nftNumId] || 'Unknown';
+  const pad = String(nftNumId).padStart(2,'0');
+  const cid = NFT_IPFS_CIDS[nftNumId];
+  return [
+    'nft-art/new-collection/images/' + pad + '-' + name + '.jpg',
+    'assets/nft/' + nftNumId + '.png',
+    cid ? 'https://ipfs.io/ipfs/' + cid : null,
+    cid ? 'https://gateway.pinata.cloud/ipfs/' + cid : null,
+  ].filter(Boolean);
+}
 
 function loadNftTexture(nftNumericId, botName, botColor, callback) {
   const loader = new THREE.TextureLoader();
   loader.setCrossOrigin('anonymous');
-  let gatewayIndex = 0;
+  const urls = getNftImageUrls(nftNumericId);
+  let idx = 0;
 
   function tryNext() {
-    if (gatewayIndex >= IPFS_GATEWAYS.length) {
-      // All gateways failed — generate placeholder
+    if (idx >= urls.length) {
+      // All sources failed — generate placeholder
       const canvas = document.createElement('canvas');
       canvas.width = 256; canvas.height = 256;
       const ctx = canvas.getContext('2d');
@@ -374,8 +405,7 @@ function loadNftTexture(nftNumericId, botName, botColor, callback) {
       callback(tex);
       return;
     }
-    const url = IPFS_GATEWAYS[gatewayIndex] + nftNumericId + '.png';
-    gatewayIndex++;
+    const url = urls[idx++];
     loader.load(url, tex => callback(tex), undefined, () => tryNext());
   }
   tryNext();
@@ -386,37 +416,49 @@ function loadNftTexture(nftNumericId, botName, botColor, callback) {
 // ─────────────────────────────────────────
 let bots = [
   {
-    id: 'tina', name: 'Technical Tina', nftId: '#13', nftNumId: 13,
+    id: 'tina', name: 'Code Screamer', nftId: '#13', nftNumId: 13,
     strategy: 'FVG+IFVG',
     balance: 147245.18, pnl: -2754.82, winRate: 76.5,
     drawdownPct: 55.3, status: 'ACTIVE', totalTrades: 5202,
     color: '#ff8a00', health: 'warning',
-    position: { x: -8, z: 4 }, angle: 0
+    position: { x: -8, z: 4 }, angle: 0,
+    account: 'APEX-18',
+    contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
+    tokenId: 0
   },
   {
-    id: 'danny', name: 'Diamond Hands Danny', nftId: '#01', nftNumId: 1,
+    id: 'danny', name: 'Neon Stalker', nftId: '#01', nftNumId: 1,
     strategy: 'OTE Silver Bullet',
     balance: 152419.30, pnl: 2419.30, winRate: 100,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#00e5ff', health: 'healthy',
-    position: { x: 8, z: 4 }, angle: 0
+    position: { x: 8, z: 4 }, angle: 0,
+    account: 'APEX-19',
+    contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
+    tokenId: 1
   },
   {
-    id: 'annie', name: 'Algo Annie', nftId: '#05', nftNumId: 5,
+    id: 'annie', name: 'Rekt Reaper', nftId: '#05', nftNumId: 5,
     strategy: 'OTE Refined',
     balance: 152383.88, pnl: 2383.88, winRate: 100,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#a855f7', health: 'healthy',
-    position: { x: 0, z: -7 }, angle: 0
+    position: { x: 0, z: -7 }, angle: 0,
+    account: 'APEX-20',
+    contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
+    tokenId: 2
   },
   {
-    id: 'mike', name: 'Moon Mission Mike', nftId: '#03', nftNumId: 3,
-    strategy: 'OTE Silver Bullet',
+    id: 'mike', name: 'Signal Sage', nftId: '#08', nftNumId: 8,
+    strategy: 'OTE Refined Large',
     balance: 303042.06, pnl: 3042.06, winRate: 0,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 0,
     color: '#22ff88', health: 'healthy',
     position: { x: 0, z: 10 }, angle: 0,
-    accountSize: 300000
+    accountSize: 300000,
+    account: 'APEX-21',
+    contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
+    tokenId: 3
   }
 ];
 
@@ -1000,7 +1042,19 @@ function renderBotScreen(bot) {
     ctx.fillText(s[1], 160, y);
   });
 
-  const barY = 210;
+  // NFT & Blockchain info
+  const nftY = 180;
+  ctx.fillStyle = '#556';
+  ctx.font = '10px Orbitron, sans-serif';
+  ctx.fillText('ON-CHAIN NFT', 16, nftY);
+  ctx.fillStyle = '#00e5ff';
+  ctx.font = 'bold 11px JetBrains Mono, monospace';
+  ctx.fillText(`Token #${bot.tokenId} • ${bot.nftId}`, 16, nftY + 16);
+  ctx.fillStyle = '#888';
+  ctx.font = '9px JetBrains Mono, monospace';
+  ctx.fillText(bot.contractAddress?.slice(0, 8) + '...' + bot.contractAddress?.slice(-6), 16, nftY + 30);
+  
+  const barY = 230;
   ctx.fillStyle = '#556';
   ctx.font = '10px Orbitron, sans-serif';
   ctx.fillText('ROAD TO FUNDED', 16, barY);
@@ -2132,20 +2186,15 @@ function openBotPanel(botIndex) {
 
   // Generate NFT panel image URL with fallback
   const panelNft = document.getElementById('panel-nft');
-  const gateways = [
-    'assets/nft/' + bot.nftNumId + '.png',
-    'https://ipfs.io/ipfs/bafybeiflk2w65tlpbkqo44bfk2lc424rhkcd2fs5a5iqn6wvhxmp5dxqzy/' + bot.nftNumId + '.png',
-    'https://gateway.pinata.cloud/ipfs/bafybeiflk2w65tlpbkqo44bfk2lc424rhkcd2fs5a5iqn6wvhxmp5dxqzy/' + bot.nftNumId + '.png',
-    'https://cloudflare-ipfs.com/ipfs/bafybeiflk2w65tlpbkqo44bfk2lc424rhkcd2fs5a5iqn6wvhxmp5dxqzy/' + bot.nftNumId + '.png',
-  ];
+  const imgUrls = getNftImageUrls(bot.nftNumId);
   let gwIdx = 0;
   panelNft.onerror = function() {
     gwIdx++;
-    if (gwIdx < gateways.length) {
-      panelNft.src = gateways[gwIdx];
+    if (gwIdx < imgUrls.length) {
+      panelNft.src = imgUrls[gwIdx];
     }
   };
-  panelNft.src = gateways[0];
+  panelNft.src = imgUrls[0];
 
   document.getElementById('panel-name').textContent = bot.name + ' ' + bot.nftId;
   document.getElementById('panel-strategy').textContent = bot.strategy;

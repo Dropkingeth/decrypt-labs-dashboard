@@ -1345,6 +1345,7 @@
       align-items: center;
       justify-content: center;
       font-size: 20px;
+      overflow: hidden;
     }
 
     .bot-card-name { font-family: 'Orbitron', sans-serif; font-size: 14px; font-weight: 700; }
@@ -1964,6 +1965,10 @@
     <span class="icon">⚡</span>
     <span>Decrypt Schedule</span>
   </div>
+  <div class="nav-tab" data-tab="goddard">
+    <span class="icon">🐕‍🦺</span>
+    <span>Goddard</span>
+  </div>
   <div class="nav-tab" data-tab="org">
     <span class="icon">👥</span>
     <span>Org</span>
@@ -1990,6 +1995,25 @@
   <div class="tab-content active" id="tab-mission-control">
     <h1 class="section-title">Mission Control</h1>
     <p class="section-subtitle">Decrypt Labs — Automated Trading Operations</p>
+    
+    <!-- Blockchain Info -->
+    <div class="blockchain-info" style="background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2); border-radius: 8px; padding: 12px 16px; margin-bottom: 20px; font-size: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+        <span style="color: #00e5ff;">🔗</span>
+        <strong style="color: #fff;">On-Chain Bots</strong>
+        <span style="color: #666; font-size: 11px;">(4 NFTs minted on Base)</span>
+      </div>
+      <div style="color: #888; line-height: 1.4;">
+        <div>Contract: 
+          <a href="https://basescan.org/address/0x743EBDfcED2dBA082E282689c35D5c0E173C7728" target="_blank" style="color: #00e5ff; text-decoration: none;">
+            0x743EBDfcED2dBA082E282689c35D5c0E173C7728
+          </a>
+        </div>
+        <div style="font-size: 11px; margin-top: 4px;">
+          Each bot is represented by an NFT character. Token IDs: Code Screamer(#0), Neon Stalker(#1), Rekt Reaper(#2), Signal Sage(#3)
+        </div>
+      </div>
+    </div>
 
     <!-- Team -->
     <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;">
@@ -2037,7 +2061,7 @@
         <div class="project-item"><span class="project-check">✅</span><span class="project-name">Decrypt Labs website (decryptlabs.io)</span></div>
         <div class="project-item"><span class="project-check">✅</span><span class="project-name">Cipher City 3D Dashboard</span></div>
         <div class="project-item"><span class="project-check">✅</span><span class="project-name">20 NFT Collection on IPFS</span></div>
-        <div class="project-item"><span class="project-check">✅</span><span class="project-name">Smart Contracts on Base Sepolia</span></div>
+        <div class="project-item"><span class="project-check">✅</span><span class="project-name">Smart Contracts on Base</span></div>
         <div class="project-item"><span class="project-check">✅</span><span class="project-name">Pitch Video (82s cinematic)</span></div>
         <div class="project-item"><span class="project-check">✅</span><span class="project-name">ICT Analysis Pipeline</span></div>
         <div class="project-item"><span class="project-check">✅</span><span class="project-name">Bot Caretaker Server</span></div>
@@ -2253,6 +2277,102 @@
 
   </div>
 
+  <!-- ═══ TAB: GODDARD (CRO) ═══ -->
+  <div class="tab-content" id="tab-goddard">
+    <h1 class="section-title" style="text-align:center;">🐕‍🦺 Goddard — Chief Risk Officer</h1>
+    <p class="section-subtitle" style="text-align:center;">Bot control • Forex Factory news • Risk management • Drawdown guardian</p>
+
+    <!-- Risk Status Overview -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin:24px auto;max-width:900px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Risk Level</div>
+        <div id="gd-risk-badge" style="font-size:22px;font-weight:700;margin-top:6px;color:var(--accent-green);">LOADING...</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Total AUM</div>
+        <div id="gd-aum" style="font-size:22px;font-weight:700;margin-top:6px;color:var(--accent-cyan);font-family:'SF Mono',monospace;">—</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Weekly P&L</div>
+        <div id="gd-weekly-pnl" style="font-size:22px;font-weight:700;margin-top:6px;font-family:'SF Mono',monospace;">—</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:18px;text-align:center;">
+        <div style="color:var(--text-dim);font-size:11px;text-transform:uppercase;letter-spacing:1px;">Week Started</div>
+        <div id="gd-week-start" style="font-size:16px;font-weight:600;margin-top:8px;color:var(--text-secondary);">—</div>
+      </div>
+    </div>
+
+    <!-- Bot Status Cards -->
+    <div style="max-width:900px;margin:24px auto;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h2 style="font-size:16px;color:var(--text-primary);">🎛️ Bot Status & Risk</h2>
+        <span style="font-size:11px;color:var(--text-dim);">Managed by Goddard</span>
+      </div>
+      <div id="gd-bot-cards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;">
+      </div>
+    </div>
+
+    <!-- ICT Live News Feed -->
+    <div style="max-width:900px;margin:28px auto;">
+      <details open>
+        <summary style="font-size:16px;font-weight:600;color:var(--text-primary);cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border-color);user-select:none;">
+          📰 ICT Live News — Goddard's Analysis
+          <span style="font-size:11px;color:var(--text-dim);margin-left:8px;">Forex Factory through ICT lens</span>
+        </summary>
+        <div id="gd-news-feed" style="max-height:400px;overflow-y:auto;padding:12px 0;">
+          <div style="color:var(--text-dim);font-size:13px;font-style:italic;padding:20px;text-align:center;">Loading news feed...</div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Bot Decision Log -->
+    <div style="max-width:900px;margin:28px auto;">
+      <details>
+        <summary style="font-size:16px;font-weight:600;color:var(--text-primary);cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border-color);user-select:none;">
+          🧠 Bot Decision Log
+          <span style="font-size:11px;color:var(--text-dim);margin-left:8px;">On/off decisions & reasoning</span>
+        </summary>
+        <div id="gd-action-log" style="max-height:400px;overflow-y:auto;padding:12px 0;font-family:'SF Mono',monospace;font-size:12px;">
+          <div style="color:var(--text-dim);font-style:italic;padding:20px;text-align:center;">Loading decision log...</div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Editable Risk Rules -->
+    <div style="max-width:900px;margin:28px auto;">
+      <details>
+        <summary style="font-size:16px;font-weight:600;color:var(--text-primary);cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border-color);user-select:none;">
+          ⚙️ Risk Rules
+          <span style="font-size:11px;color:var(--text-dim);margin-left:8px;">Edit to update Goddard directly</span>
+        </summary>
+        <div style="padding:12px 0;">
+          <textarea id="gd-risk-rules" style="width:100%;min-height:500px;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:10px;padding:16px;color:var(--text-primary);font-family:'SF Mono',monospace;font-size:12px;line-height:1.6;resize:vertical;" placeholder="Loading risk rules..."></textarea>
+          <div style="display:flex;gap:10px;margin-top:10px;justify-content:flex-end;">
+            <button onclick="loadGoddardRiskRules()" style="background:rgba(255,255,255,0.06);border:1px solid var(--border-color);color:var(--text-secondary);padding:8px 16px;border-radius:8px;cursor:pointer;font-size:12px;">↻ Reset</button>
+            <button onclick="saveGoddardRiskRules()" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.3);color:var(--accent-cyan);padding:8px 20px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;">💾 Save Rules</button>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <!-- Editable Cron Schedule -->
+    <div style="max-width:900px;margin:28px auto;">
+      <details>
+        <summary style="font-size:16px;font-weight:600;color:var(--text-primary);cursor:pointer;padding:8px 0;border-bottom:1px solid var(--border-color);user-select:none;">
+          ⏰ Cron Schedule
+          <span style="font-size:11px;color:var(--text-dim);margin-left:8px;">Edit Goddard's automated check times</span>
+        </summary>
+        <div id="gd-cron-schedule" style="padding:12px 0;">
+        </div>
+      </details>
+    </div>
+
+    <!-- Last Updated -->
+    <div style="max-width:900px;margin:20px auto;text-align:center;">
+      <span id="gd-last-updated" style="font-size:11px;color:var(--text-dim);">—</span>
+    </div>
+  </div>
+
   <!-- ═══ TAB 4: ORG CHART ═══ -->
   <div class="tab-content" id="tab-org">
     <h1 class="section-title" style="text-align:center;">Organization</h1>
@@ -2303,7 +2423,7 @@
       <div class="org-connector"></div>
 
       <!-- Agent Team -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;width:100%;max-width:900px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;width:100%;max-width:1200px;">
         <!-- Cindy Vortex — ACTIVE -->
         <div class="org-node" style="border-color:rgba(255,170,0,0.4);">
           <div class="org-status"><span class="status-dot green"></span> Online</div>
@@ -2346,6 +2466,26 @@
           </div>
         </div>
 
+        <!-- Goddard — CRO -->
+        <div class="org-node" style="border-color:rgba(255,68,68,0.4);">
+          <div class="org-status"><span class="status-dot green"></span> Online</div>
+          <div class="org-node-header">
+            <div class="org-avatar" style="background:rgba(255,68,68,0.15);color:#ff4444;">🐕‍🦺</div>
+            <div>
+              <div class="org-name">Goddard</div>
+              <div class="org-role">Chief Risk Officer</div>
+            </div>
+          </div>
+          <div class="org-model">Claude Opus 4.6 • OpenClaw</div>
+          <div class="org-cost">↗ ~$5/$25 per 1M tokens</div>
+          <div class="org-skills">
+            <span class="skill-tag">Bot On/Off Control</span>
+            <span class="skill-tag">Forex Factory News</span>
+            <span class="skill-tag">Risk Management</span>
+            <span class="skill-tag">Drawdown Guardian</span>
+          </div>
+        </div>
+
         <!-- Sheen Estevez — ACTIVE -->
         <div class="org-node" style="border-color:rgba(0,255,136,0.4);">
           <div class="org-status"><span class="status-dot green"></span> Online</div>
@@ -2374,11 +2514,54 @@
       <p style="color:var(--text-dim);font-size:13px;line-height:1.7;">
         <strong style="color:var(--text-secondary);">AI-native organization.</strong> 
         DropKing (CEO) sets the vision and makes final calls. Jimmy Neutron (CSO) drives strategy and orchestrates the team.
-        Cindy Vortex (Ops) handles balance scraping, ICT signal compilation, data ops, and Discord updates on DeepSeek V3.
+        Goddard (CRO) guards the capital — controls bot on/off via TradingView, analyzes Forex Factory through an ICT lens, and enforces weekly risk rules on Opus 4.6.
+        Cindy Vortex (Ops) handles ICT signal compilation, data ops, and Discord updates on DeepSeek V3.
         Carl Wheezer (Engineering) builds and maintains all code, dashboards, and contracts on Sonnet 4.5.
-        Sheen Estevez (Research + Content) crafts X posts for @PriceCipherHQ, mirrors tweets to Discord, researches markets, and backtests strategies on Gemini 3 Pro.
+        Sheen Estevez (Research + Content) crafts X posts for @PriceCipherHQ, mirrors tweets to Discord, and researches markets on Gemini 3 Pro.
         The system runs 24/5 with human oversight on key decisions. All agent slots filled — team is complete.
       </p>
+    </div>
+
+    <!-- ═══ MEETING ROOM ═══ -->
+    <div style="max-width:900px;margin:48px auto 0;width:100%;">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;justify-content:center;">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><rect x="2" y="6" width="24" height="16" rx="3" stroke="var(--accent-cyan)" stroke-width="1.5"/><path d="M8 14h12M8 10h8M8 18h6" stroke="var(--accent-cyan)" stroke-width="1.5" stroke-linecap="round" opacity="0.6"/><circle cx="22" cy="6" r="3" fill="#00ff88" stroke="var(--bg-primary)" stroke-width="1"/></svg>
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:1.3rem;color:var(--accent-cyan);letter-spacing:2px;margin:0;">MEETING ROOM</h2>
+        <span id="mr-online-count" style="background:rgba(0,255,136,0.15);color:#00ff88;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">6 ONLINE</span>
+      </div>
+      <p style="text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:16px;">Bounce ideas with the whole team. Everyone's invited.</p>
+
+      <!-- Meeting Room Container -->
+      <div id="meeting-room" style="background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:16px;overflow:hidden;">
+        <!-- Participants Bar -->
+        <div style="display:flex;align-items:center;gap:8px;padding:12px 20px;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border-color);flex-wrap:wrap;">
+          <div class="mr-participant" data-agent="dropking" title="DropKing"><div style="width:32px;height:32px;border-radius:8px;background:rgba(170,102,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid rgba(170,102,255,0.4);">👑</div><div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:2px;">DropKing</div></div>
+          <div class="mr-participant" data-agent="jimmy" title="Jimmy"><div style="width:32px;height:32px;border-radius:8px;background:rgba(0,229,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid rgba(0,229,255,0.4);">🧪</div><div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:2px;">Jimmy</div></div>
+          <div class="mr-participant" data-agent="goddard" title="Goddard"><div style="width:32px;height:32px;border-radius:8px;background:rgba(255,68,68,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid rgba(255,68,68,0.4);">🐕‍🦺</div><div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:2px;">Goddard</div></div>
+          <div class="mr-participant" data-agent="cindy" title="Cindy"><div style="width:32px;height:32px;border-radius:8px;background:rgba(255,170,0,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid rgba(255,170,0,0.4);">⚡</div><div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:2px;">Cindy</div></div>
+          <div class="mr-participant" data-agent="carl" title="Carl"><div style="width:32px;height:32px;border-radius:8px;background:rgba(0,212,255,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid rgba(0,212,255,0.4);">🤓</div><div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:2px;">Carl</div></div>
+          <div class="mr-participant" data-agent="sheen" title="Sheen"><div style="width:32px;height:32px;border-radius:8px;background:rgba(0,255,136,0.2);display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid rgba(0,255,136,0.4);">🚀</div><div style="font-size:9px;color:var(--text-dim);text-align:center;margin-top:2px;">Sheen</div></div>
+        </div>
+
+        <!-- Chat Messages -->
+        <div id="mr-messages" style="height:400px;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+          <!-- Messages populated by JS -->
+        </div>
+
+        <!-- Input Area -->
+        <div style="padding:12px 16px;border-top:1px solid var(--border-color);display:flex;gap:10px;align-items:center;background:rgba(255,255,255,0.02);">
+          <select id="mr-sender" style="background:rgba(255,255,255,0.05);border:1px solid var(--border-color);border-radius:8px;padding:8px 12px;color:var(--text-primary);font-size:12px;font-family:inherit;">
+            <option value="dropking">👑 DropKing</option>
+            <option value="jimmy">🧪 Jimmy</option>
+            <option value="goddard">🐕‍🦺 Goddard</option>
+            <option value="cindy">⚡ Cindy</option>
+            <option value="carl">🤓 Carl</option>
+            <option value="sheen">🚀 Sheen</option>
+          </select>
+          <input id="mr-input" type="text" placeholder="Type a message..." style="flex:1;background:rgba(255,255,255,0.05);border:1px solid var(--border-color);border-radius:10px;padding:10px 16px;color:var(--text-primary);font-size:13px;font-family:inherit;outline:none;" onkeydown="if(event.key==='Enter')sendMeetingMsg()"/>
+          <button onclick="sendMeetingMsg()" style="background:linear-gradient(135deg,var(--accent-cyan),var(--accent-purple));border:none;border-radius:10px;padding:10px 20px;color:#fff;font-weight:700;font-size:12px;cursor:pointer;letter-spacing:1px;text-transform:uppercase;white-space:nowrap;">Send</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2463,7 +2646,7 @@
           <div class="project-status-icon">📜</div>
           <div>
             <div class="project-status-label">Smart Contracts</div>
-            <div class="project-status-value">Base Sepolia</div>
+            <div class="project-status-value">Base</div>
             <span class="status-badge pending">Mainnet Pending</span>
           </div>
         </div>
@@ -2761,10 +2944,10 @@ const state = {
 
 // Bot definitions
 const BOTS = [
-  { id: 'tina', botId: 'fvg-ifvg-1', name: 'Technical Tina', number: '#13', strategy: 'FVG+IFVG Strategy', account: 'APEX-18', emoji: '🔧', desc: 'Determines order flow using Fair Value Gaps and Inverse FVGs. Trades during ICT macro windows: Accumulation, Pre-NY, NY Open, Silver Bullet, and London Close.' },
-  { id: 'danny', botId: 'ote-silver-bullet', name: 'Diamond Hands Danny', number: '#01', strategy: 'OTE Silver Bullet', account: 'APEX-19', emoji: '💎', desc: 'Executes Silver Bullet entries at Optimal Trade Entry levels. Focuses on the 10:00-11:00 AM ET silver bullet window for high-probability setups.' },
-  { id: 'annie', botId: 'ote-refined-small', name: 'Algo Annie', number: '#05', strategy: 'OTE Refined', account: 'APEX-20', emoji: '📊', desc: 'Refined OTE strategy with enhanced entry/exit logic. Focuses on confluence of OTE levels with displacement and market structure shifts.' },
-  { id: 'mike', botId: 'new-300k', name: 'Moon Mission Mike', number: '#03', strategy: 'OTE Silver Bullet', account: 'APEX-21', emoji: '🚀', desc: 'The big gun. Runs OTE Silver Bullet on our largest account — a $300K evaluation. Same sniper precision with bigger stakes.' }
+  { id: 'tina', botId: 'fvg-ifvg-1', name: 'Code Screamer', number: '#13', strategy: 'FVG+IFVG Strategy', account: 'APEX-18', emoji: '🔧', image: '/nft-art/new-collection/images/13-Code-Screamer.jpg', tokenId: 0, nftName: 'Code Screamer', contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728', chainId: 8453, desc: 'Determines order flow using Fair Value Gaps and Inverse FVGs. Trades during ICT macro windows: Accumulation, Pre-NY, NY Open, Silver Bullet, and London Close.' },
+  { id: 'danny', botId: 'ote-silver-bullet', name: 'Neon Stalker', number: '#01', strategy: 'OTE Silver Bullet', account: 'APEX-19', emoji: '💎', image: '/nft-art/new-collection/images/01-Neon-Stalker.jpg', tokenId: 1, nftName: 'Neon Stalker', contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728', chainId: 8453, desc: 'Executes Silver Bullet entries at Optimal Trade Entry levels. Focuses on the 10:00-11:00 AM ET silver bullet window for high-probability setups.' },
+  { id: 'annie', botId: 'ote-refined-small', name: 'Rekt Reaper', number: '#05', strategy: 'OTE Refined', account: 'APEX-20', emoji: '📊', image: '/nft-art/new-collection/images/05-Rekt-Reaper.jpg', tokenId: 2, nftName: 'Rekt Reaper', contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728', chainId: 8453, desc: 'Refined OTE strategy with enhanced entry/exit logic. Focuses on confluence of OTE levels with displacement and market structure shifts.' },
+  { id: 'mike', botId: 'new-300k', name: 'Signal Sage', number: '#08', strategy: 'OTE Refined Large', account: 'APEX-21', emoji: '🚀', image: '/nft-art/new-collection/images/08-Signal-Sage.jpg', tokenId: 3, nftName: 'Signal Sage', contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728', chainId: 8453, desc: 'The big gun. Runs OTE Refined Large on our largest account — a $300K evaluation. Bigger position sizing and higher stakes.' }
 ];
 
 // Task data — persisted to API + localStorage
@@ -3009,7 +3192,7 @@ function renderBotsTab(accounts) {
     return `
       <div class="bot-card">
         <div class="bot-card-header">
-          <div class="bot-card-avatar">${bot.emoji}</div>
+          <div class="bot-card-avatar">${bot.image ? `<img src="${bot.image}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">` : bot.emoji}</div>
           <div style="flex:1">
             <div class="bot-card-name">${bot.name} (${bot.number})</div>
             <div class="bot-card-subtitle">${bot.strategy} • ${bot.account}</div>
@@ -3054,6 +3237,7 @@ function renderBotsTab(accounts) {
           <span>Win Rate: ${winRate}${typeof winRate === 'number' ? '%' : ''}</span>
           <span>Trades: ${totalTrades}</span>
           <span>${bot.strategy}</span>
+          ${bot.tokenId !== undefined ? `<span title="NFT Token ID">Token #${bot.tokenId}</span>` : ''}
         </div>
 
         <p style="font-size:11px;color:var(--text-dim);margin-top:12px;line-height:1.5">${bot.desc}</p>
@@ -3478,6 +3662,263 @@ function init() {
 
 init();
 
+// ═══ GODDARD TAB ═══
+const GD_API = window.location.origin;
+
+async function loadGoddardTab() {
+  await Promise.all([
+    loadGoddardRiskState(),
+    loadGoddardNewsFeed(),
+    loadGoddardRiskRules(),
+    loadGoddardCronSchedule()
+  ]);
+}
+
+async function loadGoddardRiskState() {
+  try {
+    const res = await fetch(`${GD_API}/api/goddard/risk-state`);
+    if (!res.ok) return;
+    const state = await res.json();
+    if (!state || !state.accounts) return;
+
+    // Risk level
+    const badge = document.getElementById('gd-risk-badge');
+    let maxDD = 0;
+    let totalBal = 0;
+    let totalWeeklyPnl = 0;
+    const accts = state.accounts;
+    
+    for (const [id, a] of Object.entries(accts)) {
+      maxDD = Math.max(maxDD, a.drawdownPct || 0);
+      totalBal += a.currentBalance || 0;
+      totalWeeklyPnl += a.weeklyPnL || 0;
+    }
+
+    if (maxDD > 80) { badge.textContent = '🔴 CRITICAL'; badge.style.color = '#ff4444'; }
+    else if (maxDD > 60) { badge.textContent = '🟡 CAUTION'; badge.style.color = '#ffaa00'; }
+    else { badge.textContent = '🟢 GREEN'; badge.style.color = '#00ff88'; }
+
+    document.getElementById('gd-aum').textContent = '$' + totalBal.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    
+    const pnlEl = document.getElementById('gd-weekly-pnl');
+    pnlEl.textContent = (totalWeeklyPnl >= 0 ? '+' : '') + '$' + totalWeeklyPnl.toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2});
+    pnlEl.style.color = totalWeeklyPnl >= 0 ? '#00ff88' : '#ff4444';
+
+    document.getElementById('gd-week-start').textContent = state.weekStart || '—';
+    document.getElementById('gd-last-updated').textContent = 'Last updated: ' + (state.lastUpdated ? new Date(state.lastUpdated).toLocaleString() : 'Unknown');
+
+    // Bot cards
+    const cardsEl = document.getElementById('gd-bot-cards');
+    cardsEl.innerHTML = '';
+    for (const [id, a] of Object.entries(accts)) {
+      const isActive = a.status === 'ACTIVE';
+      const ddColor = a.drawdownPct > 60 ? '#ff4444' : a.drawdownPct > 40 ? '#ffaa00' : '#00ff88';
+      const statusColor = isActive ? '#00ff88' : '#ff4444';
+      const pnlColor = (a.weeklyPnL || 0) >= 0 ? '#00ff88' : '#ff4444';
+      cardsEl.innerHTML += `
+        <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+            <span style="font-weight:600;font-size:13px;">${a.nftName || id}</span>
+            <span style="font-size:11px;padding:3px 8px;border-radius:6px;background:${isActive ? 'rgba(0,255,136,0.1)' : 'rgba(255,68,68,0.1)'};color:${statusColor};font-weight:600;">${a.status}</span>
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">${a.botName} • ${id}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;">
+            <div>
+              <div style="font-size:10px;color:var(--text-dim);">Balance</div>
+              <div style="font-size:13px;font-family:'SF Mono',monospace;">$${(a.currentBalance||0).toLocaleString('en-US',{minimumFractionDigits:2})}</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-dim);">Weekly P&L</div>
+              <div style="font-size:13px;font-family:'SF Mono',monospace;color:${pnlColor};">${(a.weeklyPnL||0) >= 0 ? '+' : ''}$${(a.weeklyPnL||0).toFixed(2)}</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-dim);">Drawdown</div>
+              <div style="font-size:13px;font-family:'SF Mono',monospace;color:${ddColor};">${(a.drawdownPct||0).toFixed(1)}%</div>
+            </div>
+            <div>
+              <div style="font-size:10px;color:var(--text-dim);">DD Remaining</div>
+              <div style="font-size:13px;font-family:'SF Mono',monospace;">$${((a.drawdownMax||5000) - (a.drawdownUsed||0)).toLocaleString('en-US',{minimumFractionDigits:0})}</div>
+            </div>
+          </div>
+          ${a.pauseReason ? `<div style="margin-top:8px;padding:6px 10px;background:rgba(255,68,68,0.08);border-radius:6px;font-size:11px;color:#ff8888;">⚠️ ${a.pauseReason}</div>` : ''}
+        </div>
+      `;
+    }
+
+    // Action log
+    if (state.actions && state.actions.length > 0) {
+      const logEl = document.getElementById('gd-action-log');
+      logEl.innerHTML = state.actions.slice(0, 20).map(a => `
+        <div style="padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);display:flex;gap:12px;">
+          <span style="color:var(--text-dim);white-space:nowrap;min-width:140px;">${new Date(a.timestamp).toLocaleString()}</span>
+          <span style="color:var(--accent-cyan);min-width:80px;font-weight:600;">${a.action}</span>
+          <span style="color:var(--text-secondary);">${a.details || ''}</span>
+        </div>
+      `).join('');
+    }
+
+  } catch(e) {
+    console.error('Failed to load Goddard risk state:', e);
+  }
+}
+
+async function loadGoddardNewsFeed() {
+  try {
+    const res = await fetch(`${GD_API}/api/goddard/news-feed`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const feedEl = document.getElementById('gd-news-feed');
+    
+    if (!data.entries || data.entries.length === 0) {
+      feedEl.innerHTML = '<div style="color:var(--text-dim);font-size:13px;font-style:italic;padding:20px;text-align:center;">No news analysis yet. Goddard will post his first briefing at 4:30 AM PT.</div>';
+      return;
+    }
+
+    feedEl.innerHTML = data.entries.map(e => {
+      const impactColor = e.impact === 'HIGH' ? '#ff4444' : e.impact === 'MEDIUM' ? '#ffaa00' : '#00ff88';
+      return `
+        <div style="padding:12px;margin-bottom:8px;background:rgba(255,255,255,0.02);border-radius:10px;border-left:3px solid ${impactColor};">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+            <span style="font-weight:600;font-size:13px;">${e.title || 'Analysis'}</span>
+            <span style="font-size:10px;color:var(--text-dim);">${e.timestamp ? new Date(e.timestamp).toLocaleString() : ''}</span>
+          </div>
+          ${e.impact ? `<span style="font-size:10px;padding:2px 6px;border-radius:4px;background:${impactColor}22;color:${impactColor};font-weight:600;margin-bottom:6px;display:inline-block;">${e.impact} IMPACT</span>` : ''}
+          <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-top:4px;white-space:pre-wrap;">${e.analysis || e.text || ''}</div>
+          ${e.recommendation ? `<div style="margin-top:8px;padding:6px 10px;background:rgba(0,212,255,0.06);border-radius:6px;font-size:11px;color:var(--accent-cyan);">📋 ${e.recommendation}</div>` : ''}
+        </div>
+      `;
+    }).join('');
+  } catch(e) {
+    console.error('Failed to load Goddard news feed:', e);
+  }
+}
+
+async function loadGoddardRiskRules() {
+  try {
+    const res = await fetch(`${GD_API}/api/goddard/risk-rules`);
+    if (!res.ok) return;
+    const data = await res.json();
+    document.getElementById('gd-risk-rules').value = data.rules || '';
+  } catch(e) {
+    console.error('Failed to load risk rules:', e);
+  }
+}
+
+async function saveGoddardRiskRules() {
+  try {
+    const rules = document.getElementById('gd-risk-rules').value;
+    const res = await fetch(`${GD_API}/api/goddard/risk-rules`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rules })
+    });
+    if (res.ok) {
+      showToast('✅ Risk rules saved — Goddard will use these next run');
+    } else {
+      showToast('❌ Failed to save risk rules');
+    }
+  } catch(e) {
+    showToast('❌ Error saving: ' + e.message);
+  }
+}
+
+async function loadGoddardCronSchedule() {
+  try {
+    const res = await fetch(`${GD_API}/api/goddard/cron-schedule`);
+    if (!res.ok) return;
+    const data = await res.json();
+    const el = document.getElementById('gd-cron-schedule');
+    
+    if (!data.jobs || data.jobs.length === 0) {
+      el.innerHTML = '<div style="color:var(--text-dim);font-style:italic;">No cron jobs configured</div>';
+      return;
+    }
+
+    el.innerHTML = data.jobs.map((job, i) => `
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:10px;padding:14px;margin-bottom:10px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-weight:600;font-size:13px;">${job.name}</span>
+          <span style="font-size:11px;padding:3px 8px;border-radius:6px;background:${job.enabled ? 'rgba(0,255,136,0.1)' : 'rgba(255,68,68,0.1)'};color:${job.enabled ? '#00ff88' : '#ff4444'};font-weight:600;">${job.enabled ? 'ENABLED' : 'DISABLED'}</span>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:8px;">${job.description || ''}</div>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <label style="font-size:11px;color:var(--text-secondary);">Cron:</label>
+          <input type="text" value="${job.cron}" data-cron-idx="${i}" style="background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;padding:4px 8px;color:var(--text-primary);font-family:'SF Mono',monospace;font-size:12px;width:160px;">
+          <label style="font-size:11px;color:var(--text-secondary);">TZ:</label>
+          <input type="text" value="${job.tz || 'America/Los_Angeles'}" data-tz-idx="${i}" style="background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;padding:4px 8px;color:var(--text-primary);font-family:'SF Mono',monospace;font-size:12px;width:180px;">
+          <button onclick="toggleGoddardCron(${i})" style="background:rgba(255,255,255,0.06);border:1px solid var(--border-color);color:var(--text-secondary);padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11px;">${job.enabled ? '⏸ Pause' : '▶ Enable'}</button>
+        </div>
+      </div>
+    `).join('') + `
+      <div style="text-align:right;margin-top:10px;">
+        <button onclick="saveGoddardCronSchedule()" style="background:rgba(0,212,255,0.15);border:1px solid rgba(0,212,255,0.3);color:var(--accent-cyan);padding:8px 20px;border-radius:8px;cursor:pointer;font-weight:600;font-size:12px;">💾 Save Schedule</button>
+      </div>
+    `;
+    
+    // Store for saving
+    window._goddardCronJobs = data.jobs;
+  } catch(e) {
+    console.error('Failed to load cron schedule:', e);
+  }
+}
+
+function toggleGoddardCron(idx) {
+  if (window._goddardCronJobs && window._goddardCronJobs[idx]) {
+    window._goddardCronJobs[idx].enabled = !window._goddardCronJobs[idx].enabled;
+    loadGoddardCronSchedule(); // Re-render
+  }
+}
+
+async function saveGoddardCronSchedule() {
+  try {
+    if (!window._goddardCronJobs) return;
+    // Read updated cron expressions from inputs
+    document.querySelectorAll('[data-cron-idx]').forEach(input => {
+      const idx = parseInt(input.getAttribute('data-cron-idx'));
+      if (window._goddardCronJobs[idx]) window._goddardCronJobs[idx].cron = input.value;
+    });
+    document.querySelectorAll('[data-tz-idx]').forEach(input => {
+      const idx = parseInt(input.getAttribute('data-tz-idx'));
+      if (window._goddardCronJobs[idx]) window._goddardCronJobs[idx].tz = input.value;
+    });
+
+    const res = await fetch(`${GD_API}/api/goddard/cron-schedule`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobs: window._goddardCronJobs })
+    });
+    if (res.ok) {
+      showToast('✅ Cron schedule saved');
+    } else {
+      showToast('❌ Failed to save schedule');
+    }
+  } catch(e) {
+    showToast('❌ Error: ' + e.message);
+  }
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('gd-toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'gd-toast';
+    toast.style.cssText = 'position:fixed;bottom:30px;right:30px;background:#1a1a2e;border:1px solid rgba(0,212,255,0.3);color:var(--text-primary);padding:12px 20px;border-radius:10px;font-size:13px;z-index:9999;transition:opacity 0.3s;box-shadow:0 4px 20px rgba(0,0,0,0.4);';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  setTimeout(() => { toast.style.opacity = '0'; }, 3000);
+}
+
+// Load Goddard tab when nav is clicked
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.getAttribute('data-tab') === 'goddard') {
+      loadGoddardTab();
+    }
+  });
+});
+
 // ═══ EDITABLE EXPENSES ═══
 const DEFAULT_EXPENSES = [
   { cat: 'business', name: 'Apex Trader Funding', note: '$78.40 × 4 accounts + $50 data', cost: 363.60 },
@@ -3747,7 +4188,7 @@ renderLaunchTodo();
 // ═══════════════════ ACCESS CONTROL & WALLET SCANNER ═══════════════════
 const AC_API_BASE = 'https://decrypt-caretaker-production.up.railway.app';
 const AC_CONTRACTS = {
-  cipher: "0x3fbE062426F8E290fF521873B9a975FA14825f44",
+  cipher: "0x743EBDfcED2dBA082E282689c35D5c0E173C7728",
   tierGate: "0x08c7C46434B8d0c5cEa538278711df0051C0fCA1"
 };
 const AC_TIER_THRESHOLDS = { bronze: 100000, gold: 500000, diamond: 1300000 };
@@ -3762,7 +4203,7 @@ let acWalletScanResults = [];
 
 async function acInitProvider() {
   try {
-    acProvider = new ethers.JsonRpcProvider('https://sepolia.base.org');
+    acProvider = new ethers.JsonRpcProvider('https://mainnet.base.org');
   } catch (e) {
     console.log('AC Provider init failed:', e);
   }
@@ -3884,7 +4325,7 @@ async function acScanAllWallets() {
   btn.disabled = true;
   btn.textContent = '🔄 Scanning...';
   const grid = document.getElementById('ac-scanner-grid');
-  grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">Scanning wallets on Base Sepolia...</div>';
+  grid.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-secondary);">Scanning wallets on Base...</div>';
   acWalletScanResults = [];
 
   const usersToScan = acApprovedUsers.length > 0 ? acApprovedUsers : [
@@ -4412,6 +4853,109 @@ function deleteIdea(id) {
 
 // Load and render on init
 loadIdeas().then(() => renderIdeas());
+
+// ═══ MEETING ROOM ═══
+const MR_AGENTS = {
+  dropking: { name:'DropKing', emoji:'👑', color:'#aa66ff' },
+  jimmy:    { name:'Jimmy', emoji:'🧪', color:'#00e5ff' },
+  goddard:  { name:'Goddard', emoji:'🐕‍🦺', color:'#ff4444' },
+  cindy:    { name:'Cindy', emoji:'⚡', color:'#ffaa00' },
+  carl:     { name:'Carl', emoji:'🤓', color:'#00d4ff' },
+  sheen:    { name:'Sheen', emoji:'🚀', color:'#00ff88' }
+};
+
+let meetingMessages = [];
+
+async function loadMeetingMessages() {
+  try {
+    const res = await fetch(API + '/api/meeting-room');
+    if (res.ok) { meetingMessages = await res.json(); }
+  } catch(e) { console.log('Meeting room load error:', e); }
+  renderMeetingMessages();
+}
+
+function renderMeetingMessages() {
+  const container = document.getElementById('mr-messages');
+  if (!container) return;
+  
+  if (meetingMessages.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;color:var(--text-dim);">
+        <div style="font-size:48px;margin-bottom:16px;opacity:0.3;">💬</div>
+        <div style="font-size:14px;margin-bottom:8px;">Meeting room is empty</div>
+        <div style="font-size:11px;">Start the conversation — the whole team is here.</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = meetingMessages.map(msg => {
+    const agent = MR_AGENTS[msg.sender] || MR_AGENTS.jimmy;
+    const time = new Date(msg.timestamp).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+    const isDropKing = msg.sender === 'dropking';
+    return `
+      <div style="display:flex;gap:10px;align-items:flex-start;${isDropKing ? 'flex-direction:row-reverse;' : ''}">
+        <div style="width:34px;height:34px;border-radius:8px;background:rgba(${hexToRgb(agent.color)},0.15);display:flex;align-items:center;justify-content:center;font-size:16px;border:1.5px solid ${agent.color}40;flex-shrink:0;">${agent.emoji}</div>
+        <div style="max-width:70%;${isDropKing ? 'text-align:right;' : ''}">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:3px;${isDropKing ? 'justify-content:flex-end;' : ''}">
+            <span style="font-size:12px;font-weight:700;color:${agent.color};">${agent.name}</span>
+            <span style="font-size:10px;color:var(--text-dim);">${time}</span>
+          </div>
+          <div style="background:${isDropKing ? 'rgba(170,102,255,0.1)' : 'rgba(255,255,255,0.04)'};border:1px solid ${isDropKing ? 'rgba(170,102,255,0.2)' : 'var(--border-color)'};border-radius:12px;${isDropKing ? 'border-top-right-radius:4px;' : 'border-top-left-radius:4px;'}padding:10px 14px;font-size:13px;color:var(--text-secondary);line-height:1.5;">
+            ${escapeHtml(msg.message)}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+  
+  container.scrollTop = container.scrollHeight;
+}
+
+function hexToRgb(hex) {
+  hex = hex.replace('#','');
+  return [parseInt(hex.substring(0,2),16), parseInt(hex.substring(2,4),16), parseInt(hex.substring(4,6),16)].join(',');
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+async function sendMeetingMsg() {
+  const input = document.getElementById('mr-input');
+  const sender = document.getElementById('mr-sender').value;
+  const message = input.value.trim();
+  if (!message) return;
+  
+  input.value = '';
+  
+  const msg = { sender, message, timestamp: new Date().toISOString() };
+  meetingMessages.push(msg);
+  renderMeetingMessages();
+  
+  try {
+    await fetch(API + '/api/meeting-room', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(msg)
+    });
+  } catch(e) { console.log('Send error:', e); }
+}
+
+// Auto-load meeting messages when org tab is clicked
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.getAttribute('data-tab') === 'org') {
+      setTimeout(() => loadMeetingMessages(), 100);
+    }
+  });
+});
+
+// Also poll every 15s when org tab is active
+setInterval(() => {
+  const orgTab = document.getElementById('tab-org');
+  if (orgTab && orgTab.classList.contains('active')) loadMeetingMessages();
+}, 15000);
 </script>
 </div><!-- end #app-content -->
 </body>

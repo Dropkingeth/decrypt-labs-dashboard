@@ -1826,6 +1826,228 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // GET /api/goddard/risk-state - Get Goddard's current risk state
+  if (req.method === 'GET' && pathname === '/api/goddard/risk-state') {
+    try {
+      const rsPath = path.join(PERSIST_DIR, 'goddard-risk-state.json');
+      if (fs.existsSync(rsPath)) {
+        const data = fs.readFileSync(rsPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({}));
+      }
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // POST /api/goddard/risk-state - Update Goddard's risk state (from dashboard edits)
+  if (req.method === 'POST' && pathname === '/api/goddard/risk-state') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const state = JSON.parse(body);
+        const rsPath = path.join(PERSIST_DIR, 'goddard-risk-state.json');
+        fs.writeFileSync(rsPath, JSON.stringify(state, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/goddard/risk-rules - Get Goddard's risk rules
+  if (req.method === 'GET' && pathname === '/api/goddard/risk-rules') {
+    try {
+      const rulesPath = path.join(PERSIST_DIR, 'goddard-risk-rules.md');
+      if (fs.existsSync(rulesPath)) {
+        const data = fs.readFileSync(rulesPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ rules: data }));
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ rules: '' }));
+      }
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // POST /api/goddard/risk-rules - Update Goddard's risk rules from dashboard
+  if (req.method === 'POST' && pathname === '/api/goddard/risk-rules') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const { rules } = JSON.parse(body);
+        const rulesPath = path.join(PERSIST_DIR, 'goddard-risk-rules.md');
+        // Also sync to local Goddard workspace if available
+        const localPath = '/Users/jimmy/clawd-goddard/RISK-RULES.md';
+        try { fs.writeFileSync(localPath, rules); } catch(e) { /* Railway won't have this */ }
+        fs.writeFileSync(rulesPath, rules);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/goddard/news-feed - Get ICT live news analysis feed
+  if (req.method === 'GET' && pathname === '/api/goddard/news-feed') {
+    try {
+      const feedPath = path.join(PERSIST_DIR, 'goddard-news-feed.json');
+      if (fs.existsSync(feedPath)) {
+        const data = fs.readFileSync(feedPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+      } else {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ entries: [] }));
+      }
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // POST /api/goddard/news-feed - Add news entry from Goddard's analysis
+  if (req.method === 'POST' && pathname === '/api/goddard/news-feed') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const entry = JSON.parse(body);
+        const feedPath = path.join(PERSIST_DIR, 'goddard-news-feed.json');
+        let feed = { entries: [] };
+        if (fs.existsSync(feedPath)) {
+          feed = JSON.parse(fs.readFileSync(feedPath, 'utf8'));
+        }
+        feed.entries.unshift({ ...entry, timestamp: new Date().toISOString() });
+        // Keep last 50 entries
+        feed.entries = feed.entries.slice(0, 50);
+        fs.writeFileSync(feedPath, JSON.stringify(feed, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/goddard/cron-schedule - Get Goddard's cron schedule
+  if (req.method === 'GET' && pathname === '/api/goddard/cron-schedule') {
+    try {
+      const cronPath = path.join(PERSIST_DIR, 'goddard-cron-schedule.json');
+      if (fs.existsSync(cronPath)) {
+        const data = fs.readFileSync(cronPath, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+      } else {
+        // Default schedule
+        const defaultSchedule = {
+          jobs: [
+            { id: 'morning-risk', name: 'Morning Risk Briefing', cron: '30 4 * * 1-5', tz: 'America/Los_Angeles', enabled: true, description: 'Forex Factory news check + drawdown status + pause recommendations' },
+            { id: 'pm-risk', name: 'PM Session Risk Check', cron: '30 8 * * 1-5', tz: 'America/Los_Angeles', enabled: true, description: 'Check P&L before PM session — recommend pausing if green' }
+          ]
+        };
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify(defaultSchedule));
+      }
+    } catch(e) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: e.message }));
+    }
+    return;
+  }
+
+  // POST /api/goddard/cron-schedule - Update Goddard's cron schedule
+  if (req.method === 'POST' && pathname === '/api/goddard/cron-schedule') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const schedule = JSON.parse(body);
+        const cronPath = path.join(PERSIST_DIR, 'goddard-cron-schedule.json');
+        fs.writeFileSync(cronPath, JSON.stringify(schedule, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true }));
+      } catch(e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // ═══ MEETING ROOM API ═══
+  // GET /api/meeting-room - Get all meeting messages
+  if (req.method === 'GET' && pathname === '/api/meeting-room') {
+    try {
+      const data = fs.existsSync('/tmp/meeting-room.json')
+        ? JSON.parse(fs.readFileSync('/tmp/meeting-room.json', 'utf8'))
+        : [];
+      res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+      res.end(JSON.stringify(data));
+    } catch (e) {
+      res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+      res.end('[]');
+    }
+    return;
+  }
+
+  // POST /api/meeting-room - Add a message
+  if (req.method === 'POST' && pathname === '/api/meeting-room') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const msg = JSON.parse(body);
+        const messages = fs.existsSync('/tmp/meeting-room.json')
+          ? JSON.parse(fs.readFileSync('/tmp/meeting-room.json', 'utf8'))
+          : [];
+        messages.push({
+          id: Date.now().toString(36),
+          sender: msg.sender || 'jimmy',
+          message: msg.message || '',
+          timestamp: msg.timestamp || new Date().toISOString()
+        });
+        // Keep last 200 messages
+        const trimmed = messages.slice(-200);
+        fs.writeFileSync('/tmp/meeting-room.json', JSON.stringify(trimmed, null, 2));
+        res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+        res.end(JSON.stringify({ ok: true, total: trimmed.length }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // DELETE /api/meeting-room - Clear all messages
+  if (req.method === 'DELETE' && pathname === '/api/meeting-room') {
+    try { fs.writeFileSync('/tmp/meeting-room.json', '[]'); } catch(e) {}
+    res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+    res.end(JSON.stringify({ ok: true, cleared: true }));
+    return;
+  }
+
   // 404
   res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Not found' }));

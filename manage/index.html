@@ -450,10 +450,10 @@
     </div>
 
     <script>
-        // Contract addresses (Base Sepolia Testnet)
+        // Contract addresses (Base Testnet)
         const CONTRACTS = {
-            cipher: "0x3fbE062426F8E290fF521873B9a975FA14825f44",
-            botNFT: "0xa5D7fEbc77A63f3129220A5561cDe8B7D784223F",
+            cipher: "0x743EBDfcED2dBA082E282689c35D5c0E173C7728",
+            botNFT: "0x743EBDfcED2dBA082E282689c35D5c0E173C7728",
             botFleet: "0xFB85e2790F12eC12c672B991F9485E52b9329352",
             fuelManager: "0xD28Ca185e4B539bedB2019A6Bc10bCC3CB533b85",
             rewardsDistributor: "0xE7B5e151f05975F441301BC6ac37EDd2013029f6"
@@ -524,14 +524,14 @@
                 
                 // Check network
                 const network = await provider.getNetwork();
-                if (network.chainId !== 84532n) {
+                if (network.chainId !== 8453n) {
                     try {
                         await window.ethereum.request({
                             method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x14a34' }]
+                            params: [{ chainId: '0x2105' }]
                         });
                     } catch (e) {
-                        alert('Please switch to Base Sepolia network');
+                        alert('Please switch to Base network');
                         return;
                     }
                 }

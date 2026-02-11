@@ -527,7 +527,7 @@
 
     <script>
         const CONTRACTS = {
-            botNFT: "0xa5D7fEbc77A63f3129220A5561cDe8B7D784223F"
+            botNFT: "0x743EBDfcED2dBA082E282689c35D5c0E173C7728"
         };
         
         const BOTNFT_ABI = [
@@ -557,10 +557,10 @@
                 userAddress = await signer.getAddress();
                 
                 const network = await provider.getNetwork();
-                if (network.chainId !== 84532n) {
+                if (network.chainId !== 8453n) {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: '0x14a34' }]
+                        params: [{ chainId: '0x2105' }]
                     });
                 }
                 

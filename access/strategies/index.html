@@ -678,7 +678,7 @@
 
     <script>
         const CONTRACTS = {
-            cipher: "0x3fbE062426F8E290fF521873B9a975FA14825f44",
+            cipher: "0x743EBDfcED2dBA082E282689c35D5c0E173C7728",
             tierGate: "0x08c7C46434B8d0c5cEa538278711df0051C0fCA1"
         };
         
@@ -700,10 +700,10 @@
                 userAddress = await signer.getAddress();
                 
                 const network = await provider.getNetwork();
-                if (network.chainId !== 84532n) {
+                if (network.chainId !== 8453n) {
                     await window.ethereum.request({
                         method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: '0x14a34' }]
+                        params: [{ chainId: '0x2105' }]
                     });
                 }
                 

@@ -952,9 +952,9 @@
     const API_BASE = 'https://decrypt-caretaker-production.up.railway.app';
     const REFRESH_INTERVAL = 10000;
     
-    // Contract addresses (Base Sepolia)
+    // Contract addresses (Base)
     const CONTRACTS = {
-      cipher: "0x3fbE062426F8E290fF521873B9a975FA14825f44",
+      cipher: "0x743EBDfcED2dBA082E282689c35D5c0E173C7728",
       tierGate: "0x08c7C46434B8d0c5cEa538278711df0051C0fCA1"
     };
     
@@ -998,7 +998,7 @@
     // Initialize ethers provider
     async function initProvider() {
       try {
-        provider = new ethers.JsonRpcProvider('https://sepolia.base.org');
+        provider = new ethers.JsonRpcProvider('https://mainnet.base.org');
       } catch (e) {
         console.log('Provider init failed:', e);
       }
@@ -1137,7 +1137,7 @@
       btn.textContent = '🔄 Scanning...';
       
       const grid = document.getElementById('scanner-grid');
-      grid.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Scanning wallets on Base Sepolia...</div>';
+      grid.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-secondary);">Scanning wallets on Base...</div>';
       
       walletScanResults = [];
       

@@ -692,7 +692,7 @@
                 <span class="mint-title">🤖 Bot Deployment</span>
                 <div class="network-badge">
                     <span class="network-dot"></span>
-                    <span>Base Sepolia</span>
+                    <span>Base</span>
                 </div>
             </div>
             
@@ -731,13 +731,13 @@
             <div class="price-row">
                 <span class="price-label">Mint Price</span>
                 <div>
-                    <span class="price-value">300 $CIPHER</span>
+                    <span class="price-value">0.1 ETH</span>
                     <span class="price-usd">(~$3)</span>
                 </div>
             </div>
             
             <div class="balance-row" id="balanceRow" style="display: none;">
-                <span class="balance-label">Your $CIPHER Balance</span>
+                <span class="balance-label">Your ETH Balance</span>
                 <span class="balance-value" id="cipherBalance">0</span>
             </div>
             
@@ -774,23 +774,18 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script>
-        // Contract addresses (Base Sepolia)
+        // Contract addresses (Base Mainnet)
         const CONTRACTS = {
-            cipher: '0x3fbE062426F8E290fF521873B9a975FA14825f44',
-            botNFT: '0xa5D7fEbc77A63f3129220A5561cDe8B7D784223F'
+            botNFT: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728'
         };
         
-        // ABIs
-        const CIPHER_ABI = [
-            'function balanceOf(address) view returns (uint256)',
-            'function approve(address spender, uint256 amount) returns (bool)',
-            'function allowance(address owner, address spender) view returns (uint256)'
-        ];
-        
+        // ABI (ETH mint)
         const BOTNFT_ABI = [
-            'function mint(uint8 strategy, string uri) external',
+            'function mint(uint8 strategy, string uri, string botName) external payable returns (uint256)',
             'function totalSupply() view returns (uint256)',
-            'function mintPriceInCipher() view returns (uint256)',
+            'function mintPriceETH() view returns (uint256)',
+            'function publicMintEnabled() view returns (bool)',
+            'function remainingSupply() view returns (uint256)',
             'function balanceOf(address) view returns (uint256)'
         ];
         
@@ -819,7 +814,7 @@
         ];
         
         let provider, signer, userAddress;
-        let cipherContract, nftContract;
+        let nftContract;
         
         async function connectWallet() {
             try {
@@ -833,24 +828,24 @@
                 provider = new ethers.providers.Web3Provider(window.ethereum);
                 await provider.send('eth_requestAccounts', []);
                 
-                // Check network (Base Sepolia = 84532)
+                // Check network (Base = 8453)
                 const network = await provider.getNetwork();
-                if (network.chainId !== 84532) {
+                if (network.chainId !== 8453) {
                     try {
                         await window.ethereum.request({
                             method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x14a34' }]
+                            params: [{ chainId: '0x2105' }]
                         });
                     } catch (switchError) {
                         if (switchError.code === 4902) {
                             await window.ethereum.request({
                                 method: 'wallet_addEthereumChain',
                                 params: [{
-                                    chainId: '0x14a34',
-                                    chainName: 'Base Sepolia',
+                                    chainId: '0x2105',
+                                    chainName: 'Base',
                                     nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                                    rpcUrls: ['https://sepolia.base.org'],
-                                    blockExplorerUrls: ['https://sepolia.basescan.org']
+                                    rpcUrls: ['https://mainnet.base.org'],
+                                    blockExplorerUrls: ['https://basescan.org']
                                 }]
                             });
                         }
@@ -861,8 +856,7 @@
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
                 
-                // Init contracts
-                cipherContract = new ethers.Contract(CONTRACTS.cipher, CIPHER_ABI, signer);
+                // Init contract
                 nftContract = new ethers.Contract(CONTRACTS.botNFT, BOTNFT_ABI, signer);
                 
                 // Update UI
@@ -883,13 +877,22 @@
         
         async function updateBalances() {
             try {
-                const balance = await cipherContract.balanceOf(userAddress);
+                const ethBalance = await provider.getBalance(userAddress);
                 document.getElementById('cipherBalance').textContent = 
-                    ethers.utils.formatUnits(balance, 18) + ' $CIPHER';
+                    parseFloat(ethers.utils.formatEther(ethBalance)).toFixed(4) + ' ETH';
                 
                 const totalSupply = await nftContract.totalSupply();
+                const remaining = await nftContract.remainingSupply();
                 document.getElementById('totalMinted').textContent = totalSupply.toString();
-                document.getElementById('availableSlots').textContent = (20 - totalSupply.toNumber()).toString();
+                document.getElementById('availableSlots').textContent = remaining.toString();
+
+                // Check if public mint is enabled
+                const mintEnabled = await nftContract.publicMintEnabled();
+                if (!mintEnabled) {
+                    document.getElementById('mintBtn').innerHTML = '🔒 MINTING NOT YET OPEN';
+                    document.getElementById('mintBtn').disabled = true;
+                    document.getElementById('mintBtn').style.opacity = '0.5';
+                }
                 
             } catch (err) {
                 console.error('Error fetching balances:', err);
@@ -899,32 +902,34 @@
         async function mintBot() {
             try {
                 const strategyId = parseInt(document.querySelector('input[name="strategy"]:checked').value);
-                const mintPrice = ethers.utils.parseUnits('300', 18);
                 
                 // Strategy mapping: UI values 1-4 map to contract enum 0-3
                 const contractStrategy = strategyId - 1;
                 
+                // Get mint price from contract
+                const mintPrice = await nftContract.mintPriceETH();
+                
+                // Check if minting is enabled
+                const mintEnabled = await nftContract.publicMintEnabled();
+                if (!mintEnabled) {
+                    showStatus('🔒 Minting is not open yet. Check back soon!', 'error');
+                    return;
+                }
+                
                 // Get next tokenId to assign unique metadata
                 const totalSupply = await nftContract.totalSupply();
                 const nextTokenId = totalSupply.toNumber();
-                const metadataIndex = nextTokenId % 20;  // Wrap around if > 20
+                const metadataIndex = nextTokenId % METADATA_URIS.length;
                 const metadataUri = METADATA_URIS[metadataIndex];
-                
-                showStatus('<span class="loader"></span> Checking approval...', 'loading');
-                
-                // Check allowance
-                const allowance = await cipherContract.allowance(userAddress, CONTRACTS.botNFT);
-                
-                if (allowance.lt(mintPrice)) {
-                    showStatus('<span class="loader"></span> Approving $CIPHER...', 'loading');
-                    const approveTx = await cipherContract.approve(CONTRACTS.botNFT, mintPrice);
-                    await approveTx.wait();
-                }
+                const botNames = ['Neon Stalker','Panic Protocol','Rage Demon','Glitch Meltdown','Rekt Reaper','Circuit Striker','Pixel Fury','Signal Sage','Firewall Chief','Voxel Phantom','Data Panic','Cyber Sentinel','Code Screamer','Devils Drawdown','Algo Architect','Frequency Hunter','Data Golem','Shadow Broker','Scar Cipher','Half Human'];
+                const botName = botNames[metadataIndex] || 'Cipher Bot #' + nextTokenId;
                 
                 showStatus('<span class="loader"></span> Deploying your Cipher Bot...', 'loading');
                 
-                // Mint with strategy (0-3) and metadata URI
-                const mintTx = await nftContract.mint(contractStrategy, metadataUri);
+                // Mint with ETH payment
+                const mintTx = await nftContract.mint(contractStrategy, metadataUri, botName, {
+                    value: mintPrice
+                });
                 await mintTx.wait();
                 
                 showStatus('🎉 Cipher Bot deployed! Redirecting to Laboratory...', 'success');
@@ -936,8 +941,10 @@
                 
             } catch (err) {
                 console.error(err);
-                if (err.message.includes('insufficient')) {
-                    showStatus('Insufficient $CIPHER balance. Need 300 $CIPHER to mint.', 'error');
+                if (err.message.includes('insufficient') || err.message.includes('InsufficientPayment')) {
+                    showStatus('Insufficient ETH balance. Need 0.1 ETH to mint.', 'error');
+                } else if (err.message.includes('PublicMintNotEnabled')) {
+                    showStatus('🔒 Minting is not open yet. Check back soon!', 'error');
                 } else {
                     showStatus('Mint failed: ' + (err.reason || err.message), 'error');
                 }

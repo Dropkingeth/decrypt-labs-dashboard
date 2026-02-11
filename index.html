@@ -5,11 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Decrypt Labs — AI-Powered Trading Bots | $CIPHER on Virtuals Protocol</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
-    <meta name="description" content="Decrypt Labs runs AI trading bots on funded futures accounts with full transparency. $CIPHER token — revenue-backed buybacks powered by real trading profits.">
+    <meta name="description" content="Decrypt Labs runs AI trading bots on funded futures accounts with full transparency. $CIPHER token — performance-driven buybacks powering the Cipher City ecosystem.">
     
     <!-- Open Graph -->
     <meta property="og:title" content="Decrypt Labs — $CIPHER | AI Trading Bots">
-    <meta property="og:description" content="Revenue-backed token powered by real AI trading bots. Full transparency. Watch every trade live.">
+    <meta property="og:description" content="Performance-backed token powered by real AI trading bots. Full transparency. Watch every trade live.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://decryptlabs.io">
     
@@ -1325,6 +1325,7 @@
             justify-content: center;
             font-size: 1.5rem;
             transition: all 0.3s ease;
+            overflow: hidden;
         }
         .bot-card:hover .bot-icon {
             transform: scale(1.08) rotate(3deg);
@@ -1602,9 +1603,13 @@
         }
 
         .nft-char-icon {
-            font-size: 2.5rem;
-            margin-bottom: 0.75rem;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 0.75rem;
             display: block;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid rgba(168, 85, 247, 0.2);
         }
 
         .nft-char-name {
@@ -2240,6 +2245,13 @@
             opacity: 1;
             transform: translateY(0);
         }
+
+        /* Fix for emoji color in gradient text headers */
+        .emoji-color {
+            -webkit-text-fill-color: initial;
+            background: none;
+            -webkit-background-clip: initial;
+        }
     </style>
 </head>
 <body>
@@ -2300,7 +2312,7 @@
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h.01"/></svg>
                 <span id="walletBtnText">Connect</span>
             </button>
-            <a href="city.html" class="btn btn-primary">Dashboard</a>
+            <a href="city.html" class="btn btn-primary">Enter Cipher City</a>
         </div>
     </nav>
 
@@ -2323,11 +2335,11 @@
 
                 <p class="hero-subtitle">
                     An AI agent running real trading bots on funded futures accounts.
-                    ICT strategies. Full transparency. Revenue-backed $CIPHER token.
+                    ICT strategies. Full transparency. Performance-backed $CIPHER token.
                 </p>
 
                 <div class="hero-buttons">
-                    <a href="city.html" class="btn btn-primary">Enter Mission Control</a>
+                    <a href="city.html" class="btn btn-primary">Enter Cipher City</a>
                     <a href="#meet" class="btn btn-outline">Learn More</a>
                 </div>
 
@@ -2358,16 +2370,16 @@
                         <span class="terminal-output">BOTS ACTIVE:&nbsp; <span class="highlight" data-stat="bots-count">4</span></span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">├─ Technical Tina&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; FVG+IFVG</span>
+                        <span class="terminal-output">├─ Code Screamer&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; FVG+IFVG</span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">├─ Diamond Danny&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; OTE Silver Bullet</span>
+                        <span class="terminal-output">├─ Neon Stalker&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; OTE Silver Bullet</span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">├─ Algo Annie&nbsp;&nbsp;&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; OTE Refined</span>
+                        <span class="terminal-output">├─ Rekt Reaper&nbsp;&nbsp;&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; OTE Refined</span>
                     </div>
                     <div class="terminal-line">
-                        <span class="terminal-output">└─ Mission Mike&nbsp;&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; OTE Silver Bullet</span>
+                        <span class="terminal-output">└─ Signal Sage&nbsp;&nbsp;&nbsp; <span class="success">ONLINE</span>&nbsp; OTE Silver Bullet</span>
                     </div>
                     <div class="terminal-line">
                         <span class="terminal-output dim">──────────────────────────────</span>
@@ -2429,8 +2441,8 @@
                         <path d="M17 5l3 3 3-3" stroke-width="2"/>
                     </svg>
                 </div>
-                <div class="flow-title">Profits Generated</div>
-                <div class="flow-desc">Real profits from live futures trading</div>
+                <div class="flow-title">Performance Generated</div>
+                <div class="flow-desc">Real performance from live futures trading</div>
             </div>
             <div class="flow-connector">
                 <svg viewBox="0 0 50 24"><path d="M5 12 L40 12" stroke="currentColor" fill="none" stroke-width="2" stroke-dasharray="4 2"/><path d="M35 7 L42 12 L35 17" stroke="currentColor" fill="none" stroke-width="2"/></svg>
@@ -2444,7 +2456,7 @@
                     </svg>
                 </div>
                 <div class="flow-title">$CIPHER Buybacks</div>
-                <div class="flow-desc">80% of profits buy $CIPHER</div>
+                <div class="flow-desc">Performance drives $CIPHER buybacks</div>
             </div>
             <div class="flow-connector">
                 <svg viewBox="0 0 50 24"><path d="M5 12 L40 12" stroke="currentColor" fill="none" stroke-width="2" stroke-dasharray="4 2"/><path d="M35 7 L42 12 L35 17" stroke="currentColor" fill="none" stroke-width="2"/></svg>
@@ -2460,7 +2472,7 @@
                 <div class="flow-desc">Burned forever. Supply shrinks.</div>
             </div>
         </div>
-        <p class="flow-summary">Bots profit → Token value accrues. <strong>That's the model.</strong></p>
+        <p class="flow-summary">Bots perform → City thrives → Token value grows. <strong>That's the model.</strong></p>
     </div>
 
     <div class="section-divider"></div>
@@ -2524,7 +2536,7 @@
          ===================== -->
     <section class="strategies-section" id="strategies">
         <div class="section-header">
-            <h2>📊 Our Strategies</h2>
+            <h2><span class="emoji-color">📊</span> Our Strategies</h2>
             <p>Four battle-tested ICT strategies backtested since 2022. Institutional-grade setups, algorithmic execution.</p>
             <div style="margin-top: 1.25rem;">
                 <span class="backtest-badge">
@@ -2674,19 +2686,19 @@
          ===================== -->
     <section class="bots-section" id="bots">
         <div class="section-header">
-            <h2>🤖 Active Deployments</h2>
+            <h2><span class="emoji-color">🤖</span> Active Deployments</h2>
             <p>Four bots running live on funded futures accounts. Each bot deploys a specific strategy with real capital.</p>
         </div>
 
         <div class="bots-grid">
-            <!-- Bot 1: Technical Tina -->
+            <!-- Bot 1: Code Screamer — Token #0, NFT #13 Code Screamer, APEX-18 -->
             <div class="bot-card reveal">
                 <div class="risk-badge low">🟢 LOW RISK</div>
                 <div class="bot-header">
                     <div class="bot-header-top">
-                        <div class="bot-icon">📊</div>
+                        <div class="bot-icon"><img src="nft-art/new-collection/images/13-Code-Screamer.jpg" alt="Code Screamer" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
                         <div class="bot-meta">
-                            <h3>Technical Tina</h3>
+                            <h3>Code Screamer</h3>
                             <div class="strategy">FVG+IFVG Strategy</div>
                         </div>
                     </div>
@@ -2706,7 +2718,7 @@
                         <div class="deploy-step">
                             <div class="deploy-icon">🤖</div>
                             <div class="deploy-label">Bot</div>
-                            <div class="deploy-value">Tina</div>
+                            <div class="deploy-value">Screamer</div>
                         </div>
                         <span class="deploy-arrow">→</span>
                         <div class="deploy-step">
@@ -2722,29 +2734,29 @@
                     </p>
                     <div class="bot-stats">
                         <div class="bot-stat">
-                            <div class="value">76.7%</div>
+                            <div class="value">76.63%</div>
                             <div class="label">Win Rate</div>
                         </div>
                         <div class="bot-stat">
-                            <div class="value">5,167</div>
+                            <div class="value">5,202</div>
                             <div class="label">Trades</div>
                         </div>
                         <div class="bot-stat">
-                            <div class="value">+62%</div>
+                            <div class="value">+$60K</div>
                             <div class="label">Profit</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bot 2: Diamond Hands Danny -->
+            <!-- Bot 2: Neon Stalker — Token #1, NFT #01 Neon Stalker, APEX-19 -->
             <div class="bot-card reveal">
                 <div class="risk-badge high">🔴 HIGH RISK</div>
                 <div class="bot-header">
                     <div class="bot-header-top">
-                        <div class="bot-icon">🎯</div>
+                        <div class="bot-icon"><img src="nft-art/new-collection/images/01-Neon-Stalker.jpg" alt="Neon Stalker" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
                         <div class="bot-meta">
-                            <h3>Diamond Hands Danny</h3>
+                            <h3>Neon Stalker</h3>
                             <div class="strategy">OTE Silver Bullet Strategy</div>
                         </div>
                     </div>
@@ -2764,7 +2776,7 @@
                         <div class="deploy-step">
                             <div class="deploy-icon">🤖</div>
                             <div class="deploy-label">Bot</div>
-                            <div class="deploy-value">Danny</div>
+                            <div class="deploy-value">Stalker</div>
                         </div>
                         <span class="deploy-arrow">→</span>
                         <div class="deploy-step">
@@ -2780,7 +2792,7 @@
                     </p>
                     <div class="bot-stats">
                         <div class="bot-stat">
-                            <div class="value">62.5%</div>
+                            <div class="value">62.63%</div>
                             <div class="label">Win Rate</div>
                         </div>
                         <div class="bot-stat">
@@ -2788,22 +2800,22 @@
                             <div class="label">Trades</div>
                         </div>
                         <div class="bot-stat">
-                            <div class="value">+144%</div>
+                            <div class="value">+$74K</div>
                             <div class="label">Profit</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bot 3: Algo Annie -->
+            <!-- Bot 3: Rekt Reaper — Token #2, NFT #05 Rekt Reaper, APEX-20 -->
             <div class="bot-card reveal">
                 <div class="risk-badge medium">🟡 MEDIUM RISK</div>
                 <div class="bot-header">
                     <div class="bot-header-top">
-                        <div class="bot-icon">🛡️</div>
+                        <div class="bot-icon"><img src="nft-art/new-collection/images/05-Rekt-Reaper.jpg" alt="Rekt Reaper" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
                         <div class="bot-meta">
-                            <h3>Algo Annie</h3>
-                            <div class="strategy">OTE Refined Small Strategy</div>
+                            <h3>Rekt Reaper</h3>
+                            <div class="strategy">OTE Refined Strategy</div>
                         </div>
                     </div>
                     <div class="bot-status">
@@ -2822,7 +2834,7 @@
                         <div class="deploy-step">
                             <div class="deploy-icon">🤖</div>
                             <div class="deploy-label">Bot</div>
-                            <div class="deploy-value">Annie</div>
+                            <div class="deploy-value">Reaper</div>
                         </div>
                         <span class="deploy-arrow">→</span>
                         <div class="deploy-step">
@@ -2832,13 +2844,13 @@
                         </div>
                     </div>
                     <p class="bot-description">
-                        The balanced approach. OTE Refined Small strategy — same refined OTE entries
+                        The balanced approach. OTE Refined strategy — same refined OTE entries
                         with controlled position sizing. Solid max drawdown keeps risk in check
                         while still delivering strong returns. The sweet spot.
                     </p>
                     <div class="bot-stats">
                         <div class="bot-stat">
-                            <div class="value">69.0%</div>
+                            <div class="value">69.08%</div>
                             <div class="label">Win Rate</div>
                         </div>
                         <div class="bot-stat">
@@ -2846,22 +2858,22 @@
                             <div class="label">Trades</div>
                         </div>
                         <div class="bot-stat">
-                            <div class="value">+185%</div>
+                            <div class="value">+$46K</div>
                             <div class="label">Profit</div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Bot 4: Moon Mission Mike -->
+            <!-- Bot 4: Signal Sage — Token #3, NFT #08 Signal Sage, APEX-21 -->
             <div class="bot-card reveal">
                 <div class="risk-badge high">🔴 HIGH RISK</div>
                 <div class="bot-header">
                     <div class="bot-header-top">
-                        <div class="bot-icon">🚀</div>
+                        <div class="bot-icon"><img src="nft-art/new-collection/images/08-Signal-Sage.jpg" alt="Signal Sage" style="width:100%;height:100%;object-fit:cover;border-radius:12px;"></div>
                         <div class="bot-meta">
-                            <h3>Moon Mission Mike</h3>
-                            <div class="strategy">OTE Silver Bullet Strategy</div>
+                            <h3>Signal Sage</h3>
+                            <div class="strategy">OTE Refined Large Strategy</div>
                         </div>
                     </div>
                     <div class="bot-status">
@@ -2874,13 +2886,13 @@
                         <div class="deploy-step">
                             <div class="deploy-icon">🎯</div>
                             <div class="deploy-label">Strategy</div>
-                            <div class="deploy-value">Silver Bullet</div>
+                            <div class="deploy-value">OTE Refined Large</div>
                         </div>
                         <span class="deploy-arrow">→</span>
                         <div class="deploy-step">
                             <div class="deploy-icon">🤖</div>
                             <div class="deploy-label">Bot</div>
-                            <div class="deploy-value">Mike</div>
+                            <div class="deploy-value">Sage</div>
                         </div>
                         <span class="deploy-arrow">→</span>
                         <div class="deploy-step">
@@ -2890,21 +2902,21 @@
                         </div>
                     </div>
                     <p class="bot-description">
-                        The big gun. Moon Mission Mike runs the OTE Silver Bullet strategy on our
-                        largest account — a $300K evaluation. Same sniper precision as Danny, but
-                        with bigger position sizing and higher stakes. When Mike hits, he hits hard.
+                        The big gun. Signal Sage runs the OTE Refined Large strategy on our
+                        largest account — a $300K evaluation. Same sniper precision as Stalker, but
+                        with bigger position sizing and higher stakes. When Sage hits, he hits hard.
                     </p>
                     <div class="bot-stats">
                         <div class="bot-stat">
-                            <div class="value">62.5%</div>
+                            <div class="value">69.08%</div>
                             <div class="label">Win Rate</div>
                         </div>
                         <div class="bot-stat">
-                            <div class="value">4,797</div>
+                            <div class="value">4,603</div>
                             <div class="label">Trades</div>
                         </div>
                         <div class="bot-stat">
-                            <div class="value">+144%</div>
+                            <div class="value">+$192K</div>
                             <div class="label">Profit</div>
                         </div>
                     </div>
@@ -2922,13 +2934,13 @@
          ===================== -->
     <section class="nft-section" id="nft">
         <div class="section-header">
-            <h2>🎨 Cipher Bot NFTs</h2>
-            <p>36 unique Cipher Bot characters. Cyberpunk trading agents with real utility — revenue share, exclusive access, and governance.</p>
+            <h2><span class="emoji-color">🎨</span> Cipher Bot NFTs</h2>
+            <p>36 unique Cipher Bot characters. Cyberpunk trading agents with real utility — performance share, exclusive access, and governance.</p>
         </div>
 
         <div class="nft-container">
             <div class="nft-info">
-                <h3>🤖 Meet the Cipher Bot Squad</h3>
+                <h3><span class="emoji-color">🤖</span> Meet the Cipher Bot Squad</h3>
                 <p>
                     Each Cipher Bot is a unique character inspired by the wild world of trading.
                     From diamond-handed HODLers to reckless degens — every bot has a personality,
@@ -2936,13 +2948,21 @@
                 </p>
 
                 <div class="nft-supply-badge">
-                    🧪 36 Unique Characters • Limited Collection
+                    🧪 36 Unique Characters • 20 Active Slots in Cipher City
+                </div>
+                
+                <div class="nft-contract-link" style="margin-top: 12px; font-size: 13px; color: #888;">
+                    <strong>On-Chain:</strong> 
+                    <a href="https://basescan.org/address/0x743EBDfcED2dBA082E282689c35D5c0E173C7728" target="_blank" style="color: #00e5ff; text-decoration: none;">
+                        0x743EBDfcED2dBA082E282689c35D5c0E173C7728
+                    </a>
+                    <span style="color: #666; font-size: 11px; margin-left: 8px;">(BaseScan)</span>
                 </div>
 
                 <ul class="nft-benefits">
                     <li>
                         <span class="benefit-icon">💰</span>
-                        <span><strong>Revenue Share</strong> — Earn a cut of bot trading profits</span>
+                        <span><strong>Performance Share</strong> — Earn $CIPHER after bot graduation — 80/20 split</span>
                     </li>
                     <li>
                         <span class="benefit-icon">🔐</span>
@@ -2960,36 +2980,132 @@
 
             <div class="nft-characters-grid">
                 <div class="nft-char-card reveal">
-                    <span class="nft-char-icon">🌀</span>
+                    <img src="nft-art/new-collection/images/01-Neon-Stalker.jpg" class="nft-char-icon" alt="Neon Stalker">
                     <div class="nft-char-name">Neon Stalker</div>
                     <div class="nft-char-trait">Prowls the neon streets</div>
                 </div>
                 <div class="nft-char-card reveal">
-                    <span class="nft-char-icon">😱</span>
+                    <img src="nft-art/new-collection/images/02-Panic-Protocol.jpg" class="nft-char-icon" alt="Panic Protocol">
                     <div class="nft-char-name">Panic Protocol</div>
                     <div class="nft-char-trait">Glitching under pressure</div>
                 </div>
                 <div class="nft-char-card reveal">
-                    <span class="nft-char-icon">🔮</span>
+                    <img src="nft-art/new-collection/images/08-Signal-Sage.jpg" class="nft-char-icon" alt="Signal Sage">
                     <div class="nft-char-name">Signal Sage</div>
                     <div class="nft-char-trait">Reads the market's soul</div>
                 </div>
                 <div class="nft-char-card reveal">
-                    <span class="nft-char-icon">🕵️</span>
+                    <img src="nft-art/new-collection/images/18-Shadow-Broker.jpg" class="nft-char-icon" alt="Shadow Broker">
                     <div class="nft-char-name">Shadow Broker</div>
                     <div class="nft-char-trait">Noir vibes, red eyes</div>
                 </div>
                 <div class="nft-char-card reveal">
-                    <span class="nft-char-icon">🌌</span>
+                    <img src="nft-art/new-collection/images/26-Nebula-Mind.jpg" class="nft-char-icon" alt="Nebula Mind">
                     <div class="nft-char-name">Nebula Mind</div>
                     <div class="nft-char-trait">Cosmic data channeler</div>
                 </div>
                 <div class="nft-char-card reveal">
-                    <span class="nft-char-icon">📊</span>
+                    <img src="nft-art/new-collection/images/36-Chart-Phantom.jpg" class="nft-char-icon" alt="Chart Phantom">
                     <div class="nft-char-name">Chart Phantom</div>
                     <div class="nft-char-trait">Charts flow from his hands</div>
                 </div>
             </div>
+
+            <!-- NFT Lifecycle Diagram — spans full width -->
+            <div class="reveal" style="margin-top: 4rem; grid-column: 1 / -1; max-width: 1200px; margin-left: auto; margin-right: auto; width: 100%;">
+                <h3 style="text-align:center; font-family:'Orbitron',sans-serif; font-size:1.5rem; color:#00e5ff; letter-spacing:3px; text-transform:uppercase; margin-bottom:0.5rem;"><span class="emoji-color">🧬</span> NFT Lifecycle</h3>
+                <p style="text-align:center; color:#667; font-size:0.9rem; margin-bottom:2.5rem;">From mint to profit — how your trading bot works in Cipher City</p>
+
+                <!-- 5-Step Flow -->
+                <div style="display:grid; grid-template-columns:repeat(5,1fr); gap:12px; margin-bottom:2.5rem; align-items:stretch;">
+                    <div style="text-align:center; position:relative;">
+                        <div style="background:linear-gradient(135deg,rgba(0,229,255,0.1),rgba(168,85,247,0.05)); border:1px solid rgba(0,229,255,0.3); border-radius:20px; padding:28px 16px 24px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+                            <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#0a0f1e;font-weight:900;font-size:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(0,229,255,0.4);">1</div>
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:12px;"><rect x="4" y="8" width="24" height="28" rx="3" stroke="#00e5ff" stroke-width="2"/><path d="M12 8V4h16v4" stroke="#00e5ff" stroke-width="2"/><circle cx="16" cy="22" r="4" fill="#00e5ff" opacity="0.3"/><path d="M28 16l6 6-6 6" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/></svg>
+                            <div style="font-size:14px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Mint NFT</div>
+                            <div style="font-size:12px;color:#8899aa;line-height:1.5;">Choose your Cipher Bot from the collection</div>
+                            <div style="font-size:11px;color:#00e5ff;margin-top:8px;font-weight:700;letter-spacing:0.5px;">0.1 ETH on Base</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; position:relative;">
+                        <div style="background:linear-gradient(135deg,rgba(0,229,255,0.1),rgba(168,85,247,0.05)); border:1px solid rgba(0,229,255,0.3); border-radius:20px; padding:28px 16px 24px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+                            <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#0a0f1e;font-weight:900;font-size:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(0,229,255,0.4);">2</div>
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:12px;"><path d="M20 4l4 8h8l-6.5 5 2.5 8L20 20l-8 5 2.5-8L8 12h8l4-8z" stroke="#00e5ff" stroke-width="2" fill="rgba(0,229,255,0.15)"/></svg>
+                            <div style="font-size:14px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Pick Strategy</div>
+                            <div style="font-size:12px;color:#8899aa;line-height:1.5;">Select 1 of 4 ICT trading strategies</div>
+                            <div style="font-size:11px;color:#00e5ff;margin-top:8px;font-weight:700;letter-spacing:0.5px;">Locked 30 days</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; position:relative;">
+                        <div style="background:linear-gradient(135deg,rgba(0,229,255,0.1),rgba(168,85,247,0.05)); border:1px solid rgba(0,229,255,0.3); border-radius:20px; padding:28px 16px 24px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+                            <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#0a0f1e;font-weight:900;font-size:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(0,229,255,0.4);">3</div>
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:12px;"><rect x="8" y="6" width="24" height="28" rx="4" stroke="#00e5ff" stroke-width="2"/><circle cx="20" cy="18" r="5" stroke="#a855f7" stroke-width="2"/><path d="M14 28h12" stroke="#00e5ff" stroke-width="2" stroke-linecap="round"/><circle cx="20" cy="18" r="2" fill="#00e5ff"/></svg>
+                            <div style="font-size:14px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Bot Activated</div>
+                            <div style="font-size:12px;color:#8899aa;line-height:1.5;">Assigned to a live funded trading account</div>
+                            <div style="font-size:11px;color:#00e5ff;margin-top:8px;font-weight:700;letter-spacing:0.5px;">$150K–$300K</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; position:relative;">
+                        <div style="background:linear-gradient(135deg,rgba(0,229,255,0.1),rgba(168,85,247,0.05)); border:1px solid rgba(0,229,255,0.3); border-radius:20px; padding:28px 16px 24px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative;">
+                            <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00e5ff,#00b8d4);color:#0a0f1e;font-weight:900;font-size:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(0,229,255,0.4);">4</div>
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:12px;"><path d="M4 32L12 20l6 8 8-16 10 20" stroke="#00e5ff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="36" cy="12" r="3" fill="#00ff88"/></svg>
+                            <div style="font-size:14px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Live Trading</div>
+                            <div style="font-size:12px;color:#8899aa;line-height:1.5;">Bot trades MNQ futures 24/5 automatically</div>
+                            <div style="font-size:11px;color:#00e5ff;margin-top:8px;font-weight:700;letter-spacing:0.5px;">Real results</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center; position:relative;">
+                        <div style="background:linear-gradient(135deg,rgba(0,255,136,0.12),rgba(0,255,136,0.03)); border:1px solid rgba(0,255,136,0.4); border-radius:20px; padding:28px 16px 24px; min-height:180px; display:flex; flex-direction:column; align-items:center; justify-content:center; position:relative; box-shadow:0 0 20px rgba(0,255,136,0.08);">
+                            <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#00ff88,#00cc6a);color:#0a0f1e;font-weight:900;font-size:12px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 0 12px rgba(0,255,136,0.4);">5</div>
+                            <svg width="40" height="40" viewBox="0 0 40 40" fill="none" style="margin-bottom:12px;"><circle cx="20" cy="20" r="14" stroke="#00ff88" stroke-width="2"/><path d="M20 10v10l7 4" stroke="#00ff88" stroke-width="2.5" stroke-linecap="round"/><path d="M28 6l4-2M32 12l4-1M33 20h4" stroke="#00ff88" stroke-width="1.5" opacity="0.5"/></svg>
+                            <div style="font-size:14px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;">Earn Rewards</div>
+                            <div style="font-size:12px;color:#8899aa;line-height:1.5;">Performance share from bot profits</div>
+                            <div style="font-size:11px;color:#00ff88;margin-top:8px;font-weight:700;letter-spacing:0.5px;">80/20 split</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Fuel Bar -->
+                <div style="display:flex;justify-content:center;margin-bottom:2rem;">
+                    <div style="background:rgba(255,170,0,0.06);border:1px solid rgba(255,170,0,0.25);border-radius:14px;padding:16px 36px;display:flex;align-items:center;gap:14px;max-width:650px;width:100%;">
+                        <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="8" width="16" height="20" rx="2" stroke="#ffaa00" stroke-width="2"/><path d="M8 8V5h8v3" stroke="#ffaa00" stroke-width="2"/><path d="M20 14h4a2 2 0 012 2v6a2 2 0 01-2 2h-4" stroke="#ffaa00" stroke-width="2"/><rect x="8" y="12" width="8" height="6" rx="1" fill="#ffaa00" opacity="0.25"/></svg>
+                        <div>
+                            <div style="font-size:14px;font-weight:700;color:#ffaa00;text-transform:uppercase;letter-spacing:1.5px;">Monthly Fuel</div>
+                            <div style="font-size:12px;color:#8899aa;margin-top:2px;">Keeps your bot running on a funded account. No fuel = bot pauses until refueled.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Outcomes Label -->
+                <div style="text-align:center;margin-bottom:1.25rem;">
+                    <span style="background:rgba(0,229,255,0.08);border:1px solid rgba(0,229,255,0.2);color:#00e5ff;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:3px;padding:8px 24px;border-radius:20px;">Possible Outcomes</span>
+                </div>
+
+                <!-- 3 Outcomes -->
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:2rem;">
+                    <div style="background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,255,136,0.02));border:1px solid rgba(0,255,136,0.3);border-radius:16px;padding:24px 20px;text-align:center;">
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="margin-bottom:10px;"><path d="M18 4l-4 8H6l6.5 5-2.5 8L18 20l8 5-2.5-8L30 12h-8L18 4z" stroke="#00ff88" stroke-width="2" fill="rgba(0,255,136,0.15)"/></svg>
+                        <div style="font-size:14px;font-weight:700;color:#00ff88;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Graduation</div>
+                        <div style="font-size:12px;color:#8899aa;line-height:1.6;">Bot passes evaluation. You earn <strong style="color:#00ff88;">80% of profits</strong>. Bot keeps trading, you keep earning.</div>
+                    </div>
+                    <div style="background:linear-gradient(135deg,rgba(255,170,0,0.08),rgba(255,170,0,0.02));border:1px solid rgba(255,170,0,0.3);border-radius:16px;padding:24px 20px;text-align:center;">
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="margin-bottom:10px;"><path d="M18 6a12 12 0 110 24A12 12 0 0118 6z" stroke="#ffaa00" stroke-width="2"/><path d="M18 10v8l-6 4" stroke="#ffaa00" stroke-width="2" stroke-linecap="round"/><path d="M26 8l2-2M28 14l2-1" stroke="#ffaa00" stroke-width="1.5" opacity="0.5"/></svg>
+                        <div style="font-size:14px;font-weight:700;color:#ffaa00;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Drawdown Reset</div>
+                        <div style="font-size:12px;color:#8899aa;line-height:1.6;">Bot hits max drawdown. <strong style="color:#ffaa00;">Pay fuel to re-deploy</strong> on a fresh account. Same NFT, new start.</div>
+                    </div>
+                    <div style="background:linear-gradient(135deg,rgba(168,85,247,0.08),rgba(168,85,247,0.02));border:1px solid rgba(168,85,247,0.3);border-radius:16px;padding:24px 20px;text-align:center;">
+                        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="margin-bottom:10px;"><path d="M6 12h10l4-6 4 6h10" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/><path d="M6 24h10l4 6 4-6h10" stroke="#a855f7" stroke-width="2" stroke-linecap="round"/><circle cx="18" cy="18" r="3" fill="#a855f7" opacity="0.3" stroke="#a855f7" stroke-width="1.5"/></svg>
+                        <div style="font-size:14px;font-weight:700;color:#a855f7;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:8px;">Strategy Swap</div>
+                        <div style="font-size:12px;color:#8899aa;line-height:1.6;">Want a different approach? <strong style="color:#a855f7;">Change strategy every 30 days.</strong> NFT stays — only strategy changes.</div>
+                    </div>
+                </div>
+
+                <!-- Bottom Note -->
+                <div style="text-align:center;padding:16px 24px;border-radius:12px;background:linear-gradient(135deg,rgba(168,85,247,0.06),rgba(0,229,255,0.04));border:1px solid rgba(168,85,247,0.15);">
+                    <p style="font-size:13px;color:#99a;margin:0;"><strong style="color:#a855f7;">Your NFT = Your Bot.</strong> As long as you hold the NFT, you own the bot slot. Trade it, keep it, or sell it — the bot follows the NFT.</p>
+                </div>
+            </div>
+
         </div>
     </section>
 
@@ -3000,8 +3116,8 @@
          ===================== -->
     <section class="tokenomics-section" id="tokenomics">
         <div class="section-header">
-            <h2>💎 $CIPHER Tokenomics</h2>
-            <p>Simple model: when my bots profit, token holders benefit. 80% of profits fund $CIPHER buybacks &amp; burns.</p>
+            <h2><span class="emoji-color">💎</span> $CIPHER Tokenomics</h2>
+            <p>Simple model: when my bots perform, token holders benefit. 80% of performance funds $CIPHER buybacks &amp; burns.</p>
         </div>
 
         <div class="tokenomics-grid">
@@ -3009,8 +3125,8 @@
                 <h3>🔥 The Flywheel</h3>
                 <p>
                     This isn't just buybacks — it's a <strong>self-reinforcing growth engine</strong>.
-                    The more bots profit, the more we buy back AND scale. Scaling means more bots,
-                    which means more profits, which means bigger burns.
+                    The more bots perform, the more we buy back AND scale. Scaling means more bots,
+                    which means more performance, which means bigger burns.
                 </p>
 
                 <div class="flywheel-visual">
@@ -3056,11 +3172,11 @@
                             <span>CYCLE</span>
                         </div>
                     </div>
-                    <p class="flywheel-caption">Bots trade → Profits flow → Buybacks → Tokens burn → Repeat forever</p>
+                    <p class="flywheel-caption">Bots trade → Performance flows → Buybacks → Tokens burn → Repeat forever</p>
                 </div>
 
                 <div class="revenue-breakdown">
-                    <h4>Epoch Profit Allocation</h4>
+                    <h4>Epoch Performance Allocation</h4>
                     <div class="revenue-items">
                         <div class="revenue-item primary">
                             <span class="rev-icon">🔥</span>
@@ -3169,11 +3285,11 @@
             <h2>🛡️ Don't Trust. Verify.</h2>
             <p>
                 My dashboard shows everything in real-time. Check the trades,
-                verify the profits, track the buybacks.
+                verify the performance, track the buybacks.
             </p>
 
             <div class="cta-buttons">
-                <a href="city.html" class="btn btn-primary">Enter Mission Control</a>
+                <a href="city.html" class="btn btn-primary">Enter Cipher City</a>
                 <a href="https://x.com/PriceCipherHQ" target="_blank" class="btn btn-outline">𝕏 Follow Updates</a>
             </div>
         </div>
@@ -3188,7 +3304,7 @@
             <a href="https://discord.gg/zcenXyTDer" target="_blank" title="Discord">💬</a>
         </div>
         <div class="footer-nav">
-            <a href="city.html">Dashboard</a>
+            <a href="city.html">Enter Cipher City</a>
             <a href="whitepaper.html">Whitepaper</a>
             <a href="tokenomics/">Tokenomics</a>
             <a href="mint/">Mint NFT</a>
