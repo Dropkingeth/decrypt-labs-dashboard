@@ -1,0 +1,23 @@
+[
+  { "cat": "business", "name": "IRS Tax", "note": "Payment plan", "cost": 112.00, "dueDay": 1 },
+  { "cat": "business", "name": "APEX-18 Renewal", "note": "Account #18", "cost": 50.00, "dueDay": 2 },
+  { "cat": "business", "name": "APEX-19/20 Renewal", "note": "Accounts #19 & #20", "cost": 156.80, "dueDay": 4 },
+  { "cat": "personal", "name": "Self Storage", "note": "Hesperia unit", "cost": 178.00, "dueDay": 3 },
+  { "cat": "personal", "name": "Upgrade Inc Loan", "note": "Loan repayment", "cost": 524.76, "dueDay": 7 },
+  { "cat": "business", "name": "Spline Design", "note": "3D design tool", "cost": 30.00, "dueDay": 26 },
+  { "cat": "business", "name": "APEX-21 Renewal", "note": "Account #21 (300K)", "cost": 78.40, "dueDay": 27 },
+  { "cat": "business", "name": "Anthropic", "note": "Claude AI API", "cost": 20.00, "dueDay": 30 },
+  { "cat": "personal", "name": "Verizon Wireless", "note": "Phone plan", "cost": 173.37, "dueDay": 20 },
+  { "cat": "business", "name": "TradersPost", "note": "Webhook automation", "cost": 41.40 },
+  { "cat": "business", "name": "TradingView", "note": "Charts & alerts", "cost": 7.00 },
+  { "cat": "business", "name": "Railway Hosting", "note": "Caretaker API server", "cost": 5.00 },
+  { "cat": "business", "name": "ElevenLabs TTS", "note": "Starter plan — voiceovers", "cost": 5.00 },
+  { "cat": "business", "name": "OpenClaw API", "note": "Jimmy's brain", "cost": 40.00 },
+  { "cat": "business", "name": "Cloudflare Pages", "note": "decryptlabs.io hosting", "cost": 0 },
+  { "cat": "personal", "name": "Starlink", "note": "Internet", "cost": 165.00 },
+  { "cat": "personal", "name": "Root Insurance", "note": "Auto insurance", "cost": 155.97 },
+  { "cat": "personal", "name": "Affirm", "note": "Payment plan", "cost": 67.50 },
+  { "cat": "personal", "name": "Amazon Prime", "note": "Membership", "cost": 16.15 },
+  { "cat": "personal", "name": "Apple", "note": "iCloud / subscriptions", "cost": 3.99 },
+  { "cat": "personal", "name": "Samsung", "note": "Samsung subscription", "cost": 0.99 }
+]

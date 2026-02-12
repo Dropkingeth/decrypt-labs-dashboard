@@ -296,6 +296,24 @@
 
     .nav-tab .icon { font-size: 15px; }
 
+    .nav-divider {
+      display: flex;
+      align-items: center;
+      padding: 0 6px;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent-primary);
+      white-space: nowrap;
+      opacity: 0.6;
+      border-left: 1px solid rgba(255,255,255,0.08);
+      margin-left: 4px;
+      padding-left: 12px;
+      height: 28px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
     .nav-spacer { flex: 1; }
 
     .server-status {
@@ -2293,6 +2311,7 @@
 <!-- ═══════════════════ NAVBAR ═══════════════════ -->
 <div id="app-content">
 <nav class="navbar">
+  <!-- PERSONAL -->
   <div class="nav-tab active" data-tab="mission-control">
     <span class="icon">✦</span>
     <span>Mission Control</span>
@@ -2305,9 +2324,16 @@
     <span class="icon">📅</span>
     <span>Calendar</span>
   </div>
+  <div class="nav-tab" data-tab="ideas">
+    <span class="icon">💡</span>
+    <span>Ideas</span>
+  </div>
+
+  <!-- DECRYPT LABS -->
+  <div class="nav-divider">Decrypt Labs</div>
   <div class="nav-tab" data-tab="decrypt-schedule">
     <span class="icon">⚡</span>
-    <span>Decrypt Schedule</span>
+    <span>Schedule</span>
   </div>
   <div class="nav-tab" data-tab="goddard">
     <span class="icon">🐕‍🦺</span>
@@ -2319,12 +2345,11 @@
   </div>
   <div class="nav-tab" data-tab="decrypt-labs">
     <span class="icon">🔬</span>
-    <span>Decrypt Labs</span>
+    <span>Dashboard</span>
   </div>
-  <div class="nav-tab" data-tab="ideas">
-    <span class="icon">💡</span>
-    <span>Ideas</span>
-  </div>
+
+  <!-- VENTURES -->
+  <div class="nav-divider">Ventures</div>
   <div class="nav-tab" data-tab="fountain">
     <span class="icon">🌊</span>
     <span>The Fountain</span>
@@ -3385,24 +3410,18 @@
     </div>
 
     <!-- Next Up Section -->
-    <div class="personal-next-up">
-      <div class="countdown-title">⏱ NEXT UP</div>
-      <div id="personal-countdown-list"></div>
-    </div>
-
     <!-- Bills Calendar Section -->
     <div class="bills-calendar-section">
       <div class="bills-cal-header">
         <div>
           <div class="bills-cal-title">💰 Monthly Bills</div>
-          <div class="bills-cal-subtitle">Recurring payments & subscriptions</div>
+          <div class="bills-cal-subtitle">Visualized from Expenses table below</div>
         </div>
         <div class="bills-cal-controls">
           <button class="bills-nav-btn" onclick="changeBillMonth(-1)">◀</button>
           <span class="bills-month-label" id="bills-month-display">February 2026</span>
           <button class="bills-nav-btn" onclick="changeBillMonth(1)">▶</button>
           <button class="bills-today-btn" onclick="goToCurrentBillMonth()">Today</button>
-          <button class="bills-add-btn" onclick="openBillModal()">+ Add Bill</button>
         </div>
       </div>
       
@@ -3426,64 +3445,7 @@
       </div>
     </div>
 
-    <!-- Bill Edit Modal -->
-    <div class="pcal-edit-overlay" id="bill-modal-overlay">
-      <div class="pcal-edit-modal">
-        <h3>💸 Manage Bill</h3>
-        <input type="hidden" id="bill-id">
-        
-        <label>Bill Name</label>
-        <input type="text" id="bill-name" placeholder="e.g. Server Cost">
-        
-        <label>Amount ($)</label>
-        <input type="number" id="bill-amount" placeholder="0.00" step="0.01">
-        
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-          <div>
-            <label>Frequency</label>
-            <select id="bill-freq" onchange="toggleBillDateInputs()">
-              <option value="monthly">Monthly</option>
-              <option value="weekly">Weekly</option>
-              <option value="biweekly">Bi-Weekly</option>
-              <option value="onetime">One-Time</option>
-            </select>
-          </div>
-          <div>
-            <label>Category</label>
-            <select id="bill-category">
-              <option value="business">Business</option>
-              <option value="personal">Personal</option>
-              <option value="debt">Debt/Loan</option>
-              <option value="subscription">Subscription</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="bill-date-input-group">
-          <label id="bill-date-label">Day of Month</label>
-          <input type="number" id="bill-day" min="1" max="31" placeholder="Day (1-31)">
-          <input type="date" id="bill-specific-date" style="display:none;">
-        </div>
-        
-        <label>Color Tag</label>
-        <div class="bill-color-picker">
-          <div class="color-opt active" style="background:#00ff88" onclick="selectBillColor(this, '#00ff88')"></div>
-          <div class="color-opt" style="background:#00d4ff" onclick="selectBillColor(this, '#00d4ff')"></div>
-          <div class="color-opt" style="background:#aa66ff" onclick="selectBillColor(this, '#aa66ff')"></div>
-          <div class="color-opt" style="background:#ffaa00" onclick="selectBillColor(this, '#ffaa00')"></div>
-          <div class="color-opt" style="background:#ff4455" onclick="selectBillColor(this, '#ff4455')"></div>
-        </div>
-        <input type="hidden" id="bill-color" value="#00ff88">
-
-        <div class="pcal-edit-actions">
-          <button class="pcal-delete-btn" id="bill-delete-btn" onclick="deleteBill()" style="display:none;">🗑</button>
-          <button class="pcal-cancel-btn" onclick="closeBillModal()">CANCEL</button>
-          <button class="pcal-save-btn" onclick="saveBill()">SAVE</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Monthly Expenses (moved from Calendar tab) -->
+    <!-- Monthly Expenses -->
     <div class="expenses-section">
       <div class="expenses-title">💸 Monthly Expenses</div>
       <table class="expense-table" id="expense-table">
@@ -3491,6 +3453,7 @@
           <tr>
             <th>Service</th>
             <th>Notes</th>
+            <th style="width:60px;text-align:center;">Due</th>
             <th>Cost</th>
             <th style="width:30px;"></th>
           </tr>
@@ -4653,17 +4616,22 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 
 // ═══ EDITABLE EXPENSES ═══
 const DEFAULT_EXPENSES = [
-  { cat: 'business', name: 'Apex Trader Funding', note: '$78.40 × 4 accounts + $50 data', cost: 363.60 },
+  { cat: 'business', name: 'IRS Tax', note: 'Payment plan', cost: 112.00, dueDay: 1 },
+  { cat: 'business', name: 'APEX-18 Renewal', note: 'Account #18', cost: 50.00, dueDay: 2 },
+  { cat: 'business', name: 'APEX-19/20 Renewal', note: 'Accounts #19 & #20', cost: 156.80, dueDay: 4 },
+  { cat: 'personal', name: 'Self Storage', note: 'Hesperia unit', cost: 178.00, dueDay: 3 },
+  { cat: 'personal', name: 'Upgrade Inc Loan', note: 'Loan repayment', cost: 524.76, dueDay: 7 },
+  { cat: 'business', name: 'Spline Design', note: '3D design tool', cost: 30.00, dueDay: 26 },
+  { cat: 'business', name: 'APEX-21 Renewal', note: 'Account #21 (300K)', cost: 78.40, dueDay: 27 },
+  { cat: 'business', name: 'Anthropic', note: 'Claude AI API', cost: 20.00, dueDay: 30 },
+  { cat: 'personal', name: 'Verizon Wireless', note: 'Phone plan', cost: 173.37, dueDay: 20 },
   { cat: 'business', name: 'TradersPost', note: 'Webhook automation', cost: 41.40 },
   { cat: 'business', name: 'TradingView', note: 'Charts & alerts', cost: 7.00 },
-  { cat: 'business', name: 'Spline Design', note: '3D design tool', cost: 30.00 },
   { cat: 'business', name: 'Railway Hosting', note: 'Caretaker API server', cost: 5.00 },
   { cat: 'business', name: 'ElevenLabs TTS', note: 'Starter plan — voiceovers', cost: 5.00 },
-  { cat: 'business', name: 'OpenClaw / Claude API', note: "Jimmy's brain", cost: 40.00 },
+  { cat: 'business', name: 'OpenClaw API', note: "Jimmy's brain", cost: 40.00 },
   { cat: 'business', name: 'Cloudflare Pages', note: 'decryptlabs.io hosting', cost: 0 },
-  { cat: 'personal', name: 'Verizon Wireless', note: 'Phone plan', cost: 173.37 },
   { cat: 'personal', name: 'Starlink', note: 'Internet', cost: 165.00 },
-  { cat: 'personal', name: 'Self Storage', note: 'Hesperia', cost: 178.00 },
   { cat: 'personal', name: 'Root Insurance', note: 'Auto insurance', cost: 155.97 },
   { cat: 'personal', name: 'Affirm', note: 'Payment plan', cost: 67.50 },
   { cat: 'personal', name: 'Amazon Prime', note: 'Membership', cost: 16.15 },
@@ -4684,19 +4652,14 @@ async function loadExpensesFromAPI() {
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
-        // API is the source of truth — always use it over localStorage
         localStorage.setItem('decrypt-expenses', JSON.stringify(data));
+        renderExpenses(); // Re-render immediately
+        renderBillsCalendar(); // Re-render calendar too
         return data;
       }
     }
   } catch(e) { console.warn('API expenses load failed, using localStorage fallback'); }
-  // Fallback: localStorage, then defaults
-  const local = loadExpenses();
-  // If we have local data that isn't defaults, push it to the API
-  if (local.length > 0) {
-    fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(local) }).catch(() => {});
-  }
-  return local;
+  return loadExpenses();
 }
 
 async function saveExpenses() {
@@ -4704,29 +4667,32 @@ async function saveExpenses() {
   const expenses = [];
   rows.forEach(row => {
     const cells = row.querySelectorAll('td');
-    const costText = cells[2].textContent.replace(/[^0-9.]/g, '');
+    const costText = cells[3].textContent.replace(/[^0-9.]/g, '');
+    const dueInput = row.querySelector('.due-input');
     expenses.push({
       cat: row.dataset.cat,
       name: cells[0].textContent.trim(),
       note: cells[1].textContent.trim(),
+      dueDay: dueInput ? parseInt(dueInput.value) || null : null,
       cost: parseFloat(costText) || 0
     });
   });
   // Save to localStorage as cache
   localStorage.setItem('decrypt-expenses', JSON.stringify(expenses));
-  // Save to server as source of truth
+  // Update UI immediately
+  renderExpenses(); 
+  renderBillsCalendar();
+  
+  // Save to server
   try {
     const res = await fetch('/api/expenses', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(expenses) });
     if (res.ok) {
-      renderExpenses();
-      alert('✅ Expenses saved to server!');
+      showToast('✅ Expenses saved & calendar updated');
     } else {
-      renderExpenses();
-      alert('⚠️ Saved locally but server save failed. Try again.');
+      showToast('⚠️ Saved locally but server save failed');
     }
   } catch(e) {
-    renderExpenses();
-    alert('⚠️ Saved locally but server unreachable. Will sync next load.');
+    showToast('⚠️ Saved locally but server unreachable');
   }
 }
 
@@ -4738,10 +4704,12 @@ function addExpenseRow(cat) {
 }
 
 function removeExpenseRow(idx) {
+  if (!confirm('Remove this expense?')) return;
   const expenses = loadExpenses();
   expenses.splice(idx, 1);
   localStorage.setItem('decrypt-expenses', JSON.stringify(expenses));
   renderExpenses();
+  renderBillsCalendar();
 }
 
 function renderExpenses() {
@@ -4756,15 +4724,17 @@ function renderExpenses() {
     if (exp.cat !== lastCat) {
       const label = exp.cat === 'business' ? '🔧 Business / Trading' : '🏠 Personal / Bills';
       const color = exp.cat === 'business' ? 'var(--accent-cyan)' : 'var(--accent-purple)';
-      html += '<tr><td colspan="4" style="color:' + color + ';font-weight:600;padding-top:12px;">' + label + '</td></tr>';
+      html += '<tr><td colspan="5" style="color:' + color + ';font-weight:600;padding-top:12px;">' + label + '</td></tr>';
       lastCat = exp.cat;
     }
     const costDisplay = exp.cost === 0 ? '<span class="expense-free">Free</span>' : '$' + exp.cost.toFixed(2);
     if (exp.cat === 'business') bizTotal += exp.cost;
     else persTotal += exp.cost;
-    html += '<tr data-idx="' + i + '" data-cat="' + exp.cat + '">';
+    
+    html += '<tr data-idx="' + i + '" data-cat="' + exp.cat + '" id="exp-row-' + i + '">';
     html += '<td class="expense-name" contenteditable="true">' + exp.name + '</td>';
     html += '<td class="expense-note" contenteditable="true">' + exp.note + '</td>';
+    html += '<td style="text-align:center;"><input type="number" class="due-input" value="' + (exp.dueDay || '') + '" min="1" max="31" placeholder="-" style="width:40px;background:rgba(255,255,255,0.05);border:1px solid var(--border-color);border-radius:4px;color:var(--text-primary);text-align:center;padding:4px;font-size:12px;"></td>';
     html += '<td contenteditable="true">' + costDisplay + '</td>';
     html += '<td><button class="expense-btn remove" onclick="removeExpenseRow(' + i + ')">✕</button></td>';
     html += '</tr>';
@@ -4780,8 +4750,18 @@ function renderExpenses() {
   }
 }
 
+function highlightExpense(idx) {
+  const row = document.getElementById('exp-row-' + idx);
+  if (row) {
+    row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    row.style.background = 'rgba(0,255,136,0.15)';
+    row.style.transition = 'background 0.5s';
+    setTimeout(() => { row.style.background = 'transparent'; }, 2000);
+  }
+}
+
 renderExpenses();
-loadExpensesFromAPI().then(data => { /* expenses loaded */ renderExpenses(); });
+loadExpensesFromAPI().then(data => { renderExpenses(); });
 
 // ═══ LAUNCH TO-DO WITH INPUT FIELDS ═══
 const LAUNCH_TASKS = [
@@ -6261,23 +6241,15 @@ Narrative: ${signal.biasReason}
 setInterval(fetchSignalMonitor, 15000);
 fetchSignalMonitor();
 
-// BILLS CALENDAR LOGIC
-let bills = [];
+// BILLS CALENDAR LOGIC (Merged with Expenses)
 let currentBillMonth = new Date();
-
-async function loadBills() {
-  try {
-    const res = await fetch('/api/bills');
-    if (res.ok) {
-      bills = await res.json();
-      renderBillsCalendar();
-    }
-  } catch(e) { console.error('Failed to load bills', e); }
-}
 
 function renderBillsCalendar() {
   const grid = document.getElementById('bills-cal-grid');
   if(!grid) return;
+  
+  // Use expenses as the data source
+  const expenses = loadExpenses();
   
   grid.innerHTML = '';
   
@@ -6312,15 +6284,19 @@ function renderBillsCalendar() {
     const isToday = isCurrentMonth && d === today.getDate();
     let cellHtml = `<div class="bill-day-cell ${isToday ? 'today' : ''}"><div class="bill-day-num">${d}</div>`;
     
-    const dateObj = new Date(year, month, d);
-    const dayBills = getBillsForDay(dateObj);
+    // Find expenses due on this day
+    const dayExpenses = expenses.map((e, idx) => ({...e, idx})).filter(e => e.dueDay === d);
     
-    dayBills.forEach(bill => {
-      totalDue += parseFloat(bill.amount);
-      if (d >= today.getDate() || dateObj > today) remainingDue += parseFloat(bill.amount);
+    dayExpenses.forEach(exp => {
+      totalDue += parseFloat(exp.cost);
+      if ((isCurrentMonth && d >= today.getDate()) || (today.getMonth() < month && today.getFullYear() === year) || today.getFullYear() < year) {
+        remainingDue += parseFloat(exp.cost);
+      }
       
-      cellHtml += `<div class="bill-pill" style="border-left-color:${bill.color};color:${bill.color}" onclick="editBill('${bill.id}')">
-        ${bill.name} - $${bill.amount}
+      const color = exp.cat === 'business' ? '#00d4ff' : '#ffaa00';
+      // Clicking scrolls to the expense in the table
+      cellHtml += `<div class="bill-pill" style="border-left-color:${color};color:${color}" onclick="highlightExpense(${exp.idx})">
+        ${exp.name} - $${exp.cost}
       </div>`;
     });
 
@@ -6334,35 +6310,16 @@ function renderBillsCalendar() {
   const remainEl = document.getElementById('bills-remaining');
   if(remainEl) remainEl.textContent = '$' + remainingDue.toLocaleString(undefined, {minimumFractionDigits: 2});
   
-  const nextBills = bills.filter(b => {
-    if (b.frequency === 'monthly') {
-       return b.dayOfMonth >= today.getDate();
-    }
-    return false;
-  }).sort((a,b) => a.dayOfMonth - b.dayOfMonth);
-  
+  // Next due logic
+  const nextBills = expenses.filter(e => e.dueDay && e.dueDay >= today.getDate()).sort((a,b) => a.dueDay - b.dueDay);
   const nextEl = document.getElementById('bills-next-due');
   if (nextEl) {
     if (nextBills.length > 0 && isCurrentMonth) {
-      nextEl.textContent = `${nextBills[0].name} (${nextBills[0].dayOfMonth}th)`;
+      nextEl.textContent = `${nextBills[0].name} (${nextBills[0].dueDay}th)`;
     } else {
       nextEl.textContent = '—';
     }
   }
-}
-
-function getBillsForDay(date) {
-  const day = date.getDate();
-  const dayOfWeek = date.getDay(); 
-  
-  return bills.filter(b => {
-    if (b.frequency === 'monthly') return parseInt(b.dayOfMonth) === day;
-    if (b.frequency === 'weekly') return parseInt(b.dayOfWeek) === dayOfWeek;
-    if (b.frequency === 'onetime' && b.startDate) {
-        return new Date(b.startDate).toDateString() === date.toDateString();
-    }
-    return false;
-  });
 }
 
 function changeBillMonth(delta) {
@@ -6375,120 +6332,9 @@ function goToCurrentBillMonth() {
   renderBillsCalendar();
 }
 
-function openBillModal(billId = null) {
-  const modal = document.getElementById('bill-modal-overlay');
-  modal.classList.add('active');
-  
-  if (billId) {
-    const bill = bills.find(b => b.id === billId);
-    document.getElementById('bill-id').value = bill.id;
-    document.getElementById('bill-name').value = bill.name;
-    document.getElementById('bill-amount').value = bill.amount;
-    document.getElementById('bill-freq').value = bill.frequency;
-    document.getElementById('bill-category').value = bill.category;
-    document.getElementById('bill-day').value = bill.dayOfMonth || '';
-    document.getElementById('bill-color').value = bill.color;
-    document.getElementById('bill-delete-btn').style.display = 'block';
-    
-    document.querySelectorAll('.bill-color-picker .color-opt').forEach(el => {
-       el.classList.toggle('active', el.getAttribute('onclick').includes(bill.color));
-    });
-  } else {
-    document.getElementById('bill-id').value = '';
-    document.getElementById('bill-name').value = '';
-    document.getElementById('bill-amount').value = '';
-    document.getElementById('bill-freq').value = 'monthly';
-    document.getElementById('bill-day').value = new Date().getDate();
-    document.getElementById('bill-delete-btn').style.display = 'none';
-  }
-  toggleBillDateInputs();
-}
+// Initial render
+renderBillsCalendar();
 
-function editBill(id) { openBillModal(id); }
-function closeBillModal() { document.getElementById('bill-modal-overlay').classList.remove('active'); }
-
-function selectBillColor(el, color) {
-  document.getElementById('bill-color').value = color;
-  document.querySelectorAll('.bill-color-picker .color-opt').forEach(e => e.classList.remove('active'));
-  el.classList.add('active');
-}
-
-function toggleBillDateInputs() {
-  const freq = document.getElementById('bill-freq').value;
-  const dayInput = document.getElementById('bill-day');
-  const dateInput = document.getElementById('bill-specific-date');
-  const label = document.getElementById('bill-date-label');
-  
-  if (freq === 'monthly') {
-    dayInput.style.display = 'block';
-    dateInput.style.display = 'none';
-    label.textContent = 'Day of Month';
-    dayInput.placeholder = '1-31';
-  } else if (freq === 'onetime') {
-    dayInput.style.display = 'none';
-    dateInput.style.display = 'block';
-    label.textContent = 'Date';
-  } else {
-    dayInput.style.display = 'block';
-    dateInput.style.display = 'none';
-    label.textContent = 'Day/Index';
-  }
-}
-
-async function saveBill() {
-  const id = document.getElementById('bill-id').value;
-  const freq = document.getElementById('bill-freq').value;
-  const dayVal = document.getElementById('bill-day').value;
-  const bill = {
-    name: document.getElementById('bill-name').value,
-    amount: parseFloat(document.getElementById('bill-amount').value),
-    frequency: freq,
-    category: document.getElementById('bill-category')?.value || 'personal',
-    dayOfMonth: (freq === 'monthly' || freq === 'biweekly') ? (parseInt(dayVal) || 1) : null,
-    dayOfWeek: (freq === 'weekly') ? (parseInt(dayVal) || 0) : null,
-    startDate: (freq === 'onetime') ? (document.getElementById('bill-specific-date')?.value || null) : null,
-    color: document.getElementById('bill-color')?.value || '#00ff88',
-    enabled: true
-  };
-  
-  if (!bill.name || isNaN(bill.amount)) {
-    alert('Please enter a bill name and amount');
-    return;
-  }
-
-  try {
-    const method = id ? 'PUT' : 'POST';
-    const apiUrl = id ? `/api/bills/${id}` : '/api/bills';
-    
-    const resp = await fetch(apiUrl, {
-      method: method,
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(bill)
-    });
-    
-    if (!resp.ok) {
-      console.error('Save bill failed:', resp.status, await resp.text());
-      return;
-    }
-    
-    closeBillModal();
-    await loadBills();
-  } catch(e) {
-    console.error('Save bill error:', e);
-  }
-}
-
-async function deleteBill() {
-  const id = document.getElementById('bill-id').value;
-  if (!id) return;
-  if(!confirm('Delete this bill?')) return;
-  
-  await fetch(`/api/bills/${id}`, { method: 'DELETE' });
-  closeBillModal();
-  loadBills();
-}
-
-loadBills();
 </script>
 </div><!-- end #app-content -->
 </body>
