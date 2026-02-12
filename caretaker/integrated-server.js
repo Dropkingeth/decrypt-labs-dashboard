@@ -532,6 +532,28 @@ const server = http.createServer(async (req, res) => {
     }
   }
   
+  // Serve NFT art images
+  if (req.method === 'GET' && pathname.startsWith('/nft-art/')) {
+    const imgPath = path.join(__dirname, '..', pathname);
+    if (fs.existsSync(imgPath)) {
+      const ext = path.extname(imgPath).toLowerCase();
+      const mimeTypes = { '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.gif': 'image/gif', '.svg': 'image/svg+xml', '.webp': 'image/webp' };
+      res.writeHead(200, { 'Content-Type': mimeTypes[ext] || 'application/octet-stream', 'Cache-Control': 'public, max-age=86400' });
+      res.end(fs.readFileSync(imgPath));
+      return;
+    }
+  }
+
+  // Serve Cipher City
+  if (req.method === 'GET' && pathname === '/city.html') {
+    const cityPath = path.join(__dirname, 'city.html');
+    if (fs.existsSync(cityPath)) {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(fs.readFileSync(cityPath, 'utf8'));
+      return;
+    }
+  }
+
   // Serve admin page
   if (req.method === 'GET' && (pathname === '/admin' || pathname === '/admin/')) {
     const adminPath = path.join(__dirname, 'dashboard', 'admin', 'index.html');
@@ -1995,17 +2017,22 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ═══ MEETING ROOM + LOUNGE SHARED HELPERS ═══
+  const roomCors = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+  const MEETING_FILE = path.join(PERSIST_DIR, 'meeting-room.json');
+  const LOUNGE_FILE_P = path.join(PERSIST_DIR, 'lounge.json');
+
   // ═══ MEETING ROOM API ═══
   // GET /api/meeting-room - Get all meeting messages
   if (req.method === 'GET' && pathname === '/api/meeting-room') {
     try {
-      const data = fs.existsSync('/tmp/meeting-room.json')
-        ? JSON.parse(fs.readFileSync('/tmp/meeting-room.json', 'utf8'))
+      const data = fs.existsSync(MEETING_FILE)
+        ? JSON.parse(fs.readFileSync(MEETING_FILE, 'utf8'))
         : [];
-      res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+      res.writeHead(200, roomCors);
       res.end(JSON.stringify(data));
     } catch (e) {
-      res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+      res.writeHead(200, roomCors);
       res.end('[]');
     }
     return;
@@ -2018,8 +2045,8 @@ const server = http.createServer(async (req, res) => {
     req.on('end', () => {
       try {
         const msg = JSON.parse(body);
-        const messages = fs.existsSync('/tmp/meeting-room.json')
-          ? JSON.parse(fs.readFileSync('/tmp/meeting-room.json', 'utf8'))
+        const messages = fs.existsSync(MEETING_FILE)
+          ? JSON.parse(fs.readFileSync(MEETING_FILE, 'utf8'))
           : [];
         messages.push({
           id: Date.now().toString(36),
@@ -2027,13 +2054,12 @@ const server = http.createServer(async (req, res) => {
           message: msg.message || '',
           timestamp: msg.timestamp || new Date().toISOString()
         });
-        // Keep last 200 messages
         const trimmed = messages.slice(-200);
-        fs.writeFileSync('/tmp/meeting-room.json', JSON.stringify(trimmed, null, 2));
-        res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+        fs.writeFileSync(MEETING_FILE, JSON.stringify(trimmed, null, 2));
+        res.writeHead(200, roomCors);
         res.end(JSON.stringify({ ok: true, total: trimmed.length }));
       } catch (e) {
-        res.writeHead(400, { 'Content-Type': 'application/json', ...corsHeaders });
+        res.writeHead(400, roomCors);
         res.end(JSON.stringify({ error: e.message }));
       }
     });
@@ -2042,9 +2068,305 @@ const server = http.createServer(async (req, res) => {
 
   // DELETE /api/meeting-room - Clear all messages
   if (req.method === 'DELETE' && pathname === '/api/meeting-room') {
-    try { fs.writeFileSync('/tmp/meeting-room.json', '[]'); } catch(e) {}
-    res.writeHead(200, { 'Content-Type': 'application/json', ...corsHeaders });
+    try { fs.writeFileSync(MEETING_FILE, '[]'); } catch(e) {}
+    res.writeHead(200, roomCors);
     res.end(JSON.stringify({ ok: true, cleared: true }));
+    return;
+  }
+
+  // ═══ THE LOUNGE API ═══
+  // GET /api/lounge - Get all lounge messages
+  if (req.method === 'GET' && pathname === '/api/lounge') {
+    try {
+      const data = fs.existsSync(LOUNGE_FILE_P)
+        ? JSON.parse(fs.readFileSync(LOUNGE_FILE_P, 'utf8'))
+        : [];
+      res.writeHead(200, roomCors);
+      res.end(JSON.stringify(data));
+    } catch (e) {
+      res.writeHead(200, roomCors);
+      res.end('[]');
+    }
+    return;
+  }
+
+  // POST /api/lounge - Add a message or idea
+  if (req.method === 'POST' && pathname === '/api/lounge') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const msg = JSON.parse(body);
+        const messages = fs.existsSync(LOUNGE_FILE_P)
+          ? JSON.parse(fs.readFileSync(LOUNGE_FILE_P, 'utf8'))
+          : [];
+        messages.push({
+          id: Date.now().toString(36),
+          sender: msg.sender || 'jimmy',
+          message: msg.message || '',
+          type: msg.type || 'chat',
+          timestamp: msg.timestamp || new Date().toISOString()
+        });
+        const trimmed = messages.slice(-300);
+        fs.writeFileSync(LOUNGE_FILE_P, JSON.stringify(trimmed, null, 2));
+        res.writeHead(200, roomCors);
+        res.end(JSON.stringify({ ok: true, total: trimmed.length }));
+      } catch (e) {
+        res.writeHead(400, roomCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // DELETE /api/lounge - Clear all messages
+  if (req.method === 'DELETE' && pathname === '/api/lounge') {
+    try { fs.writeFileSync(LOUNGE_FILE_P, '[]'); } catch(e) {}
+    res.writeHead(200, roomCors);
+    res.end(JSON.stringify({ ok: true, cleared: true }));
+    return;
+  }
+
+  // ═══ THE FOUNTAIN API ═══
+  const fountainCors = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+  const FOUNTAIN_TRENDS_FILE = path.join(PERSIST_DIR, 'fountain-trends.json');
+  const FOUNTAIN_IDEAS_FILE = path.join(PERSIST_DIR, 'fountain-ideas.json');
+
+  function loadFountainTrends() {
+    try { return fs.existsSync(FOUNTAIN_TRENDS_FILE) ? JSON.parse(fs.readFileSync(FOUNTAIN_TRENDS_FILE, 'utf8')) : []; } catch(e) { return []; }
+  }
+  function saveFountainTrends(data) {
+    fs.writeFileSync(FOUNTAIN_TRENDS_FILE, JSON.stringify(data, null, 2));
+  }
+  function loadFountainIdeas() {
+    try { return fs.existsSync(FOUNTAIN_IDEAS_FILE) ? JSON.parse(fs.readFileSync(FOUNTAIN_IDEAS_FILE, 'utf8')) : []; } catch(e) { return []; }
+  }
+  function saveFountainIdeas(data) {
+    fs.writeFileSync(FOUNTAIN_IDEAS_FILE, JSON.stringify(data, null, 2));
+  }
+
+  // GET /api/fountain/trends
+  if (req.method === 'GET' && pathname === '/api/fountain/trends') {
+    res.writeHead(200, fountainCors);
+    res.end(JSON.stringify(loadFountainTrends()));
+    return;
+  }
+
+  // POST /api/fountain/trends
+  if (req.method === 'POST' && pathname === '/api/fountain/trends') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const trend = JSON.parse(body);
+        const trends = loadFountainTrends();
+        trend.id = trend.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        trend.timestamp = trend.timestamp || new Date().toISOString();
+        trends.unshift(trend);
+        saveFountainTrends(trends.slice(0, 200));
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, id: trend.id }));
+      } catch(e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // DELETE /api/fountain/trends
+  if (req.method === 'DELETE' && pathname === '/api/fountain/trends') {
+    saveFountainTrends([]);
+    res.writeHead(200, fountainCors);
+    res.end(JSON.stringify({ ok: true, cleared: true }));
+    return;
+  }
+
+  // GET /api/fountain/ideas
+  if (req.method === 'GET' && pathname === '/api/fountain/ideas') {
+    const ideas = loadFountainIdeas();
+    const labOnly = parsedUrl.query.lab === 'true';
+    const filtered = labOnly ? ideas.filter(i => i.status === 'lab' || i.status === 'pipeline') : ideas;
+    res.writeHead(200, fountainCors);
+    res.end(JSON.stringify(filtered));
+    return;
+  }
+
+  // POST /api/fountain/ideas
+  if (req.method === 'POST' && pathname === '/api/fountain/ideas') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const idea = JSON.parse(body);
+        const ideas = loadFountainIdeas();
+        idea.id = idea.id || Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+        idea.timestamp = idea.timestamp || new Date().toISOString();
+        idea.status = idea.status || 'stream';
+        ideas.unshift(idea);
+        saveFountainIdeas(ideas.slice(0, 500));
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, id: idea.id }));
+      } catch(e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // POST /api/fountain/ideas/:id/promote
+  if (req.method === 'POST' && pathname.match(/^\/api\/fountain\/ideas\/[^/]+\/promote$/)) {
+    const ideaId = pathname.split('/')[4];
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { status } = JSON.parse(body);
+        if (!['lab', 'pipeline'].includes(status)) throw new Error('Invalid status');
+        const ideas = loadFountainIdeas();
+        const idea = ideas.find(i => i.id === ideaId);
+        if (!idea) { res.writeHead(404, fountainCors); res.end(JSON.stringify({ error: 'Idea not found' })); return; }
+        idea.status = status;
+        idea.promotedAt = new Date().toISOString();
+        saveFountainIdeas(ideas);
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, id: ideaId, status }));
+      } catch(e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // DELETE /api/fountain/ideas
+  if (req.method === 'DELETE' && pathname === '/api/fountain/ideas') {
+    saveFountainIdeas([]);
+    res.writeHead(200, fountainCors);
+    res.end(JSON.stringify({ ok: true, cleared: true }));
+    return;
+  }
+
+  // ═══ THE FORGE API ═══
+  const FORGE_BUILDS_FILE = path.join(PERSIST_DIR, 'forge-builds.json');
+
+  // GET /api/fountain/builds
+  if (req.method === 'GET' && pathname === '/api/fountain/builds') {
+    try {
+      const builds = JSON.parse(fs.readFileSync(FORGE_BUILDS_FILE, 'utf8') || '[]');
+      res.writeHead(200, fountainCors);
+      res.end(JSON.stringify(builds));
+    } catch (e) {
+      if (e.code === 'ENOENT') {
+        res.writeHead(200, fountainCors);
+        res.end('[]');
+      } else {
+        res.writeHead(500, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    }
+    return;
+  }
+
+  // POST /api/fountain/builds — Queue a new build
+  if (req.method === 'POST' && pathname === '/api/fountain/builds') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const buildData = JSON.parse(body);
+        let builds = [];
+        try {
+          builds = JSON.parse(fs.readFileSync(FORGE_BUILDS_FILE, 'utf8') || '[]');
+        } catch (e) { /* ignore */ }
+
+        const newBuild = {
+          id: 'forge-' + Date.now().toString(36),
+          title: buildData.title || 'Untitled Build',
+          description: buildData.description || '',
+          ideaId: buildData.ideaId || null,
+          status: 'queued', // queued, building, deployed, failed, reviewed
+          costEstimate: buildData.costEstimate || '$0.00',
+          previewUrl: null,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        builds.unshift(newBuild);
+        fs.writeFileSync(FORGE_BUILDS_FILE, JSON.stringify(builds, null, 2));
+
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, build: newBuild }));
+      } catch (e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // PATCH /api/fountain/builds/:id — Update build status
+  if (req.method === 'PATCH' && pathname.startsWith('/api/fountain/builds/')) {
+    const buildId = pathname.split('/').pop();
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const patchData = JSON.parse(body);
+        let builds = [];
+        try {
+          builds = JSON.parse(fs.readFileSync(FORGE_BUILDS_FILE, 'utf8') || '[]');
+        } catch (e) { 
+           res.writeHead(404, fountainCors);
+           res.end(JSON.stringify({ error: 'No builds found' }));
+           return;
+        }
+
+        const buildIndex = builds.findIndex(b => b.id === buildId);
+        if (buildIndex === -1) {
+          res.writeHead(404, fountainCors);
+          res.end(JSON.stringify({ error: 'Build not found' }));
+          return;
+        }
+
+        // Merge updates
+        builds[buildIndex] = {
+          ...builds[buildIndex],
+          ...patchData,
+          updatedAt: new Date().toISOString()
+        };
+
+        fs.writeFileSync(FORGE_BUILDS_FILE, JSON.stringify(builds, null, 2));
+
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, build: builds[buildIndex] }));
+      } catch (e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // DELETE /api/fountain/builds/:id — Remove a build
+  if (req.method === 'DELETE' && pathname.startsWith('/api/fountain/builds/')) {
+    const buildId = pathname.split('/').pop();
+    try {
+      let builds = [];
+      try {
+        builds = JSON.parse(fs.readFileSync(FORGE_BUILDS_FILE, 'utf8') || '[]');
+      } catch (e) { /* ignore */ }
+
+      const newBuilds = builds.filter(b => b.id !== buildId);
+      fs.writeFileSync(FORGE_BUILDS_FILE, JSON.stringify(newBuilds, null, 2));
+
+      res.writeHead(200, fountainCors);
+      res.end(JSON.stringify({ ok: true, deleted: buildId }));
+    } catch (e) {
+      res.writeHead(500, fountainCors);
+      res.end(JSON.stringify({ error: e.message }));
+    }
     return;
   }
 

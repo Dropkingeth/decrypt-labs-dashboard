@@ -1940,6 +1940,97 @@
       margin-bottom: 16px;
       opacity: 0.5;
     }
+
+    /* ═══════════════════ THE FOUNTAIN ═══════════════════ */
+    .ft-filter-btn {
+      padding: 5px 14px;
+      border: 1px solid var(--border-color);
+      background: rgba(255,255,255,0.03);
+      color: var(--text-secondary);
+      border-radius: 6px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: 'JetBrains Mono', monospace;
+      transition: all 0.2s;
+    }
+    .ft-filter-btn:hover { background: rgba(255,255,255,0.08); color: var(--text-primary); }
+    .ft-filter-btn.active { background: rgba(255,152,0,0.15); border-color: rgba(255,152,0,0.4); color: #ff9800; }
+
+    .ft-trend-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      transition: all 0.2s;
+      border-left: 3px solid #ff9800;
+    }
+    .ft-trend-card:hover { background: var(--bg-card-hover); border-color: rgba(255,152,0,0.3); }
+
+    .ft-idea-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 18px;
+      transition: all 0.2s;
+    }
+    .ft-idea-card:hover { background: var(--bg-card-hover); }
+    .ft-idea-card.status-lab { border: 1px solid rgba(255,213,79,0.4); box-shadow: 0 0 12px rgba(255,213,79,0.08); }
+    .ft-idea-card.status-pipeline { border: 1px solid rgba(129,199,132,0.4); box-shadow: 0 0 12px rgba(129,199,132,0.08); }
+
+    .ft-score-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.06);
+      border-radius: 3px;
+      overflow: hidden;
+      flex: 1;
+    }
+    .ft-score-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .ft-tag {
+      font-size: 10px;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(255,152,0,0.12);
+      border: 1px solid rgba(255,152,0,0.25);
+      color: #ffb74d;
+    }
+
+    .ft-promote-btn {
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'JetBrains Mono', monospace;
+      border: 1px solid;
+    }
+    .ft-promote-btn.to-lab {
+      background: rgba(255,213,79,0.1);
+      border-color: rgba(255,213,79,0.3);
+      color: #ffd54f;
+    }
+    .ft-promote-btn.to-lab:hover { background: rgba(255,213,79,0.2); }
+    .ft-promote-btn.to-pipeline {
+      background: rgba(129,199,132,0.1);
+      border-color: rgba(129,199,132,0.3);
+      color: #81c784;
+    }
+    .ft-promote-btn.to-pipeline:hover { background: rgba(129,199,132,0.2); }
+
+    .ft-agent-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -1980,6 +2071,14 @@
   <div class="nav-tab" data-tab="ideas">
     <span class="icon">💡</span>
     <span>Ideas</span>
+  </div>
+  <div class="nav-tab" data-tab="fountain">
+    <span class="icon">🌊</span>
+    <span>The Fountain</span>
+  </div>
+  <div class="nav-tab" data-tab="forge">
+    <span class="icon">🔨</span>
+    <span>The Forge</span>
   </div>
   <div class="nav-spacer"></div>
   <div class="server-status" id="server-status">
@@ -2148,9 +2247,11 @@
       </div>
       <div class="always-running-pills">
         <span class="cron-pill">📡 ICT Signal Compiler (Cindy) • 5 AM–12 PM, Mon–Fri</span>
-        <span class="cron-pill">🐦 X Post Pipeline (Sheen) • 5 AM–12 PM, Mon–Fri</span>
-        <span class="cron-pill">📊 Balance Scrape (Cindy) • 5 AM + 12:30 PM PT</span>
-        <span class="cron-pill">📈 EOD Performance (Sheen) • 1 PM PT, Mon–Fri</span>
+        <span class="cron-pill">🐦 X Post Pipeline (Jimmy) • 5 AM–12 PM, Mon–Fri</span>
+        <span class="cron-pill">📊 Balance Scrape (Jimmy) • 12:30 PM PT</span>
+        <span class="cron-pill">📈 EOD Performance (Discord) • 1 PM PT, Mon–Fri</span>
+        <span class="cron-pill">☀️ Premarket Analysis (Jimmy) • 5:30 AM PT, Mon–Fri</span>
+        <span class="cron-pill">📊 Mid-Session Analysis (Jimmy) • 9:30 AM PT, Mon–Fri</span>
         <span class="cron-pill">🔄 Health Check • Every heartbeat</span>
         <span class="cron-pill">📥 Webhook Listeners • 24/7 (Caretaker)</span>
       </div>
@@ -2232,14 +2333,14 @@
             <div class="pipeline-header">
               <div class="pipeline-icon" style="background:rgba(170,102,255,0.15);color:var(--accent-purple);">🚀</div>
               <div style="flex:1;">
-                <div class="pipeline-title">④ Sheen Posts to X + Discord</div>
-                <div class="pipeline-agent">Agent: Sheen Estevez (Gemini) • Cron: Every 5 min</div>
+                <div class="pipeline-title">④ Jimmy Posts to X + Discord</div>
+                <div class="pipeline-agent">Agent: Jimmy Neutron (Opus) • Cron: Every 5 min</div>
               </div>
               <div class="pipeline-status" id="pipe-step4-status"><span class="status-dot green"></span> Running</div>
             </div>
-            <div class="pipeline-detail">Reads pending signal + chart image → formats engaging tweet → attaches chart screenshot → posts to <a href="https://x.com/PriceCipherHQ" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">@PriceCipherHQ</a> → mirrors to Discord <code>#twitter-feed</code></div>
+            <div class="pipeline-detail">Reads pending signal + chart image → formats engaging tweet → attaches chart screenshot → posts to <a href="https://x.com/PriceCipherHQ" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">@Decrypt_Labs</a> → mirrors to Discord <code>#twitter-feed</code></div>
             <div class="pipeline-meta">
-              <span>X: @PriceCipherHQ (with chart image)</span>
+              <span>X: @Decrypt_Labs (with chart image)</span>
               <span>Discord: #twitter-feed (1466796654073217247)</span>
               <span>Sign-off: "— Jimmy 🧪"</span>
             </div>
@@ -2455,7 +2556,7 @@
               <div class="org-role">Lead Engineer</div>
             </div>
           </div>
-          <div class="org-model">Claude Sonnet 4.5 • OpenClaw</div>
+          <div class="org-model">Gemini 3 Pro Preview • OpenClaw</div>
           <div class="org-cost">↗ ~$3/$15 per 1M tokens</div>
           <div class="org-skills">
             <span class="skill-tag">Frontend</span>
@@ -2499,7 +2600,7 @@
           <div class="org-model">Gemini 3 Pro Preview • OpenClaw</div>
           <div class="org-cost">↗ Free (Google subscription)</div>
           <div class="org-skills">
-            <span class="skill-tag">X Posts (@PriceCipherHQ)</span>
+            <span class="skill-tag">X Posts (@Decrypt_Labs)</span>
             <span class="skill-tag">Discord Tweet Feed</span>
             <span class="skill-tag">Market Research</span>
             <span class="skill-tag">Backtesting</span>
@@ -2516,8 +2617,8 @@
         DropKing (CEO) sets the vision and makes final calls. Jimmy Neutron (CSO) drives strategy and orchestrates the team.
         Goddard (CRO) guards the capital — controls bot on/off via TradingView, analyzes Forex Factory through an ICT lens, and enforces weekly risk rules on Opus 4.6.
         Cindy Vortex (Ops) handles ICT signal compilation, data ops, and Discord updates on DeepSeek V3.
-        Carl Wheezer (Engineering) builds and maintains all code, dashboards, and contracts on Sonnet 4.5.
-        Sheen Estevez (Research + Content) crafts X posts for @PriceCipherHQ, mirrors tweets to Discord, and researches markets on Gemini 3 Pro.
+        Carl Wheezer (Engineering) builds and maintains all code, dashboards, and contracts on Gemini 3 Pro Preview.
+        Sheen Estevez (Research + Content) crafts X posts for @Decrypt_Labs, mirrors tweets to Discord, and researches markets on Gemini 3 Pro.
         The system runs 24/5 with human oversight on key decisions. All agent slots filled — team is complete.
       </p>
     </div>
@@ -2563,6 +2664,33 @@
         </div>
       </div>
     </div>
+
+    <!-- ═══ THE LOUNGE ═══ -->
+    <div style="margin-top:40px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+        <h2 style="font-size:20px;font-weight:800;background:linear-gradient(135deg,#ff6b35,#ffaa00);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:0;">🛋️ The Lounge</h2>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span id="lounge-status" style="background:rgba(255,170,0,0.15);color:#ffaa00;font-size:11px;font-weight:700;padding:3px 10px;border-radius:10px;">AGENTS ONLY</span>
+          <button onclick="clearLounge()" style="background:rgba(255,68,68,0.1);border:1px solid rgba(255,68,68,0.3);border-radius:8px;padding:4px 12px;color:#ff4444;font-size:10px;cursor:pointer;font-weight:600;">Clear</button>
+        </div>
+      </div>
+      <p style="text-align:center;color:var(--text-dim);font-size:12px;margin-bottom:16px;">Agents brainstorm overnight. Review their ideas when you wake up. ☕</p>
+
+      <!-- Lounge Container -->
+      <div id="lounge-room" style="background:rgba(0,0,0,0.3);border:1px solid rgba(255,170,0,0.2);border-radius:16px;overflow:hidden;">
+        <!-- Ideas Summary Bar -->
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 20px;background:rgba(255,170,0,0.03);border-bottom:1px solid rgba(255,170,0,0.15);flex-wrap:wrap;">
+          <div style="font-size:12px;color:var(--text-dim);">💡 <span id="lounge-idea-count" style="color:#ffaa00;font-weight:700;">0</span> ideas</div>
+          <div style="font-size:12px;color:var(--text-dim);">💬 <span id="lounge-msg-count" style="color:#ffaa00;font-weight:700;">0</span> messages</div>
+          <div style="font-size:12px;color:var(--text-dim);margin-left:auto;">Last session: <span id="lounge-last-session" style="color:var(--text-secondary);">—</span></div>
+        </div>
+
+        <!-- Lounge Messages -->
+        <div id="lounge-messages" style="height:500px;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:12px;">
+          <!-- Messages populated by JS -->
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- ═══ TAB 5: DECRYPT LABS ═══ -->
@@ -2581,6 +2709,58 @@
       </div>
     </div>
 
+    <!-- Section: My NFTs (Holder Dashboard) -->
+    <div class="dl-section">
+      <div class="dl-section-header">
+        <span>💎</span> My NFTs (Holder View)
+      </div>
+      <div class="dl-section-desc">Connect wallet to view your Cipher Bot performance</div>
+      
+      <div id="holder-connect-box" style="background:var(--bg-card);padding:24px;border-radius:12px;border:1px dashed var(--border-color);text-align:center;">
+        <div style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Connect to view your assets</div>
+        <button onclick="simulateConnect()" style="background:linear-gradient(90deg,var(--accent-cyan),var(--accent-purple));color:#fff;border:none;padding:8px 20px;border-radius:6px;font-weight:700;cursor:pointer;">Connect Wallet</button>
+      </div>
+
+      <div id="holder-view" style="display:none;margin-top:16px;">
+        <div class="bots-grid">
+           <!-- Simulated Minted NFT -->
+           <div class="bot-card" style="border-color:var(--accent-cyan);">
+             <div class="bot-card-header">
+               <div class="bot-card-avatar" style="background:rgba(0,212,255,0.2);color:#00e5ff;">👾</div>
+               <div>
+                 <div class="bot-card-name">Code Screamer #13</div>
+                 <div class="bot-card-subtitle">Minted • Active</div>
+               </div>
+             </div>
+             <div class="bot-stat" style="margin-bottom:12px;">
+               <div class="bot-stat-label">Assigned Strategy</div>
+               <div class="bot-stat-value" style="font-size:13px;color:var(--accent-cyan);">FVG+IFVG Scalper</div>
+             </div>
+             <div class="bot-card-stats">
+               <div class="bot-stat">
+                 <div class="bot-stat-label">Total PnL</div>
+                 <div class="bot-stat-value" style="color:var(--accent-green);">+$2,419.30</div>
+               </div>
+               <div class="bot-stat">
+                 <div class="bot-stat-label">Share</div>
+                 <div class="bot-stat-value">0.05%</div>
+               </div>
+             </div>
+             <div style="font-size:11px;color:var(--text-dim);text-align:center;">
+               <a href="#" style="color:var(--text-secondary);">View on Opensea ↗</a>
+             </div>
+           </div>
+        </div>
+      </div>
+
+      <script>
+        function simulateConnect() {
+          document.getElementById('holder-connect-box').style.display = 'none';
+          document.getElementById('holder-view').style.display = 'block';
+        }
+      </script>
+    </div>
+
     <!-- Section: ICT Signals Feed -->
     <div class="dl-section">
       <div class="signals-controls">
@@ -2588,7 +2768,7 @@
           <div class="dl-section-header">
             <span>📡</span> ICT Signals Feed
           </div>
-          <div class="dl-section-desc">Signals power the <a href="https://x.com/PriceCipherHQ" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">@PriceCipherHQ</a> X account</div>
+          <div class="dl-section-desc">Signals power the <a href="https://x.com/PriceCipherHQ" target="_blank" style="color:var(--accent-cyan);text-decoration:none;">@Decrypt_Labs</a> X account</div>
         </div>
         <div class="auto-refresh-badge">
           <span class="pulse-dot"></span>
@@ -2654,7 +2834,7 @@
           <div class="project-status-icon">🐦</div>
           <div>
             <div class="project-status-label">X Account</div>
-            <div class="project-status-value"><a href="https://x.com/PriceCipherHQ" target="_blank">@PriceCipherHQ</a></div>
+            <div class="project-status-value"><a href="https://x.com/PriceCipherHQ" target="_blank">@Decrypt_Labs</a></div>
             <span class="status-badge live">Live</span>
           </div>
         </div>
@@ -2926,6 +3106,132 @@
     <div id="ideas-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;"></div>
   </div>
 
+  <!-- ═══ TAB: THE FOUNTAIN ═══ -->
+  <div class="tab-content" id="tab-fountain">
+    <div style="text-align:center;margin-bottom:28px;">
+      <h1 class="section-title" style="background:linear-gradient(90deg,#ff9800,#ffb74d,#ff9800);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🌊 The Fountain</h1>
+      <p class="section-subtitle">Where ideas are born. Agents scan trends, generate ideas, validate markets — autonomously.</p>
+    </div>
+
+    <!-- Fountain Agent Avatars -->
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:24px;">
+      <div id="fountain-agents-bar"></div>
+    </div>
+
+    <!-- Stats Bar -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px;" id="fountain-stats">
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #ff9800;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Trends Found</div>
+        <div id="ft-stat-trends" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#ff9800;margin-top:4px;">0</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #ffb74d;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Ideas Generated</div>
+        <div id="ft-stat-ideas" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#ffb74d;margin-top:4px;">0</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #ffd54f;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">In Ideas Lab</div>
+        <div id="ft-stat-lab" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#ffd54f;margin-top:4px;">0</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #81c784;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">In Pipeline</div>
+        <div id="ft-stat-pipeline" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#81c784;margin-top:4px;">0</div>
+      </div>
+    </div>
+
+    <!-- Trend Radar Section -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <span style="font-size:24px;">🔭</span>
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#ff9800;">Trend Radar</h2>
+        <span style="font-size:11px;color:var(--text-dim);margin-left:auto;">Scanned by Scout Agent</span>
+      </div>
+      <div id="fountain-trends" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;">
+        <div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;">
+          <div style="font-size:40px;opacity:0.3;margin-bottom:8px;">🔭</div>
+          <div>No trends scanned yet. Scout is on patrol...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Idea Stream Section -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <span style="font-size:24px;">💧</span>
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#ffb74d;">Idea Stream</h2>
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <button class="ft-filter-btn active" data-filter="all" onclick="setFountainFilter('all',this)">All</button>
+          <button class="ft-filter-btn" data-filter="lab" onclick="setFountainFilter('lab',this)">🧪 Ideas Lab</button>
+          <button class="ft-filter-btn" data-filter="pipeline" onclick="setFountainFilter('pipeline',this)">🚀 Pipeline</button>
+        </div>
+      </div>
+      <div id="fountain-ideas" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px;">
+        <div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;">
+          <div style="font-size:40px;opacity:0.3;margin-bottom:8px;">💧</div>
+          <div>No ideas generated yet. Spark is thinking...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ideas Lab Section -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <span style="font-size:24px;">🧪</span>
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#ffd54f;">Ideas Lab</h2>
+        <span style="font-size:11px;color:var(--text-dim);margin-left:auto;">Validated ideas ready for pipeline</span>
+      </div>
+      <div id="fountain-lab" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px;">
+        <div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;">
+          <div style="font-size:40px;opacity:0.3;margin-bottom:8px;">🧪</div>
+          <div>No ideas in the lab yet. Promote ideas from the stream!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══ TAB: THE FORGE ═══ -->
+  <div class="tab-content" id="tab-forge">
+    <div style="text-align:center;margin-bottom:28px;">
+      <h1 class="section-title" style="background:linear-gradient(90deg,#00e5ff,#aa66ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">🔨 The Forge</h1>
+      <p class="section-subtitle">Autonomous Builder. Ideas → MVPs in minutes.</p>
+    </div>
+
+    <!-- Forge Stats Bar -->
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:28px;">
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #ff8a00;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Queued</div>
+        <div id="forge-stat-queued" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#ff8a00;margin-top:4px;">0</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #00e5ff;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Building</div>
+        <div id="forge-stat-building" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#00e5ff;margin-top:4px;">0</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #00ff99;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Deployed</div>
+        <div id="forge-stat-deployed" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#00ff99;margin-top:4px;">0</div>
+      </div>
+      <div style="background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px;padding:16px;text-align:center;border-top:2px solid #a855f7;">
+        <div style="font-size:11px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Approved</div>
+        <div id="forge-stat-approved" style="font-family:'Orbitron',sans-serif;font-size:28px;font-weight:700;color:#a855f7;margin-top:4px;">0</div>
+      </div>
+    </div>
+
+    <!-- Build Queue -->
+    <div style="margin-bottom:32px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+        <span style="font-size:24px;">🏗️</span>
+        <h2 style="font-family:'Orbitron',sans-serif;font-size:16px;font-weight:700;color:#00e5ff;">Build Queue</h2>
+        <button onclick="fetchForgeBuilds()" style="margin-left:auto;background:transparent;border:1px solid var(--border-color);color:var(--text-secondary);border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;">Refresh</button>
+      </div>
+      <div id="forge-queue" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(350px,1fr));gap:16px;">
+        <!-- Builds populated here -->
+        <div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;">
+          <div style="font-size:40px;opacity:0.3;margin-bottom:8px;">🔨</div>
+          <div>Forge is empty. Send an idea from The Fountain!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <!-- Refresh indicator -->
 <div class="refresh-indicator">
   <span class="pulse-dot"></span>
@@ -2961,10 +3267,10 @@ const DEFAULT_TASKS = [
   { id: 7, title: 'ICT analysis webhook pipeline', desc: 'Signal pipeline from TradingView to API', priority: 'medium', assignee: 'Jimmy', column: 'done' },
   { id: 8, title: 'Apex PA payout processing', desc: 'Waiting on Apex to approve PA status', priority: 'low', assignee: 'DropKing', column: 'blocked' },
   { id: 9, title: 'Add trailing drawdown to dashboard', desc: 'Show live drawdown gauge per bot', priority: 'medium', assignee: 'Jimmy', column: 'done' },
-  { id: 10, title: 'Twitter auto-post market analysis', desc: 'Post daily analysis to @PriceCipherHQ', priority: 'low', assignee: 'Jimmy', column: 'todo' },
+  { id: 10, title: 'Twitter auto-post market analysis', desc: 'Post daily analysis to @Decrypt_Labs', priority: 'low', assignee: 'Jimmy', column: 'todo' },
   { id: 11, title: 'Build mint-to-bot pipeline', desc: 'When someone mints an NFT, auto-assign to a trading bot slot with ⏳ Pending label', priority: 'high', assignee: 'Carl', column: 'todo' },
   { id: 12, title: 'Pre-load NFT archive for minting', desc: 'All 20 Cipher Bot NFTs available to mint from day one — not on-demand', priority: 'high', assignee: 'Carl', column: 'todo' },
-  { id: 13, title: 'Add "Share to X" post-mint button', desc: 'After minting, user can tweet about their NFT with pre-filled template + @PriceCipherHQ', priority: 'medium', assignee: 'Carl', column: 'todo' },
+  { id: 13, title: 'Add "Share to X" post-mint button', desc: 'After minting, user can tweet about their NFT with pre-filled template + @Decrypt_Labs', priority: 'medium', assignee: 'Carl', column: 'todo' },
   { id: 14, title: 'Minted NFT appears on dashboard', desc: 'New mint shows on dashboard + holder page immediately with ⏳ Pending status', priority: 'high', assignee: 'Carl', column: 'todo' },
   { id: 15, title: 'Nightly mint activation checklist', desc: 'Documented process for activating new mints each evening — Pending → 🟢 Active', priority: 'medium', assignee: 'Jimmy', column: 'todo' },
   { id: 16, title: 'Add minted NFT to Cipher City', desc: 'Minted bot must appear in the 3D city dashboard alongside existing bots', priority: 'medium', assignee: 'Carl', column: 'todo' },
@@ -4080,7 +4386,7 @@ const LAUNCH_TASKS = [
     { id: 'pl-3', text: 'Submit CoinGecko listing', done: false },
     { id: 'pl-4', text: 'Submit CoinMarketCap listing', done: false },
     { id: 'pl-5', text: 'First buyback & burn transaction', done: false },
-    { id: 'pl-6', text: 'Run ICT pipeline → post on @PriceCipherHQ', done: false },
+    { id: 'pl-6', text: 'Run ICT pipeline → post on @Decrypt_Labs', done: false },
   ]}
 ];
 
@@ -4864,6 +5170,7 @@ const MR_AGENTS = {
   sheen:    { name:'Sheen', emoji:'🚀', color:'#00ff88' }
 };
 
+const API = window.location.origin;
 let meetingMessages = [];
 
 async function loadMeetingMessages() {
@@ -4954,8 +5261,464 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 // Also poll every 15s when org tab is active
 setInterval(() => {
   const orgTab = document.getElementById('tab-org');
-  if (orgTab && orgTab.classList.contains('active')) loadMeetingMessages();
+  if (orgTab && orgTab.classList.contains('active')) {
+    loadMeetingMessages();
+    loadLoungeMessages();
+  }
 }, 15000);
+
+// ═══════════════════ THE LOUNGE ═══════════════════
+let loungeMessages = [];
+
+async function loadLoungeMessages() {
+  try {
+    const res = await fetch(API + '/api/lounge');
+    if (res.ok) { loungeMessages = await res.json(); }
+  } catch(e) { console.log('Lounge load error:', e); }
+  renderLoungeMessages();
+}
+
+function renderLoungeMessages() {
+  const container = document.getElementById('lounge-messages');
+  if (!container) return;
+
+  // Update counts
+  const ideaCount = loungeMessages.filter(m => m.type === 'idea').length;
+  const el1 = document.getElementById('lounge-idea-count');
+  const el2 = document.getElementById('lounge-msg-count');
+  const el3 = document.getElementById('lounge-last-session');
+  if (el1) el1.textContent = ideaCount;
+  if (el2) el2.textContent = loungeMessages.length;
+  if (el3 && loungeMessages.length > 0) {
+    const last = loungeMessages[loungeMessages.length - 1];
+    el3.textContent = new Date(last.timestamp).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+  }
+
+  if (loungeMessages.length === 0) {
+    container.innerHTML = `
+      <div style="text-align:center;padding:60px 20px;color:var(--text-dim);">
+        <div style="font-size:48px;margin-bottom:16px;opacity:0.3;">🛋️</div>
+        <div style="font-size:14px;margin-bottom:8px;">The lounge is quiet</div>
+        <div style="font-size:11px;">Agents will brainstorm here overnight. Check back in the morning!</div>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = loungeMessages.map(msg => {
+    const agent = MR_AGENTS[msg.sender] || MR_AGENTS.jimmy;
+    const time = new Date(msg.timestamp).toLocaleString('en-US', {month:'short',day:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+    const isIdea = msg.type === 'idea';
+    const borderColor = isIdea ? 'rgba(255,170,0,0.3)' : 'var(--border-color)';
+    const bgColor = isIdea ? 'rgba(255,170,0,0.06)' : 'rgba(255,255,255,0.04)';
+    const ideaTag = isIdea ? '<span style="background:rgba(255,170,0,0.2);color:#ffaa00;font-size:9px;font-weight:800;padding:2px 6px;border-radius:4px;margin-left:6px;">💡 IDEA</span>' : '';
+    return `
+      <div style="display:flex;gap:10px;align-items:flex-start;">
+        <div style="width:34px;height:34px;border-radius:8px;background:rgba(${hexToRgb(agent.color)},0.15);display:flex;align-items:center;justify-content:center;font-size:16px;border:1.5px solid ${agent.color}40;flex-shrink:0;">${agent.emoji}</div>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:3px;">
+            <span style="font-size:12px;font-weight:700;color:${agent.color};">${agent.name}</span>
+            ${ideaTag}
+            <span style="font-size:10px;color:var(--text-dim);">${time}</span>
+          </div>
+          <div style="background:${bgColor};border:1px solid ${borderColor};border-radius:12px;border-top-left-radius:4px;padding:10px 14px;font-size:13px;color:var(--text-secondary);line-height:1.5;">
+            ${escapeHtml(msg.message)}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  container.scrollTop = container.scrollHeight;
+}
+
+async function clearLounge() {
+  if (!confirm('Clear all lounge messages?')) return;
+  try {
+    await fetch(API + '/api/lounge', { method: 'DELETE' });
+    loungeMessages = [];
+    renderLoungeMessages();
+  } catch(e) { console.log('Clear error:', e); }
+}
+
+// Load both on page init (in case org tab is default or already active)
+loadMeetingMessages();
+loadLoungeMessages();
+
+// ═══════════════════ THE FOUNTAIN ═══════════════════
+const FOUNTAIN_AGENTS = {
+  scout: { name: 'Scout', emoji: '🔭', color: '#4fc3f7', role: 'Trend Hunter' },
+  spark: { name: 'Spark', emoji: '⚡', color: '#ffb74d', role: 'Idea Generator' },
+  forge: { name: 'Forge', emoji: '🔨', color: '#e57373', role: 'Builder Assessment' },
+  lens:  { name: 'Lens', emoji: '🔍', color: '#81c784', role: 'Market Analyst' }
+};
+
+let fountainTrends = [];
+let fountainIdeas = [];
+let fountainFilter = 'all';
+
+function renderFountainAgentsBar() {
+  const bar = document.getElementById('fountain-agents-bar');
+  if (!bar) return;
+  bar.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;justify-content:center;';
+  bar.innerHTML = Object.entries(FOUNTAIN_AGENTS).map(([key, a]) => `
+    <div class="ft-agent-badge" style="background:${a.color}15;border:1px solid ${a.color}40;">
+      <span style="font-size:16px;">${a.emoji}</span>
+      <span style="color:${a.color};">${a.name}</span>
+      <span style="color:var(--text-dim);font-weight:400;font-size:10px;">${a.role}</span>
+    </div>
+  `).join('');
+}
+
+async function loadFountainData() {
+  try {
+    const [trendsRes, ideasRes] = await Promise.all([
+      fetch('/api/fountain/trends').catch(() => null),
+      fetch('/api/fountain/ideas').catch(() => null)
+    ]);
+    if (trendsRes && trendsRes.ok) fountainTrends = await trendsRes.json();
+    if (ideasRes && ideasRes.ok) fountainIdeas = await ideasRes.json();
+  } catch(e) { console.warn('Fountain data load error:', e); }
+  renderFountainAll();
+}
+
+function renderFountainAll() {
+  renderFountainAgentsBar();
+  renderFountainStats();
+  renderFountainTrends();
+  renderFountainIdeas();
+  renderFountainLab();
+}
+
+function renderFountainStats() {
+  const labCount = fountainIdeas.filter(i => i.status === 'lab').length;
+  const pipeCount = fountainIdeas.filter(i => i.status === 'pipeline').length;
+  const el1 = document.getElementById('ft-stat-trends');
+  const el2 = document.getElementById('ft-stat-ideas');
+  const el3 = document.getElementById('ft-stat-lab');
+  const el4 = document.getElementById('ft-stat-pipeline');
+  if (el1) el1.textContent = fountainTrends.length;
+  if (el2) el2.textContent = fountainIdeas.length;
+  if (el3) el3.textContent = labCount;
+  if (el4) el4.textContent = pipeCount;
+}
+
+function renderFountainTrends() {
+  const container = document.getElementById('fountain-trends');
+  if (!container) return;
+  if (fountainTrends.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;"><div style="font-size:40px;opacity:0.3;margin-bottom:8px;">🔭</div><div>No trends scanned yet. Scout is on patrol...</div></div>';
+    return;
+  }
+  const sourceIcons = { twitter: '🐦', reddit: '🟠', hackernews: '🟧', producthunt: '🚀', news: '📰', research: '📄', ai: '🤖' };
+  container.innerHTML = fountainTrends.map(t => {
+    const icon = sourceIcons[t.source?.toLowerCase()] || '🔗';
+    const tags = (t.tags || []).map(tag => `<span class="ft-tag">${escapeHtml(tag)}</span>`).join('');
+    const timeAgo = t.timestamp ? ftTimeAgo(t.timestamp) : '';
+    return `
+      <div class="ft-trend-card">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+          <span style="font-size:20px;">${icon}</span>
+          <span style="font-size:10px;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">${escapeHtml(t.source || 'Unknown')}</span>
+          <span style="margin-left:auto;font-size:10px;color:var(--text-dim);">${timeAgo}</span>
+        </div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">${escapeHtml(t.title || 'Untitled')}</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:10px;">${escapeHtml(t.description || '')}</div>
+        ${tags ? '<div style="display:flex;gap:6px;flex-wrap:wrap;">' + tags + '</div>' : ''}
+        ${t.url ? '<a href="' + escapeHtml(t.url) + '" target="_blank" style="font-size:11px;color:#ff9800;text-decoration:none;margin-top:6px;display:inline-block;">View source →</a>' : ''}
+      </div>`;
+  }).join('');
+}
+
+function renderFountainIdeas() {
+  const container = document.getElementById('fountain-ideas');
+  if (!container) return;
+  let ideas = [...fountainIdeas];
+  if (fountainFilter === 'lab') ideas = ideas.filter(i => i.status === 'lab');
+  else if (fountainFilter === 'pipeline') ideas = ideas.filter(i => i.status === 'pipeline');
+
+  if (ideas.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;"><div style="font-size:40px;opacity:0.3;margin-bottom:8px;">💧</div><div>No ideas ' + (fountainFilter !== 'all' ? 'with this filter' : 'generated yet') + '.</div></div>';
+    return;
+  }
+
+  container.innerHTML = ideas.map(idea => {
+    const agent = FOUNTAIN_AGENTS[idea.agent] || FOUNTAIN_AGENTS.spark;
+    const scores = idea.scores || {};
+    const statusClass = idea.status === 'lab' ? 'status-lab' : idea.status === 'pipeline' ? 'status-pipeline' : '';
+    const statusLabel = idea.status === 'lab' ? '🧪 Ideas Lab' : idea.status === 'pipeline' ? '🚀 Pipeline' : idea.status === 'archived' ? '📦 Archived' : '💧 Stream';
+    const statusColor = idea.status === 'lab' ? '#ffd54f' : idea.status === 'pipeline' ? '#81c784' : idea.status === 'archived' ? '#888' : '#ffb74d';
+    const timeAgo = idea.timestamp ? ftTimeAgo(idea.timestamp) : '';
+
+    const scoreBar = (label, val, color) => {
+      const pct = Math.min(Math.max((val || 0) * 10, 0), 100);
+      return `<div style="display:flex;align-items:center;gap:8px;font-size:11px;">
+        <span style="color:var(--text-dim);min-width:70px;">${label}</span>
+        <div class="ft-score-bar"><div class="ft-score-fill" style="width:${pct}%;background:${color};"></div></div>
+        <span style="color:var(--text-secondary);min-width:20px;text-align:right;">${val || 0}</span>
+      </div>`;
+    };
+
+    return `
+      <div class="ft-idea-card ${statusClass}">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-size:10px;padding:3px 8px;border-radius:4px;background:${statusColor}22;color:${statusColor};font-weight:600;">${statusLabel}</span>
+          <span style="font-size:10px;color:var(--text-dim);">${timeAgo}</span>
+        </div>
+        <div style="font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">${escapeHtml(idea.title || 'Untitled')}</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">${escapeHtml(idea.description || '')}</div>
+        ${idea.source_trend ? '<div style="font-size:10px;color:var(--text-dim);margin-bottom:10px;">📡 From trend: <span style="color:#ff9800;">' + escapeHtml(idea.source_trend) + '</span></div>' : ''}
+        <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:12px;">
+          ${scoreBar('Feasibility', scores.feasibility, '#4fc3f7')}
+          ${scoreBar('Market', scores.market, '#81c784')}
+          ${scoreBar('Effort', scores.effort, '#e57373')}
+        </div>
+        ${scores.overall ? '<div style="font-size:11px;color:var(--text-secondary);margin-bottom:10px;">Overall: <strong style="color:#ffb74d;">' + scores.overall + '/10</strong></div>' : ''}
+        <div style="display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--border-color);">
+          <div class="ft-agent-badge" style="background:${agent.color}15;border:1px solid ${agent.color}30;padding:3px 8px;">
+            <span>${agent.emoji}</span>
+            <span style="color:${agent.color};font-size:10px;">${agent.name}</span>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="ft-promote-btn" onclick="queueBuildById('${idea.id}')" style="background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.3);color:#00e5ff;">🔨 Build It</button>
+            ${idea.status === 'stream' ? '<button class="ft-promote-btn to-lab" onclick="promoteFountainIdea(\'' + idea.id + '\',\'lab\')">→ Ideas Lab</button>' : ''}
+            ${idea.status === 'lab' ? '<button class="ft-promote-btn to-pipeline" onclick="promoteFountainIdea(\'' + idea.id + '\',\'pipeline\')">→ Pipeline</button>' : ''}
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function renderFountainLab() {
+  const container = document.getElementById('fountain-lab');
+  if (!container) return;
+  const labIdeas = fountainIdeas.filter(i => i.status === 'lab' || i.status === 'pipeline');
+
+  if (labIdeas.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;"><div style="font-size:40px;opacity:0.3;margin-bottom:8px;">🧪</div><div>No ideas in the lab yet. Promote ideas from the stream!</div></div>';
+    return;
+  }
+
+  container.innerHTML = labIdeas.map(idea => {
+    const agent = FOUNTAIN_AGENTS[idea.agent] || FOUNTAIN_AGENTS.spark;
+    const scores = idea.scores || {};
+    const isPipeline = idea.status === 'pipeline';
+    const borderColor = isPipeline ? 'rgba(129,199,132,0.4)' : 'rgba(255,213,79,0.4)';
+    const statusText = isPipeline ? '🚀 IN PIPELINE' : '🧪 IN LAB';
+    const statusColor = isPipeline ? '#81c784' : '#ffd54f';
+
+    return `
+      <div style="background:var(--bg-card);border:2px solid ${borderColor};border-radius:14px;padding:22px;transition:all 0.2s;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <span style="font-size:11px;padding:4px 10px;border-radius:6px;background:${statusColor}18;color:${statusColor};font-weight:700;letter-spacing:0.5px;">${statusText}</span>
+          <div class="ft-agent-badge" style="background:${agent.color}15;border:1px solid ${agent.color}30;padding:3px 8px;">
+            <span>${agent.emoji}</span>
+            <span style="color:${agent.color};font-size:10px;">${agent.name}</span>
+          </div>
+        </div>
+        <div style="font-size:17px;font-weight:700;color:var(--text-primary);margin-bottom:8px;font-family:'Orbitron',sans-serif;">${escapeHtml(idea.title || 'Untitled')}</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;margin-bottom:14px;">${escapeHtml(idea.description || '')}</div>
+        ${idea.source_trend ? '<div style="font-size:11px;color:var(--text-dim);margin-bottom:12px;">📡 Source trend: <span style="color:#ff9800;">' + escapeHtml(idea.source_trend) + '</span></div>' : ''}
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;">
+          <div style="text-align:center;background:rgba(79,195,247,0.08);border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:var(--text-dim);">Feasibility</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#4fc3f7;margin-top:2px;">${scores.feasibility || '—'}</div>
+          </div>
+          <div style="text-align:center;background:rgba(129,199,132,0.08);border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:var(--text-dim);">Market</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#81c784;margin-top:2px;">${scores.market || '—'}</div>
+          </div>
+          <div style="text-align:center;background:rgba(229,115,115,0.08);border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:var(--text-dim);">Effort</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#e57373;margin-top:2px;">${scores.effort || '—'}</div>
+          </div>
+          <div style="text-align:center;background:rgba(255,183,77,0.08);border-radius:8px;padding:10px;">
+            <div style="font-size:10px;color:var(--text-dim);">Overall</div>
+            <div style="font-family:'Orbitron',sans-serif;font-size:18px;font-weight:700;color:#ffb74d;margin-top:2px;">${scores.overall || '—'}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:center;justify-content:${isPipeline ? 'center' : 'flex-end'};">
+          <button class="ft-promote-btn" onclick="queueBuildById('${idea.id}')" style="background:rgba(0,229,255,0.1);border-color:rgba(0,229,255,0.3);color:#00e5ff;padding:8px 20px;font-size:12px;">🔨 Build It</button>
+          ${!isPipeline ? '<button class="ft-promote-btn to-pipeline" onclick="promoteFountainIdea(\'' + idea.id + '\',\'pipeline\')" style="padding:8px 20px;">🚀 Move to Pipeline</button>' : ''}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function setFountainFilter(filter, btn) {
+  fountainFilter = filter;
+  document.querySelectorAll('.ft-filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  renderFountainIdeas();
+}
+
+async function promoteFountainIdea(id, newStatus) {
+  try {
+    const res = await fetch(`/api/fountain/ideas/${id}/promote`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (res.ok) {
+      // Update local state
+      const idea = fountainIdeas.find(i => i.id === id);
+      if (idea) idea.status = newStatus;
+      renderFountainAll();
+      showToast(`✅ Idea promoted to ${newStatus === 'lab' ? 'Ideas Lab' : 'Pipeline'}!`);
+    }
+  } catch(e) {
+    showToast('❌ Failed to promote idea: ' + e.message);
+  }
+}
+
+function ftTimeAgo(ts) {
+  const seconds = Math.floor((Date.now() - new Date(ts).getTime()) / 1000);
+  if (seconds < 60) return 'Just now';
+  if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+  if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+  return Math.floor(seconds / 86400) + 'd ago';
+}
+
+// Load fountain data when tab is clicked
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.getAttribute('data-tab') === 'fountain') {
+      loadFountainData();
+    }
+  });
+});
+
+// Initial load (in case tab is opened directly)
+loadFountainData();
+
+// ═══ THE FORGE ═══
+let forgeBuilds = [];
+
+async function fetchForgeBuilds() {
+  try {
+    const res = await fetch('/api/fountain/builds');
+    if (res.ok) {
+      forgeBuilds = await res.json();
+      renderForgeBuilds();
+    }
+  } catch (e) { console.error('Forge fetch failed', e); }
+}
+
+function renderForgeBuilds() {
+  const container = document.getElementById('forge-queue');
+  if (!container) return;
+
+  // Stats
+  document.getElementById('forge-stat-queued').textContent = forgeBuilds.filter(b => b.status === 'queued').length;
+  document.getElementById('forge-stat-building').textContent = forgeBuilds.filter(b => b.status === 'building').length;
+  document.getElementById('forge-stat-deployed').textContent = forgeBuilds.filter(b => b.status === 'deployed').length;
+  document.getElementById('forge-stat-approved').textContent = forgeBuilds.filter(b => b.status === 'reviewed').length;
+
+  if (forgeBuilds.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-dim);grid-column:1/-1;"><div style="font-size:40px;opacity:0.3;margin-bottom:8px;">🔨</div><div>Forge is empty. Send an idea from The Fountain!</div></div>';
+    return;
+  }
+
+  container.innerHTML = forgeBuilds.map(build => {
+    let statusColor = '#ff8a00'; // queued
+    let statusIcon = '⏳';
+    if (build.status === 'building') { statusColor = '#00e5ff'; statusIcon = '⚙️'; }
+    if (build.status === 'deployed') { statusColor = '#00ff99'; statusIcon = '✅'; }
+    if (build.status === 'failed') { statusColor = '#ff2244'; statusIcon = '❌'; }
+    if (build.status === 'reviewed') { statusColor = '#a855f7'; statusIcon = '👑'; }
+
+    return `
+      <div class="bot-card" style="border-top: 3px solid ${statusColor};">
+        <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:10px;">
+          <span style="font-size:11px;padding:3px 8px;border-radius:4px;background:${statusColor}22;color:${statusColor};font-weight:600;text-transform:uppercase;">${statusIcon} ${build.status}</span>
+          <span style="font-size:10px;color:var(--text-dim);">${ftTimeAgo(build.updatedAt || build.createdAt)}</span>
+        </div>
+        <div style="font-family:'Orbitron',sans-serif;font-size:15px;font-weight:700;color:var(--text-primary);margin-bottom:6px;">${escapeHtml(build.title)}</div>
+        <div style="font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;">${escapeHtml(build.description || 'No description')}</div>
+        
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;font-size:11px;">
+          <div style="background:var(--bg-card-hover);padding:6px 10px;border-radius:6px;">
+            <div style="color:var(--text-dim);">Est. Cost</div>
+            <div style="color:var(--text-primary);font-weight:600;">${build.costEstimate || '$0.00'}</div>
+          </div>
+          <div style="background:var(--bg-card-hover);padding:6px 10px;border-radius:6px;">
+            <div style="color:var(--text-dim);">Build ID</div>
+            <div style="color:var(--text-secondary);font-family:'SF Mono',monospace;font-size:10px;">${build.id.slice(-6)}</div>
+          </div>
+        </div>
+
+        ${build.previewUrl ? `<a href="${build.previewUrl}" target="_blank" style="display:block;text-align:center;background:rgba(0,255,153,0.1);color:#00ff99;padding:8px;border-radius:6px;text-decoration:none;font-weight:600;font-size:12px;margin-bottom:10px;">🌐 View Deployment</a>` : ''}
+
+        <div style="display:flex;gap:8px;margin-top:auto;">
+          ${build.status === 'deployed' ? `
+            <button onclick="updateBuildStatus('${build.id}', 'reviewed')" style="flex:1;background:rgba(168,85,247,0.1);color:#a855f7;border:1px solid rgba(168,85,247,0.3);padding:6px;border-radius:6px;cursor:pointer;font-size:11px;">✅ Approve</button>
+            <button onclick="updateBuildStatus('${build.id}', 'failed')" style="flex:1;background:rgba(255,34,68,0.1);color:#ff2244;border:1px solid rgba(255,34,68,0.3);padding:6px;border-radius:6px;cursor:pointer;font-size:11px;">❌ Reject</button>
+          ` : ''}
+          <button onclick="deleteBuild('${build.id}')" style="background:transparent;border:1px solid var(--border-color);color:var(--text-dim);padding:6px 10px;border-radius:6px;cursor:pointer;font-size:11px;margin-left:auto;">🗑</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function queueBuild(idea) {
+  if (!confirm(`Queue "${idea.title}" for The Forge?`)) return;
+
+  try {
+    const res = await fetch('/api/fountain/builds', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: idea.title,
+        description: idea.description,
+        ideaId: idea.id,
+        costEstimate: '$' + (Math.random() * 0.08 + 0.01).toFixed(2) // Actual cost: <$0.10 per build
+      })
+    });
+
+    if (res.ok) {
+      showToast('✅ Build queued in The Forge!');
+      fetchForgeBuilds();
+      // Switch to Forge tab
+      document.querySelector('[data-tab="forge"]').click();
+    } else {
+      showToast('❌ Failed to queue build');
+    }
+  } catch (e) {
+    showToast('❌ Error: ' + e.message);
+  }
+}
+
+async function updateBuildStatus(id, status) {
+  try {
+    await fetch(`/api/fountain/builds/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status })
+    });
+    fetchForgeBuilds();
+  } catch (e) { console.error(e); }
+}
+
+async function deleteBuild(id) {
+  if (!confirm('Delete this build?')) return;
+  try {
+    await fetch(`/api/fountain/builds/${id}`, { method: 'DELETE' });
+    fetchForgeBuilds();
+  } catch (e) { console.error(e); }
+}
+
+function queueBuildById(id) {
+  const idea = fountainIdeas.find(i => i.id === id);
+  if (idea) queueBuild(idea);
+}
+
+// Load Forge data when tab clicked
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    if (tab.getAttribute('data-tab') === 'forge') {
+      fetchForgeBuilds();
+    }
+  });
+});
 </script>
 </div><!-- end #app-content -->
 </body>

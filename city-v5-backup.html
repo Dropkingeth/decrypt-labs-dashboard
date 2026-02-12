@@ -421,8 +421,8 @@ let bots = [
     balance: 147245.18, pnl: -2754.82, winRate: 76.5,
     drawdownPct: 55.3, status: 'ACTIVE', totalTrades: 5202,
     color: '#ff8a00', health: 'warning',
-    position: { x: -10, z: -6 }, angle: 0,
-    account: 'APEX-18', monthlyCost: 50.00, payouts: 0,
+    position: { x: -8, z: 4 }, angle: 0,
+    account: 'APEX-18',
     contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
     tokenId: 0
   },
@@ -432,8 +432,8 @@ let bots = [
     balance: 152419.30, pnl: 2419.30, winRate: 100,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#00e5ff', health: 'healthy',
-    position: { x: 10, z: -6 }, angle: 0,
-    account: 'APEX-19', monthlyCost: 78.40, payouts: 0,
+    position: { x: 8, z: 4 }, angle: 0,
+    account: 'APEX-19',
     contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
     tokenId: 1
   },
@@ -443,8 +443,8 @@ let bots = [
     balance: 152383.88, pnl: 2383.88, winRate: 100,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#a855f7', health: 'healthy',
-    position: { x: -10, z: 6 }, angle: 0,
-    account: 'APEX-20', monthlyCost: 78.40, payouts: 0,
+    position: { x: 0, z: -7 }, angle: 0,
+    account: 'APEX-20',
     contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
     tokenId: 2
   },
@@ -454,9 +454,9 @@ let bots = [
     balance: 303042.06, pnl: 3042.06, winRate: 0,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 0,
     color: '#22ff88', health: 'healthy',
-    position: { x: 10, z: 6 }, angle: 0,
+    position: { x: 0, z: 10 }, angle: 0,
     accountSize: 300000,
-    account: 'APEX-21', monthlyCost: 78.40, payouts: 0,
+    account: 'APEX-21',
     contractAddress: '0x743EBDfcED2dBA082E282689c35D5c0E173C7728',
     tokenId: 3
   }
@@ -545,10 +545,10 @@ scene.add(cycleAmbient);
 // 4 mood lights + 1 graveyard + 1 tower + 1 jimmy = 7
 const moodLights = [];
 const moodLightDefs = [
-  { color: 0x00e5ff, pos: [0, 10, 0], intensity: 2.5, distance: 45 },
-  { color: 0xa855f7, pos: [0, 15, -25], intensity: 2, distance: 35 },
-  { color: 0xff22bb, pos: [-25, 5, -10], intensity: 1, distance: 20 },
-  { color: 0x00ff99, pos: [0, 5, 40], intensity: 1.5, distance: 30 },
+  { color: 0x00e5ff, pos: [0, 8, 0], intensity: 2, distance: 40 },
+  { color: 0xa855f7, pos: [-15, 5, -10], intensity: 1.5, distance: 25 },
+  { color: 0xff22bb, pos: [15, 5, -10], intensity: 1, distance: 20 },
+  { color: 0x00ff99, pos: [0, 3, 10], intensity: 1, distance: 20 },
 ];
 moodLightDefs.forEach(l => {
   const pl = new THREE.PointLight(l.color, l.intensity, l.distance);
@@ -661,8 +661,8 @@ function createGroundTexture() {
   bots.forEach(bot => {
     drawRoad(0, 0, bot.position.x, bot.position.z);
   });
-  // Road from nearest bot to Graveyard
-  drawRoad(-10, -6, -28, -12, 2.5, 'rgba(255,34,187,0.08)', 'rgba(255,34,187,0.18)');
+  // Road from Tina to Graveyard
+  drawRoad(-8, 4, -18, -16, 2.5, 'rgba(255,34,187,0.08)', 'rgba(255,34,187,0.18)');
 
   // Intersection circles
   function drawIntersection(wx, wz, radius = 6, color = 'rgba(0,229,255,0.15)') {
@@ -680,7 +680,7 @@ function createGroundTexture() {
 
   drawIntersection(0, 0, 8);
   bots.forEach(bot => drawIntersection(bot.position.x, bot.position.z, 6));
-  drawIntersection(-28, -12, 5, 'rgba(255,34,187,0.15)');
+  drawIntersection(-18, -16, 5, 'rgba(255,34,187,0.15)');
 
   // Circuit traces
   function drawCircuitTrace(startX, startZ, segments) {
@@ -801,293 +801,11 @@ function createBotCharacter(colorHex, themeColor) {
 }
 
 // ─────────────────────────────────────────
-//  TASK 3 & 4: LANDMARKS & EXPANSION
-// ─────────────────────────────────────────
-function createLandmarks() {
-  // ═══════════════════════════════════════
-  // 1. THE MOUNTAIN (with snow peak)
-  // ═══════════════════════════════════════
-  const mtnGeo = new THREE.ConeGeometry(60, 50, 6, 3, true);
-  const mtnMat = new THREE.MeshStandardMaterial({
-    color: 0x080810, emissive: 0x0a0a18, emissiveIntensity: 0.5,
-    roughness: 0.9, flatShading: true
-  });
-  const mountain = new THREE.Mesh(mtnGeo, mtnMat);
-  mountain.position.set(-50, 0, -60);
-  mountain.scale.set(1.5, 1.2, 1);
-  scene.add(mountain);
-
-  // Mountain wireframe overlay
-  const mtnWireGeo = new THREE.WireframeGeometry(mtnGeo);
-  const mtnWireMat = new THREE.LineBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.15 });
-  const mtnWire = new THREE.LineSegments(mtnWireGeo, mtnWireMat);
-  mtnWire.position.copy(mountain.position);
-  mtnWire.scale.copy(mountain.scale);
-  scene.add(mtnWire);
-
-  // ❄️ SNOW CAP on mountain peak
-  const snowGeo = new THREE.ConeGeometry(18, 12, 6, 1, false);
-  const snowMat = new THREE.MeshStandardMaterial({
-    color: 0xddeeff, emissive: 0x667799, emissiveIntensity: 0.3,
-    roughness: 0.6, flatShading: true
-  });
-  const snowCap = new THREE.Mesh(snowGeo, snowMat);
-  snowCap.position.set(-50, 50, -60);
-  snowCap.scale.set(1.5, 1.2, 1);
-  scene.add(snowCap);
-
-  // Snow glow
-  const snowGlow = new THREE.PointLight(0xaaccff, 0.4, 40);
-  snowGlow.position.set(-50, 55, -60);
-  scene.add(snowGlow);
-
-  // ═══════════════════════════════════════
-  // 2. ALL-SEEING EYE PYRAMID (Decrypt Labs HQ)
-  // ═══════════════════════════════════════
-  const pyramidGroup = new THREE.Group();
-  pyramidGroup.position.set(0, 0, -25);
-
-  // Main pyramid body
-  const pyrGeo = new THREE.ConeGeometry(14, 28, 4, 1, false);
-  const pyrMat = new THREE.MeshStandardMaterial({
-    color: 0x0a0e1a, emissive: 0x0c1428, emissiveIntensity: 0.4,
-    roughness: 0.3, metalness: 0.7, flatShading: true
-  });
-  const pyramid = new THREE.Mesh(pyrGeo, pyrMat);
-  pyramid.position.y = 14;
-  pyramid.rotation.y = Math.PI / 4; // Align edges with axes
-  pyramidGroup.add(pyramid);
-
-  // Pyramid wireframe edges
-  const pyrEdgeGeo = new THREE.EdgesGeometry(pyrGeo);
-  const pyrEdgeMat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.6 });
-  const pyrEdges = new THREE.LineSegments(pyrEdgeGeo, pyrEdgeMat);
-  pyrEdges.position.y = 14;
-  pyrEdges.rotation.y = Math.PI / 4;
-  pyramidGroup.add(pyrEdges);
-
-  // Horizontal tier lines on pyramid
-  for (let tier = 0; tier < 5; tier++) {
-    const frac = tier / 5;
-    const radius = 14 * (1 - frac) * 0.95;
-    const tierRing = new THREE.Mesh(
-      new THREE.TorusGeometry(radius, 0.08, 4, 4),
-      new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.2 })
-    );
-    tierRing.rotation.x = Math.PI / 2;
-    tierRing.rotation.z = Math.PI / 4;
-    tierRing.position.y = 2 + tier * 5.2;
-    pyramidGroup.add(tierRing);
-  }
-
-  // 👁️ THE EYE — floating above pyramid
-  const eyeGroup = new THREE.Group();
-  eyeGroup.position.y = 32;
-
-  // Eye outer shape (diamond/lens)
-  const eyeShape = new THREE.Shape();
-  eyeShape.moveTo(0, 1.8);
-  eyeShape.quadraticCurveTo(3.5, 0, 0, -1.8);
-  eyeShape.quadraticCurveTo(-3.5, 0, 0, 1.8);
-  const eyeOuterGeo = new THREE.ShapeGeometry(eyeShape, 24);
-  const eyeOuterMat = new THREE.MeshBasicMaterial({
-    color: 0x00e5ff, transparent: true, opacity: 0.15, side: THREE.DoubleSide
-  });
-  const eyeOuter = new THREE.Mesh(eyeOuterGeo, eyeOuterMat);
-  eyeGroup.add(eyeOuter);
-
-  // Eye outline
-  const eyeOutlineGeo = new THREE.EdgesGeometry(eyeOuterGeo);
-  const eyeOutlineMat = new THREE.LineBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.8 });
-  eyeGroup.add(new THREE.LineSegments(eyeOutlineGeo, eyeOutlineMat));
-
-  // Iris (circle)
-  const irisGeo = new THREE.RingGeometry(0.3, 1.0, 24);
-  const irisMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.7, side: THREE.DoubleSide });
-  eyeGroup.add(new THREE.Mesh(irisGeo, irisMat));
-
-  // Pupil (center dot)
-  const pupilGeo = new THREE.CircleGeometry(0.35, 16);
-  const pupilMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, side: THREE.DoubleSide });
-  const pupil = new THREE.Mesh(pupilGeo, pupilMat);
-  pupil.position.z = 0.01;
-  eyeGroup.add(pupil);
-
-  // Eye glow light
-  const eyeGlow = new THREE.PointLight(0x00e5ff, 1.5, 25);
-  eyeGlow.position.set(0, 0, 2);
-  eyeGroup.add(eyeGlow);
-
-  // Store for animation (eye rotates to face camera)
-  pyramidGroup._eye = eyeGroup;
-  pyramidGroup._eyeGlow = eyeGlow;
-
-  pyramidGroup.add(eyeGroup);
-
-  // "DECRYPT LABS" sign at pyramid base
-  const signCanvas = document.createElement('canvas');
-  signCanvas.width = 512; signCanvas.height = 96;
-  const sctx = signCanvas.getContext('2d');
-  sctx.fillStyle = 'rgba(0,0,0,0)';
-  sctx.fillRect(0, 0, 512, 96);
-  sctx.fillStyle = '#00e5ff';
-  sctx.font = 'bold 48px Orbitron';
-  sctx.textAlign = 'center';
-  sctx.textBaseline = 'middle';
-  sctx.fillText('DECRYPT LABS', 256, 48);
-  const signTex = new THREE.CanvasTexture(signCanvas);
-  const sign = new THREE.Mesh(
-    new THREE.PlaneGeometry(14, 3),
-    new THREE.MeshBasicMaterial({ map: signTex, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
-  );
-  sign.position.set(0, 1.5, 16);
-  pyramidGroup.add(sign);
-
-  scene.add(pyramidGroup);
-
-  // ═══════════════════════════════════════
-  // 3. THE ROAD (From Beacon to Suburbs)
-  // ═══════════════════════════════════════
-  // Road runs from pyramid (Z=-20) through bot area to suburbs (Z=50)
-  const roadLen = 80;
-  const roadCenterZ = 10; // Center of road
-  const roadGeo = new THREE.PlaneGeometry(8, roadLen);
-  const roadMat = new THREE.MeshStandardMaterial({ 
-    color: 0x080c14, roughness: 0.8 
-  });
-  const road = new THREE.Mesh(roadGeo, roadMat);
-  road.rotation.x = -Math.PI / 2;
-  road.position.set(0, 0.02, roadCenterZ);
-  scene.add(road);
-
-  // Road center line (cyan)
-  const lineGeo = new THREE.PlaneGeometry(0.3, roadLen);
-  const lineMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.25 });
-  const line = new THREE.Mesh(lineGeo, lineMat);
-  line.rotation.x = -Math.PI / 2;
-  line.position.set(0, 0.03, roadCenterZ);
-  scene.add(line);
-
-  // Road edge lines
-  [-3.5, 3.5].forEach(x => {
-    const edgeGeo = new THREE.PlaneGeometry(0.12, roadLen);
-    const edgeMat = new THREE.MeshBasicMaterial({ color: 0x00e5ff, transparent: true, opacity: 0.1 });
-    const edge = new THREE.Mesh(edgeGeo, edgeMat);
-    edge.rotation.x = -Math.PI / 2;
-    edge.position.set(x, 0.03, roadCenterZ);
-    scene.add(edge);
-  });
-
-  // ═══════════════════════════════════════
-  // 4. THE SUBURBS (Graduated Bot Housing)
-  // ═══════════════════════════════════════
-  const suburbsZ = 42; // End of the road, visible from default camera
-
-  // Suburbs entrance marker (simple gate posts — neon rooftop sign handles the label)
-  const gatePostMat = new THREE.MeshStandardMaterial({ color: 0x1a2235, metalness: 0.7, roughness: 0.3 });
-  [-6, 6].forEach(x => {
-    const gatePost = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 4, 6), gatePostMat);
-    gatePost.position.set(x, 2, suburbsZ - 2);
-    scene.add(gatePost);
-    // Post light
-    const postLight = new THREE.Mesh(
-      new THREE.SphereGeometry(0.25, 8, 8),
-      new THREE.MeshBasicMaterial({ color: 0x00ff99, transparent: true, opacity: 0.7 })
-    );
-    postLight.position.set(x, 4.2, suburbsZ - 2);
-    scene.add(postLight);
-  });
-
-  // Suburb houses (empty lots for now — will populate when bots graduate)
-  const housePositions = [
-    { x: -10, z: suburbsZ + 4 },
-    { x: 10, z: suburbsZ + 4 },
-    { x: -10, z: suburbsZ + 14 },
-    { x: 10, z: suburbsZ + 14 },
-  ];
-
-  housePositions.forEach((pos, idx) => {
-    const lotGroup = new THREE.Group();
-    lotGroup.position.set(pos.x, 0, pos.z);
-
-    // Empty lot platform (dashed outline)
-    const lotGeo = new THREE.PlaneGeometry(8, 8);
-    const lotMat = new THREE.MeshBasicMaterial({ color: 0x00ff99, transparent: true, opacity: 0.04 });
-    const lot = new THREE.Mesh(lotGeo, lotMat);
-    lot.rotation.x = -Math.PI / 2;
-    lot.position.y = 0.01;
-    lotGroup.add(lot);
-
-    // Lot border
-    const lotEdge = new THREE.EdgesGeometry(lotGeo);
-    const lotEdgeMat = new THREE.LineBasicMaterial({ color: 0x00ff99, transparent: true, opacity: 0.25 });
-    const lotEdgeLine = new THREE.LineSegments(lotEdge, lotEdgeMat);
-    lotEdgeLine.rotation.x = -Math.PI / 2;
-    lotEdgeLine.position.y = 0.02;
-    lotGroup.add(lotEdgeLine);
-
-    // "AVAILABLE" text on lot
-    const lotLabelCanvas = document.createElement('canvas');
-    lotLabelCanvas.width = 256; lotLabelCanvas.height = 64;
-    const lctx = lotLabelCanvas.getContext('2d');
-    lctx.fillStyle = 'rgba(0,0,0,0)';
-    lctx.fillRect(0, 0, 256, 64);
-    lctx.fillStyle = '#00ff9966';
-    lctx.font = 'bold 28px Orbitron';
-    lctx.textAlign = 'center';
-    lctx.textBaseline = 'middle';
-    lctx.fillText('LOT #' + (idx + 1), 128, 20);
-    lctx.font = '18px JetBrains Mono';
-    lctx.fillText('AVAILABLE', 128, 48);
-    const lotLabelTex = new THREE.CanvasTexture(lotLabelCanvas);
-    const lotLabel = new THREE.Mesh(
-      new THREE.PlaneGeometry(4, 1.5),
-      new THREE.MeshBasicMaterial({ map: lotLabelTex, transparent: true, side: THREE.DoubleSide })
-    );
-    lotLabel.position.y = 2;
-    lotGroup.add(lotLabel);
-
-    scene.add(lotGroup);
-  });
-
-  // Store pyramid ref for animation
-  return { pyramidGroup, roadZEnd: 120, suburbsZ };
-}
-
-const landmarks = createLandmarks();
-
-// ─────────────────────────────────────────
-//  BOT WORKSTATIONS (OPTIMIZED & DYNAMIC)
-// ─────────────────────────────────────────
 //  BOT WORKSTATIONS (OPTIMIZED)
 // ─────────────────────────────────────────
-
-// Fetch real data from API and merge into bots before building
-fetch('/api/accounts')
-  .then(res => res.json())
-  .then(data => {
-    console.log('Bot data loaded:', data);
-    const apiMap = { 'fvg-ifvg-1': 0, 'ote-silver-bullet': 1, 'ote-refined-small': 2, 'new-300k': 3 };
-    Object.entries(data).forEach(([key, acct]) => {
-      const idx = apiMap[key];
-      if (idx !== undefined && bots[idx]) {
-        bots[idx].balance = acct.balance || bots[idx].balance;
-        bots[idx].pnl = acct.pnl || bots[idx].pnl;
-        bots[idx].drawdownPct = acct.drawdown ? ((acct.drawdown / acct.drawdownMax) * 100).toFixed(1) : bots[idx].drawdownPct;
-        bots[idx].status = acct.status === 'online' ? 'ACTIVE' : 'PAUSED';
-      }
-    });
-    buildBotStations();
-  })
-  .catch(err => {
-    console.warn('API load failed, using default bots', err);
-    buildBotStations();
-  });
-
 const workstationGroups = [];
-const botCharacters = [];
+const botCharacters = []; // Store references for animation
 
-function buildBotStations() {
 bots.forEach((bot, i) => {
   const group = new THREE.Group();
   group.position.set(bot.position.x, 0, bot.position.z);
@@ -1281,9 +999,6 @@ bots.forEach((bot, i) => {
   workstationGroups.push(group);
   renderBotScreen(bot);
 });
-} // end buildBotStations
-
-
 
 function renderBotScreen(bot) {
   const ctx = bot._screenCanvas.getContext('2d');
@@ -1315,8 +1030,6 @@ function renderBotScreen(bot) {
     ['P&L', (bot.pnl >= 0 ? '+' : '') + '$' + bot.pnl.toLocaleString('en-US', { minimumFractionDigits: 2 })],
     ['Win Rate', bot.winRate + '%'],
     ['Drawdown', bot.drawdownPct + '%'],
-    ['Monthly Cost', '$' + (bot.monthlyCost || 50).toFixed(2)],
-    ['Payouts', '$' + (bot.payouts || 0).toFixed(2)],
   ];
   stats.forEach((s, idx) => {
     const y = 90 + idx * 28;
@@ -1486,7 +1199,7 @@ setLoad(50, 'Deploying Jimmy…');
 //  JIMMY — OVERLOOKING THE CITY
 // ─────────────────────────────────────────
 const jimmyGroup = new THREE.Group();
-jimmyGroup.position.set(0, 8, 0);
+jimmyGroup.position.set(0, 8, 18);
 
 // Elevated hexagonal platform
 const jimmyPlatGeo = new THREE.CylinderGeometry(2.5, 2.8, 0.4, 6);
@@ -1620,7 +1333,7 @@ setLoad(55, 'Building the Graveyard…');
 //  THE GRAVEYARD (HEXAGONAL BASE + CHURCH)
 // ─────────────────────────────────────────
 const graveyardGroup = new THREE.Group();
-graveyardGroup.position.set(-28, 0, -12);
+graveyardGroup.position.set(-18, 0, -16);
 
 // === HEXAGONAL GROUND ===
 const hexRadius = 7;
@@ -1954,26 +1667,23 @@ setLoad(70, 'Installing cyberpunk buildings…');
 //  CYBERPUNK BUILDINGS (MERGED GEOMETRY)
 // ─────────────────────────────────────────
 const buildingDefs = [
-  // Right skyline (east side)
-  { pos: [28, -20], w: 2, h: 10, type: 'antenna' },
-  { pos: [32, -14], w: 1.5, h: 16, type: 'skyscraper' },
-  { pos: [26, -26], w: 2.5, h: 7, type: 'setback' },
-  { pos: [30, -6], w: 1.5, h: 20, type: 'skyscraper' },
-  { pos: [34, 2], w: 2, h: 12, type: 'billboard' },
-  { pos: [28, 10], w: 1.6, h: 9, type: 'antenna' },
-  { pos: [32, 18], w: 2.2, h: 8, type: 'flat' },
-  // Left skyline (west side — pushed away from graveyard at -28,-12)
-  { pos: [-38, -22], w: 1.8, h: 12, type: 'billboard' },
-  { pos: [-36, -14], w: 2.2, h: 8, type: 'flat' },
-  { pos: [-38, -4], w: 1.4, h: 18, type: 'skyscraper' },
-  { pos: [-34, 8], w: 1.8, h: 10, type: 'antenna' },
-  { pos: [-36, 16], w: 2, h: 7, type: 'setback' },
-  { pos: [-34, 24], w: 1.6, h: 6, type: 'flat' },
-  // Back skyline (pushed further behind pyramid at 0,-25)
-  { pos: [22, -42], w: 1.8, h: 9, type: 'setback' },
-  { pos: [-22, -44], w: 2, h: 11, type: 'antenna' },
-  { pos: [10, -46], w: 1.5, h: 14, type: 'skyscraper' },
-  { pos: [-10, -48], w: 1.8, h: 8, type: 'billboard' },
+  { pos: [20, -18], w: 2, h: 8, type: 'antenna' },
+  { pos: [24, -14], w: 1.5, h: 14, type: 'skyscraper' },
+  { pos: [18, -22], w: 2.5, h: 6, type: 'setback' },
+  { pos: [-24, 10], w: 1.8, h: 10, type: 'billboard' },
+  { pos: [-20, 14], w: 2.2, h: 7, type: 'flat' },
+  { pos: [-26, 6], w: 1.4, h: 16, type: 'skyscraper' },
+  { pos: [22, 12], w: 2, h: 9, type: 'antenna' },
+  { pos: [26, 8], w: 1.6, h: 11, type: 'billboard' },
+  { pos: [-18, 18], w: 2, h: 5, type: 'flat' },
+  { pos: [14, -24], w: 1.8, h: 8, type: 'setback' },
+  { pos: [-22, -22], w: 2, h: 6, type: 'antenna' },
+  { pos: [28, -6], w: 1.5, h: 18, type: 'skyscraper' },
+  { pos: [-28, -8], w: 1.8, h: 7, type: 'billboard' },
+  { pos: [10, 20], w: 2.2, h: 6, type: 'flat' },
+  { pos: [-14, -24], w: 1.6, h: 9, type: 'setback' },
+  { pos: [-30, 0], w: 1.8, h: 12, type: 'antenna' },
+  { pos: [30, 2], w: 2, h: 10, type: 'flat' },
 ];
 
 const buildingBodyGeometries = [];
@@ -2304,33 +2014,31 @@ function createNeonRooftopSign(text, buildingX, buildingZ, buildingH, color, sig
   return group;
 }
 
-// === Zone signs — positioned relative to actual landmarks ===
-createNeonRooftopSign('THE GRAVEYARD', -28, -12, 8, '#ff22bb', 4.5);
-createNeonRooftopSign('THE SUBURBS', 0, 42, 3, '#00ff99', 4.5);
+// === Zone signs (original 3) ===
+createNeonRooftopSign('WORKPLACE', 10, 20, 6, '#00ff99', 4.5);
+createNeonRooftopSign('THE GRAVEYARD', -14, -24, 9, '#ff22bb', 4.5);
+createNeonRooftopSign('DECRYPT LABS', 28, -6, 18, '#00e5ff', 4.5);
 
 // === Neon signs on ALL other buildings ===
 // Building sign assignments: index -> { text, color }
 const buildingSignAssignments = [
-  // Right skyline (east)
-  { text: 'STRATEGIES', color: '#00ff99' },       // [28, -20] h=10
-  { text: 'PERFORMANCE', color: '#00e5ff' },      // [32, -14] h=16
-  { text: 'NFT MINT', color: '#a855f7' },         // [26, -26] h=7
-  { text: 'LIVE TRADES', color: '#00ff99' },      // [30, -6] h=20
-  { text: 'BURN CHAMBER', color: '#ff22bb' },     // [34, 2] h=12
-  { text: 'LEADERBOARD', color: '#ff8a00' },      // [28, 10] h=9
-  { text: 'DASHBOARD', color: '#00e5ff' },        // [32, 18] h=8
-  // Left skyline (west — away from graveyard)
-  { text: 'SIGNALS', color: '#ff22bb' },          // [-38, -22] h=12
-  { text: 'COMMUNITY', color: '#00ff99' },        // [-36, -14] h=8
-  { text: 'TOKENOMICS', color: '#ff8a00' },       // [-38, -4] h=18
-  { text: 'ANALYTICS', color: '#00e5ff' },        // [-34, 8] h=10
-  { text: 'ROAD MAP', color: '#a855f7' },         // [-36, 16] h=7
-  { text: 'VAULT', color: '#ff8a00' },            // [-34, 24] h=6
-  // Back skyline (far behind pyramid)
-  { text: 'TREASURY', color: '#a855f7' },         // [22, -42] h=9
-  { text: 'CORTEX', color: '#ff22bb' },           // [-22, -44] h=11
-  { text: 'WORKSPACE', color: '#00e5ff' },        // [10, -46] h=14
-  { text: 'NEXUS', color: '#a855f7' },            // [-10, -48] h=8
+  { text: 'STRATEGIES', color: '#00ff99' },      // [20, -18] h=8 w=2
+  { text: 'PERFORMANCE', color: '#00e5ff' },      // [24, -14] h=14 w=1.5
+  { text: 'NFT MINT', color: '#a855f7' },         // [18, -22] h=6 w=2.5
+  { text: 'TOKENOMICS', color: '#ff8a00' },       // [-24, 10] h=10 w=1.8
+  { text: 'ROAD MAP', color: '#00e5ff' },         // [-20, 14] h=7 w=2.2
+  { text: 'COMMUNITY', color: '#00ff99' },        // [-26, 6] h=16 w=1.4
+  { text: 'BURN CHAMBER', color: '#ff22bb' },     // [22, 12] h=9 w=2
+  { text: 'LEADERBOARD', color: '#ff8a00' },      // [26, 8] h=11 w=1.6
+  { text: 'LIVE TRADES', color: '#00ff99' },      // [-18, 18] h=5 w=2
+  { text: 'ANALYTICS', color: '#00e5ff' },        // [14, -24] h=8 w=1.8
+  { text: 'TREASURY', color: '#a855f7' },         // [-22, -22] h=6 w=2
+  null,                                            // [28, -6] h=18 — already has DECRYPT LABS zone sign
+  { text: 'SIGNALS', color: '#ff22bb' },          // [-28, -8] h=7 w=1.8
+  null,                                            // [10, 20] h=6 — already has WORKPLACE zone sign
+  null,                                            // [-14, -24] h=9 — already has THE GRAVEYARD zone sign
+  { text: 'VAULT', color: '#ff8a00' },            // [-30, 0] h=12 w=1.8
+  { text: 'DASHBOARD', color: '#00e5ff' },        // [30, 2] h=10 w=2
 ];
 
 buildingDefs.forEach((bd, idx) => {
@@ -2559,21 +2267,6 @@ function animate() {
   frameCount++;
 
   controls.update();
-
-  // === All-Seeing Eye animation ===
-  if (landmarks && landmarks.pyramidGroup && landmarks.pyramidGroup._eye) {
-    const eye = landmarks.pyramidGroup._eye;
-    // Eye floats gently
-    eye.position.y = 32 + Math.sin(t * 0.8) * 0.5;
-    // Eye always faces camera
-    const eyeWorldPos = new THREE.Vector3();
-    eye.getWorldPosition(eyeWorldPos);
-    eye.lookAt(camera.position);
-    // Pulse the eye glow
-    if (landmarks.pyramidGroup._eyeGlow) {
-      landmarks.pyramidGroup._eyeGlow.intensity = 1.2 + Math.sin(t * 2) * 0.5;
-    }
-  }
 
   // === Lightning bolt system ===
   updateLightning(performance.now());
