@@ -75,6 +75,92 @@ function saveAccessRequests() {
   }
 }
 
+// Bills storage (loaded after PERSIST_DIR is set)
+let bills = [];
+let BILLS_FILE; // initialized after PERSIST_DIR
+
+function loadBills() {
+  try {
+    if (fs.existsSync(BILLS_FILE)) {
+      bills = JSON.parse(fs.readFileSync(BILLS_FILE, 'utf8'));
+      console.log(`[Bills] Loaded ${bills.length} bills`);
+    } else {
+      // Seed with default bills if new
+      seedBills();
+    }
+  } catch (e) {
+    console.log('[Bills] Error loading bills:', e.message);
+    bills = [];
+  }
+}
+
+function saveBills() {
+  try {
+    fs.writeFileSync(BILLS_FILE, JSON.stringify(bills, null, 2));
+  } catch (e) {
+    console.log('[Bills] Failed to save bills:', e.message);
+  }
+}
+
+function seedBills() {
+  bills = [
+    {
+      id: "seed-1",
+      name: "APEX-18 Renewal",
+      amount: 50,
+      frequency: "monthly",
+      dayOfMonth: 2,
+      category: "business",
+      color: "#00ff88", // Green
+      enabled: true
+    },
+    {
+      id: "seed-2",
+      name: "APEX-19/20 Renewal",
+      amount: 156.80,
+      frequency: "monthly",
+      dayOfMonth: 4,
+      category: "business",
+      color: "#00ff88",
+      enabled: true
+    },
+    {
+      id: "seed-3",
+      name: "Spline",
+      amount: 15,
+      frequency: "monthly",
+      dayOfMonth: 26,
+      category: "business",
+      color: "#aa66ff", // Purple
+      enabled: true
+    },
+    {
+      id: "seed-4",
+      name: "APEX-21 (300K)",
+      amount: 78.40,
+      frequency: "monthly",
+      dayOfMonth: 27,
+      category: "business",
+      color: "#00ff88",
+      enabled: true
+    },
+    {
+      id: "seed-5",
+      name: "Anthropic",
+      amount: 20,
+      frequency: "monthly",
+      dayOfMonth: 30,
+      category: "business",
+      color: "#00d4ff", // Cyan
+      enabled: true
+    }
+  ];
+  saveBills();
+  console.log('[Bills] Seeded initial bills');
+}
+
+// Bills loaded after PERSIST_DIR is set (see line ~326)
+
 // Load access requests on startup
 loadAccessRequests();
 console.log('[DEPLOY] 🚀 MISSION CONTROL v1.1 — Build Feb 9 2026 (Personal Tab)');
@@ -235,6 +321,8 @@ fs.mkdirSync(LOG_DIR, { recursive: true });
 // Persistent data directory (survives deploys on Railway with volume mount)
 const PERSIST_DIR = process.env.RAILWAY_VOLUME_MOUNT_PATH || path.join(__dirname, 'persist');
 fs.mkdirSync(PERSIST_DIR, { recursive: true });
+BILLS_FILE = path.join(PERSIST_DIR, 'bills.json');
+loadBills();
 const TRADES_HISTORY_PATH = path.join(PERSIST_DIR, 'trades-history.json');
 
 // Initialize persistent trades file if not exists
@@ -394,7 +482,7 @@ async function handleDiscrepancies(discrepancies) {
 
 const server = http.createServer(async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   
   if (req.method === 'OPTIONS') {
@@ -844,6 +932,91 @@ const server = http.createServer(async (req, res) => {
     return;
   }
   
+  // -------------------------------------------------------------------------
+  // BILLS CALENDAR API
+  // -------------------------------------------------------------------------
+
+  // GET /api/bills
+  if (req.method === 'GET' && pathname === '/api/bills') {
+    res.writeHead(200, { 
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
+    });
+    res.end(JSON.stringify(bills));
+    return;
+  }
+
+  // POST /api/bills - Add new bill
+  if (req.method === 'POST' && pathname === '/api/bills') {
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const newBill = JSON.parse(body);
+        newBill.id = Date.now().toString(36); // simple ID
+        newBill.created = new Date().toISOString();
+        if (!newBill.color) newBill.color = '#00ff88';
+        
+        bills.push(newBill);
+        saveBills();
+        
+        res.writeHead(200, { 
+          'Content-Type': 'application/json',
+          'Access-Control-Allow-Origin': '*'
+        });
+        res.end(JSON.stringify({ success: true, bill: newBill }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid bill data' }));
+      }
+    });
+    return;
+  }
+
+  // PUT /api/bills/:id - Update bill
+  if (req.method === 'PUT' && pathname.startsWith('/api/bills/')) {
+    const id = pathname.split('/').pop();
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', () => {
+      try {
+        const updates = JSON.parse(body);
+        const index = bills.findIndex(b => b.id === id);
+        
+        if (index !== -1) {
+          bills[index] = { ...bills[index], ...updates };
+          saveBills();
+          res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+          res.end(JSON.stringify({ success: true, bill: bills[index] }));
+        } else {
+          res.writeHead(404, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: 'Bill not found' }));
+        }
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Invalid update data' }));
+      }
+    });
+    return;
+  }
+
+  // DELETE /api/bills/:id - Delete bill
+  if (req.method === 'DELETE' && pathname.startsWith('/api/bills/')) {
+    const id = pathname.split('/').pop();
+    const initialLen = bills.length;
+    bills = bills.filter(b => b.id !== id);
+    
+    if (bills.length < initialLen) {
+      saveBills();
+      res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+      res.end(JSON.stringify({ success: true }));
+    } else {
+      res.writeHead(404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Bill not found' }));
+    }
+    return;
+  }
+  
   // GET /api/dashboard - Full dashboard data (alias for stats + more)
   if (req.method === 'GET' && pathname === '/api/dashboard') {
     try {
@@ -1040,6 +1213,61 @@ const server = http.createServer(async (req, res) => {
     } catch (err) {
       res.writeHead(500, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify({ error: 'Failed to load ICT signals' }));
+    }
+    return;
+  }
+
+  // GET /api/signals/pending — Returns the latest qualifying signal for X post
+  if (req.method === 'GET' && pathname === '/api/signals/pending') {
+    try {
+      const pendingFile = path.join(LOG_DIR, 'pending-tweet-signal.json');
+      
+      // 1. Try to read explicit pending file
+      if (fs.existsSync(pendingFile)) {
+        const data = fs.readFileSync(pendingFile, 'utf8');
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(data);
+        return;
+      }
+      
+      // 2. Fallback: Search logs for latest CONVICTION_CROSSED or PRE_MARKET
+      const logPath = path.join(LOG_DIR, 'caretaker.jsonl');
+      let foundSignal = null;
+      
+      if (fs.existsSync(logPath)) {
+        const lines = fs.readFileSync(logPath, 'utf8').split('\n').filter(l => l.trim());
+        // Read backwards
+        for (let i = lines.length - 1; i >= 0; i--) {
+          try {
+            const entry = JSON.parse(lines[i]);
+            if (entry.type === 'webhook' && entry.bot === 'ict-analysis') {
+              const alert = entry.alert || {};
+              const trigger = alert.trigger || alert.type || '';
+              // Check criteria
+              if (trigger === 'CONVICTION_CROSSED' || trigger === 'PRE_MARKET') {
+                 foundSignal = {
+                   timestamp: entry.timestamp,
+                   ...alert,
+                   status: 'derived_from_log'
+                 };
+                 break;
+              }
+            }
+          } catch(e) {}
+        }
+      }
+      
+      if (foundSignal) {
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify(foundSignal));
+      } else {
+        res.writeHead(404, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ message: 'No pending signal found' }));
+      }
+      
+    } catch (err) {
+      res.writeHead(500, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ error: 'Failed to load pending signal' }));
     }
     return;
   }

@@ -1,0 +1,52 @@
+[
+  {
+    "id": "seed-1",
+    "name": "APEX-18 Renewal",
+    "amount": 50,
+    "frequency": "monthly",
+    "dayOfMonth": 2,
+    "category": "business",
+    "color": "#00ff88",
+    "enabled": true
+  },
+  {
+    "id": "seed-2",
+    "name": "APEX-19/20 Renewal",
+    "amount": 156.8,
+    "frequency": "monthly",
+    "dayOfMonth": 4,
+    "category": "business",
+    "color": "#00ff88",
+    "enabled": true
+  },
+  {
+    "id": "seed-3",
+    "name": "Spline",
+    "amount": 15,
+    "frequency": "monthly",
+    "dayOfMonth": 26,
+    "category": "business",
+    "color": "#aa66ff",
+    "enabled": true
+  },
+  {
+    "id": "seed-4",
+    "name": "APEX-21 (300K)",
+    "amount": 78.4,
+    "frequency": "monthly",
+    "dayOfMonth": 27,
+    "category": "business",
+    "color": "#00ff88",
+    "enabled": true
+  },
+  {
+    "id": "seed-5",
+    "name": "Anthropic",
+    "amount": 20,
+    "frequency": "monthly",
+    "dayOfMonth": 30,
+    "category": "business",
+    "color": "#00d4ff",
+    "enabled": true
+  }
+]
