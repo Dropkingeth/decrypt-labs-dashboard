@@ -2492,6 +2492,144 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ═══ TEAM STARS & EOTM API ═══
+  const TEAM_STARS_FILE = path.join(PERSIST_DIR, 'team-stars.json');
+
+  function loadTeamStars() {
+    try {
+      if (fs.existsSync(TEAM_STARS_FILE)) {
+        return JSON.parse(fs.readFileSync(TEAM_STARS_FILE, 'utf8'));
+      }
+      return seedTeamStars();
+    } catch (e) {
+      return seedTeamStars();
+    }
+  }
+
+  function saveTeamStars(data) {
+    fs.writeFileSync(TEAM_STARS_FILE, JSON.stringify(data, null, 2));
+  }
+
+  function seedTeamStars() {
+    const initialData = {
+      stars: {
+        "DropKing": 0,
+        "Jimmy Neutron": 0,
+        "Goddard": 0,
+        "Cindy Vortex": 0,
+        "Sheen Estevez": 0,
+        "Carl Wheezer": 0,
+        "Prof. Finbarr": 1
+      },
+      eotm: {
+        agent: "Prof. Finbarr",
+        emoji: "🔬",
+        reason: "First prototype delivery — Website Upgrader with confetti, terminal scanner & GeoCities before/after",
+        month: "February 2026",
+        starsEarned: 1
+      },
+      history: []
+    };
+    saveTeamStars(initialData);
+    return initialData;
+  }
+
+  // GET /api/team/stars
+  if (req.method === 'GET' && pathname === '/api/team/stars') {
+    const data = loadTeamStars();
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.end(JSON.stringify(data.stars));
+    return;
+  }
+
+  // PUT /api/team/stars - Reset/set all stars
+  if (req.method === 'PUT' && pathname === '/api/team/stars') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const newStars = JSON.parse(body);
+        const data = loadTeamStars();
+        data.stars = newStars;
+        data.history = data.history || [];
+        data.history.unshift({ action: 'stars_reset', timestamp: new Date().toISOString() });
+        saveTeamStars(data);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true, stars: data.stars }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // POST /api/team/stars - Award a star
+  if (req.method === 'POST' && pathname === '/api/team/stars') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { agent, reason } = JSON.parse(body);
+        const data = loadTeamStars();
+        
+        if (!data.stars[agent]) data.stars[agent] = 0;
+        data.stars[agent]++;
+        
+        // Log to history
+        if (!data.history) data.history = [];
+        data.history.unshift({
+          agent,
+          action: 'star_awarded',
+          reason: reason || 'Contribution',
+          timestamp: new Date().toISOString()
+        });
+        
+        saveTeamStars(data);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true, newCount: data.stars[agent] }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // GET /api/team/eotm
+  if (req.method === 'GET' && pathname === '/api/team/eotm') {
+    const data = loadTeamStars();
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+    res.end(JSON.stringify(data.eotm));
+    return;
+  }
+
+  // POST /api/team/eotm
+  if (req.method === 'POST' && pathname === '/api/team/eotm') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const newData = JSON.parse(body);
+        const data = loadTeamStars();
+        
+        data.eotm = {
+          ...data.eotm,
+          ...newData,
+          updatedAt: new Date().toISOString()
+        };
+        
+        saveTeamStars(data);
+        res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
+        res.end(JSON.stringify({ success: true, eotm: data.eotm }));
+      } catch (e) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   // ═══ THE FORGE API ═══
   const FORGE_BUILDS_FILE = path.join(PERSIST_DIR, 'forge-builds.json');
 

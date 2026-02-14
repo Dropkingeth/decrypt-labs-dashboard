@@ -2462,13 +2462,13 @@
     <span class="icon">🔨</span>
     <span>The Forge</span>
   </div>
-  <div class="nav-tab" data-tab="prototype">
-    <span class="icon">🚀</span>
-    <span>Prototype</span>
-  </div>
   <div class="nav-tab" data-tab="beta">
     <span class="icon">🧪</span>
     <span>Beta</span>
+  </div>
+  <div class="nav-tab" data-tab="prototype">
+    <span class="icon">🚀</span>
+    <span>Prototype</span>
   </div>
   <div class="nav-spacer"></div>
   <div class="server-status" id="server-status">
@@ -2949,6 +2949,28 @@
     <h1 class="section-title" style="text-align:center;">Organization</h1>
     <p class="section-subtitle" style="text-align:center;">Chain of command. DropKing sets the vision, Jimmy drives strategy, agents execute.</p>
 
+    <!-- 🏆 EMPLOYEE OF THE MONTH 🏆 -->
+    <div id="eotm-section" style="max-width:600px;margin:0 auto 30px;background:linear-gradient(135deg, rgba(255,215,0,0.05), rgba(255,165,0,0.05));border:1px solid rgba(255,215,0,0.3);border-radius:16px;padding:20px;text-align:center;position:relative;overflow:hidden;">
+      <div style="position:absolute;top:-10px;right:-10px;font-size:60px;opacity:0.1;transform:rotate(15deg);">🏆</div>
+      <div style="font-family:'Orbitron',sans-serif;color:#ffd700;font-size:12px;letter-spacing:2px;margin-bottom:10px;">🏆 EMPLOYEE OF THE MONTH</div>
+      
+      <div id="eotm-display" style="display:flex;align-items:center;justify-content:center;gap:16px;">
+        <div id="eotm-avatar" style="font-size:40px;background:rgba(255,215,0,0.1);width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #ffd700;">🤓</div>
+        <div style="text-align:left;">
+          <div id="eotm-name" style="font-size:18px;font-weight:700;color:#fff;">Carl Wheezer</div>
+          <div id="eotm-month" style="font-size:11px;color:rgba(255,255,255,0.5);margin-bottom:4px;">February 2026</div>
+          <div id="eotm-reason" style="font-size:13px;color:#ffd700;font-style:italic;">"Fastest builder"</div>
+        </div>
+      </div>
+      
+      <div style="margin-top:16px;padding-top:16px;border-top:1px solid rgba(255,215,0,0.1);display:flex;justify-content:center;gap:20px;">
+        <div>
+          <div style="font-size:10px;color:rgba(255,255,255,0.5);text-transform:uppercase;">STARS EARNED</div>
+          <div id="eotm-stars" style="font-size:16px;font-weight:700;color:#ffd700;">⭐ 12</div>
+        </div>
+      </div>
+    </div>
+
     <div class="org-chart">
       <!-- CEO -->
       <div class="org-node purple-border">
@@ -2980,14 +3002,13 @@
             <div class="org-role">Chief Strategy Officer</div>
           </div>
         </div>
-        <div class="org-model">Claude Opus 4.6 • OpenClaw</div>
+        <div class="org-model">Opus 4.6 • OpenClaw</div>
         <div class="org-cost">↗ ~$5/$25 per 1M tokens</div>
         <div class="org-skills">
           <span class="skill-tag">Strategy & Planning</span>
           <span class="skill-tag">Market Analysis</span>
           <span class="skill-tag">Agent Orchestration</span>
-          <span class="skill-tag">Content Direction</span>
-          <span class="skill-tag">Bot Oversight</span>
+          <span class="skill-tag">Prototype Oversight</span>
         </div>
       </div>
 
@@ -2995,48 +3016,7 @@
 
       <!-- Agent Team -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;width:100%;max-width:1200px;">
-        <!-- Cindy Vortex — ACTIVE -->
-        <div class="org-node" style="border-color:rgba(255,170,0,0.4);">
-          <div class="org-status"><span class="status-dot green"></span> Online</div>
-          <div class="org-node-header">
-            <div class="org-avatar" style="background:rgba(255,170,0,0.15);color:#ffaa00;">⚡</div>
-            <div>
-              <div class="org-name">Cindy Vortex</div>
-              <div class="org-role">Operations Analyst</div>
-            </div>
-          </div>
-          <div class="org-model">DeepSeek V3 + Gemini Flash • OpenClaw</div>
-          <div class="org-cost">↗ ~$0.27/$1.10 per 1M tokens</div>
-          <div class="org-skills">
-            <span class="skill-tag">Balance Scraping</span>
-            <span class="skill-tag">ICT Signal Compilation</span>
-            <span class="skill-tag">Data Scraping</span>
-            <span class="skill-tag">Discord Updates</span>
-            <span class="skill-tag">Data Ops</span>
-          </div>
-        </div>
-
-        <!-- Carl Wheezer — ACTIVE -->
-        <div class="org-node" style="border-color:rgba(0,212,255,0.4);">
-          <div class="org-status"><span class="status-dot green"></span> Online</div>
-          <div class="org-node-header">
-            <div class="org-avatar" style="background:rgba(0,212,255,0.15);color:#00d4ff;">🤓</div>
-            <div>
-              <div class="org-name">Carl Wheezer</div>
-              <div class="org-role">Lead Engineer</div>
-            </div>
-          </div>
-          <div class="org-model">Gemini 3 Pro Preview • OpenClaw</div>
-          <div class="org-cost">↗ ~$3/$15 per 1M tokens</div>
-          <div class="org-skills">
-            <span class="skill-tag">Frontend</span>
-            <span class="skill-tag">Backend</span>
-            <span class="skill-tag">Smart Contracts</span>
-            <span class="skill-tag">Dashboards</span>
-            <span class="skill-tag">DevOps</span>
-          </div>
-        </div>
-
+        
         <!-- Goddard — CRO -->
         <div class="org-node" style="border-color:rgba(255,68,68,0.4);">
           <div class="org-status"><span class="status-dot green"></span> Online</div>
@@ -3047,17 +3027,33 @@
               <div class="org-role">Chief Risk Officer</div>
             </div>
           </div>
-          <div class="org-model">Claude Opus 4.6 • OpenClaw</div>
-          <div class="org-cost">↗ ~$5/$25 per 1M tokens</div>
+          <div class="org-model">Gemini 3 Pro • OpenClaw</div>
           <div class="org-skills">
             <span class="skill-tag">Bot On/Off Control</span>
-            <span class="skill-tag">Forex Factory News</span>
             <span class="skill-tag">Risk Management</span>
             <span class="skill-tag">Drawdown Guardian</span>
           </div>
         </div>
 
-        <!-- Sheen Estevez — ACTIVE -->
+        <!-- Cindy Vortex — Ops -->
+        <div class="org-node" style="border-color:rgba(255,170,0,0.4);">
+          <div class="org-status"><span class="status-dot green"></span> Online</div>
+          <div class="org-node-header">
+            <div class="org-avatar" style="background:rgba(255,170,0,0.15);color:#ffaa00;">⚡</div>
+            <div>
+              <div class="org-name">Cindy Vortex</div>
+              <div class="org-role">Operations Analyst</div>
+            </div>
+          </div>
+          <div class="org-model">DeepSeek V3 • OpenClaw</div>
+          <div class="org-skills">
+            <span class="skill-tag">ICT Signal Compilation</span>
+            <span class="skill-tag">Data Ops</span>
+            <span class="skill-tag">System Health</span>
+          </div>
+        </div>
+
+        <!-- Sheen Estevez — Research -->
         <div class="org-node" style="border-color:rgba(0,255,136,0.4);">
           <div class="org-status"><span class="status-dot green"></span> Online</div>
           <div class="org-node-header">
@@ -3067,17 +3063,78 @@
               <div class="org-role">Research + Content</div>
             </div>
           </div>
-          <div class="org-model">Gemini 3 Pro Preview • OpenClaw</div>
-          <div class="org-cost">↗ Free (Google subscription)</div>
+          <div class="org-model">Gemini 3 Pro • OpenClaw</div>
           <div class="org-skills">
             <span class="skill-tag">X Posts (@Decrypt_Labs)</span>
-            <span class="skill-tag">Discord Tweet Feed</span>
             <span class="skill-tag">Market Research</span>
-            <span class="skill-tag">Backtesting</span>
             <span class="skill-tag">Competitor Intel</span>
           </div>
         </div>
+
+        <!-- Carl Wheezer — Engineer -->
+        <div class="org-node" style="border-color:rgba(0,212,255,0.4);">
+          <div class="org-status"><span class="status-dot green"></span> Online</div>
+          <div class="org-node-header">
+            <div class="org-avatar" style="background:rgba(0,212,255,0.15);color:#00d4ff;">🤓</div>
+            <div>
+              <div class="org-name">Carl Wheezer</div>
+              <div class="org-role">Lead Engineer</div>
+            </div>
+          </div>
+          <div class="org-model">Gemini 3 Pro • OpenClaw</div>
+          <div class="org-skills">
+            <span class="skill-tag">Frontend/Backend</span>
+            <span class="skill-tag">Smart Contracts</span>
+            <span class="skill-tag">DevOps</span>
+          </div>
+        </div>
       </div>
+      
+      <!-- The Lab (Ventures) -->
+      <div style="margin-top:30px;width:100%;max-width:1200px;border-top:1px solid rgba(255,255,255,0.1);padding-top:20px;">
+         <h3 style="text-align:center;font-size:14px;color:var(--text-secondary);margin-bottom:20px;text-transform:uppercase;letter-spacing:2px;">🧪 The Lab (Ventures)</h3>
+         <div style="display:flex;justify-content:center;">
+            <!-- Prof. Finbarr -->
+            <div class="org-node" style="border-color:rgba(170,102,255,0.4);">
+              <div class="org-status"><span class="status-dot green"></span> Online</div>
+              <div class="org-node-header">
+                <div class="org-avatar" style="background:rgba(170,102,255,0.15);color:#aa66ff;">🔬</div>
+                <div>
+                  <div class="org-name">Prof. Finbarr</div>
+                  <div class="org-role">Mad Scientist</div>
+                </div>
+              </div>
+              <div class="org-model">Opus 4.6 • OpenClaw</div>
+              <div class="org-skills">
+                <span class="skill-tag">Beta + Prototype</span>
+                <span class="skill-tag">Experimental Research</span>
+                <span class="skill-tag">The Fountain</span>
+              </div>
+            </div>
+         </div>
+      </div>
+    </div>
+
+    <!-- ⭐ STAR BOARD ⭐ -->
+    <div style="max-width:900px;margin:30px auto;background:rgba(255,255,255,0.02);border:1px solid var(--border-color);border-radius:12px;padding:20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h3 style="font-family:'Orbitron',sans-serif;font-size:14px;color:#ffd700;">⭐ Star Board</h3>
+        <span style="font-size:11px;color:var(--text-dim);">Updates live from Meeting Room ideas</span>
+      </div>
+      
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="border-bottom:1px solid rgba(255,255,255,0.1);text-align:left;">
+            <th style="padding:10px;color:var(--text-secondary);font-weight:600;">Agent</th>
+            <th style="padding:10px;color:var(--text-secondary);font-weight:600;">Stars</th>
+            <th style="padding:10px;color:var(--text-secondary);font-weight:600;">Notable Contributions</th>
+          </tr>
+        </thead>
+        <tbody id="star-board-body">
+          <!-- Populated by JS -->
+          <tr><td colspan="3" style="padding:20px;text-align:center;color:var(--text-dim);">Loading star data...</td></tr>
+        </tbody>
+      </table>
     </div>
 
     <!-- Org Description -->
@@ -3085,11 +3142,12 @@
       <p style="color:var(--text-dim);font-size:13px;line-height:1.7;">
         <strong style="color:var(--text-secondary);">AI-native organization.</strong> 
         DropKing (CEO) sets the vision and makes final calls. Jimmy Neutron (CSO) drives strategy and orchestrates the team.
-        Goddard (CRO) guards the capital — controls bot on/off via TradingView, analyzes Forex Factory through an ICT lens, and enforces weekly risk rules on Opus 4.6.
+        Goddard (CRO) guards the capital — controls bot on/off via TradingView, analyzes Forex Factory through an ICT lens, and enforces weekly risk rules on Gemini 3 Pro.
         Cindy Vortex (Ops) handles ICT signal compilation, data ops, and Discord updates on DeepSeek V3.
-        Carl Wheezer (Engineering) builds and maintains all code, dashboards, and contracts on Gemini 3 Pro Preview.
+        Carl Wheezer (Engineering) builds and maintains all code, dashboards, and contracts on Gemini 3 Pro.
         Sheen Estevez (Research + Content) crafts X posts for @Decrypt_Labs, mirrors tweets to Discord, and researches markets on Gemini 3 Pro.
-        The system runs 24/5 with human oversight on key decisions. All agent slots filled — team is complete.
+        Prof. Finbarr (Mad Scientist) runs experimental ventures in The Lab.
+        Titan has been let go. The system runs 24/7 with human oversight on key decisions.
       </p>
     </div>
 
@@ -3291,7 +3349,7 @@
 
           card.innerHTML = `
             <div class="card-header">
-              <h3 class="card-title">${build.name || 'Untitled Build'}</h3>
+              <h3 class="card-title">${build.title || build.name || 'Untitled Build'}</h3>
               <span class="status-badge live">Prototype</span>
             </div>
             <div class="card-meta">
@@ -3409,6 +3467,7 @@
           
           if (build.status === 'done' || build.status === 'review') {
              actionsHtml = `
+                <button class="beta-btn" onclick="updateBuildStatus('${build.id}', 'prototype')" style="background:#00e5ff15;color:#00e5ff;border:1px solid #00e5ff40;">🚀 Prototype</button>
                 <button class="beta-btn approve" onclick="updateBuildStatus('${build.id}', 'approved')">✅ Approve</button>
                 <button class="beta-btn" onclick="sendToTitan('${build.id}')" style="background:#ff980020;color:#ff9800;border:1px solid #ff980040;">🔄 Send to Titan</button>
                 <button class="beta-btn reject" onclick="updateBuildStatus('${build.id}', 'rejected')">❌ Reject</button>
@@ -3416,6 +3475,7 @@
              `;
           } else if (build.status === 'approved') {
              actionsHtml = `
+                <button class="beta-btn" onclick="updateBuildStatus('${build.id}', 'prototype')" style="background:#00e5ff15;color:#00e5ff;border:1px solid #00e5ff40;">🚀 Prototype</button>
                 <button class="beta-btn golive" onclick="updateBuildStatus('${build.id}', 'live')">🚀 Go Live</button>
                 <button class="beta-btn reject" onclick="updateBuildStatus('${build.id}', 'rejected')">❌ Revoke</button>
                 <button class="beta-btn" onclick="updateBuildStatus('${build.id}', 'archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
@@ -6918,6 +6978,7 @@ async function loadBetaBuilds() {
       
       if (build.status === 'done' || build.status === 'review' || !build.status) {
          actionsHtml = `
+            <button class="beta-btn" onclick="updateBetaStatus('${build.id}', 'prototype')" style="background:#00e5ff15;color:#00e5ff;border:1px solid #00e5ff40;">🚀 Prototype</button>
             <button class="beta-btn approve" onclick="updateBetaStatus('${build.id}', 'approved')">✅ Approve</button>
             <button class="beta-btn reject" onclick="updateBetaStatus('${build.id}', 'rejected')">❌ Reject</button>
                 <button class="beta-btn" onclick="updateBetaStatus('${build.id}', 'archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
@@ -6925,6 +6986,7 @@ async function loadBetaBuilds() {
          `;
       } else if (build.status === 'approved') {
          actionsHtml = `
+            <button class="beta-btn" onclick="updateBetaStatus('${build.id}', 'prototype')" style="background:#00e5ff15;color:#00e5ff;border:1px solid #00e5ff40;">🚀 Prototype</button>
             <button class="beta-btn golive" onclick="updateBetaStatus('${build.id}', 'live')">🚀 Go Live</button>
             <button class="beta-btn reject" onclick="updateBetaStatus('${build.id}', 'rejected')">❌ Revoke</button>
                 <button class="beta-btn" onclick="updateBetaStatus('${build.id}', 'archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
@@ -7130,6 +7192,7 @@ async function loadBetaBuilds() {
         if (b.status === 'review' || b.status === 'done') {
           actions = `
             ${previewUrl ? `<button class="beta-btn" onclick="openBetaPreview('${previewUrl}','${esc(nm)}')" style="background:#00ffff20;color:#00ffff;border:1px solid #00ffff40;">👁️ Preview</button>` : ''}
+            <button class="beta-btn" onclick="updateBuildStatus('${b.id}','prototype')" style="background:#00e5ff15;color:#00e5ff;border:1px solid #00e5ff40;">🚀 Prototype</button>
             <button class="beta-btn" onclick="updateBuildStatus('${b.id}','approved')" style="background:#4caf5020;color:#4caf50;border:1px solid #4caf5040;">✅ Approve</button>
             <button class="beta-btn" onclick="updateBuildStatus('${b.id}','rejected')" style="background:#f4433620;color:#f44336;border:1px solid #f4433640;">❌ Reject</button>
             <button class="beta-btn" onclick="updateBuildStatus('${b.id}','archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
@@ -7138,7 +7201,9 @@ async function loadBetaBuilds() {
         } else if (b.status === 'approved' || b.status === 'live') {
           actions = `
             ${previewUrl ? `<button class="beta-btn" onclick="openBetaPreview('${previewUrl}','${esc(nm)}')" style="background:#00ffff20;color:#00ffff;border:1px solid #00ffff40;">👁️ Preview</button>` : ''}
+            <button class="beta-btn" onclick="updateBuildStatus('${b.id}','prototype')" style="background:#00e5ff15;color:#00e5ff;border:1px solid #00e5ff40;">🚀 Prototype</button>
             <button class="beta-btn" onclick="updateBuildStatus('${b.id}','archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+            <button class="beta-btn" onclick="sendToTitan('${b.id}')" style="background:#ff980020;color:#ff9800;border:1px solid #ff980040;">🔄 Send to Titan</button>
           `;
         } else if (b.status === 'rejected') {
           actions = `
@@ -7318,6 +7383,81 @@ window.sendToTitan = sendToTitan;
 window.openBetaPreview = openBetaPreview;
 window.closeBetaPreview = closeBetaPreview;
 window.loadBetaBuilds = loadBetaBuilds;
+
+// === TEAM STARS & EOTM ===
+async function loadTeamStars() {
+  try {
+    // 1. Load Stars
+    const starsRes = await fetch('/api/team/stars');
+    const starsData = await starsRes.json();
+    
+    // 2. Load EOTM
+    const eotmRes = await fetch('/api/team/eotm');
+    const eotmData = await eotmRes.json();
+    
+    // Update EOTM Display
+    if (eotmData) {
+      const avatarEl = document.getElementById('eotm-avatar');
+      if (avatarEl) avatarEl.textContent = eotmData.emoji || '👤';
+      
+      const nameEl = document.getElementById('eotm-name');
+      if (nameEl) nameEl.textContent = eotmData.agent || 'Unknown';
+      
+      const monthEl = document.getElementById('eotm-month');
+      if (monthEl) monthEl.textContent = eotmData.month || '';
+      
+      const reasonEl = document.getElementById('eotm-reason');
+      if (reasonEl) reasonEl.textContent = `"${eotmData.reason || ''}"`;
+      
+      const starsEl = document.getElementById('eotm-stars');
+      if (starsEl) starsEl.textContent = `⭐ ${eotmData.starsEarned || 0}`;
+    }
+
+    // Update Star Board
+    const tbody = document.getElementById('star-board-body');
+    if (tbody) {
+      tbody.innerHTML = '';
+      
+      // Convert to array and sort by stars desc
+      const sortedAgents = Object.entries(starsData)
+        .sort(([,a], [,b]) => b - a); // Sort by stars descending
+        
+      for (const [agent, count] of sortedAgents) {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        
+        // Determine contributions
+        let contrib = 'Active contribution';
+        if (agent === eotmData?.agent) contrib = eotmData.reason;
+        else if (agent === 'DropKing') contrib = 'Vision & Funding';
+        else if (agent === 'Jimmy Neutron') contrib = 'Strategy & Orchestration';
+        else if (agent === 'Goddard') contrib = 'Risk Management';
+        else if (agent === 'Cindy Vortex') contrib = 'Signal Compilation';
+        else if (agent === 'Sheen Estevez') contrib = 'X Content';
+        else if (agent === 'Prof. Finbarr') contrib = 'Lab Experiments';
+        else if (agent === 'Carl Wheezer') contrib = 'Engineering';
+        
+        // Limit stars visual to 5
+        const starVisual = '⭐'.repeat(Math.min(count, 5));
+        
+        tr.innerHTML = `
+          <td style="padding:12px;color:#fff;">${agent}</td>
+          <td style="padding:12px;color:#ffd700;font-weight:700;">${starVisual} (${count})</td>
+          <td style="padding:12px;color:var(--text-secondary);font-size:12px;">${contrib}</td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+  } catch (e) {
+    console.error('Error loading team stars:', e);
+  }
+}
+window.loadTeamStars = loadTeamStars;
+
+// Initial call
+loadTeamStars();
+setInterval(loadTeamStars, 30000); // Refresh every 30s
+
 
 </script>
 </div><!-- end #app-content -->
