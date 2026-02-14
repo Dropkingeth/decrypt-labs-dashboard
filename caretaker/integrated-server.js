@@ -164,7 +164,7 @@ function seedBills() {
 
 // Load access requests on startup
 loadAccessRequests();
-console.log('[DEPLOY] 🚀 MISSION CONTROL v1.1 — Build Feb 9 2026 (Personal Tab)');
+console.log('[DEPLOY] 🚀 MISSION CONTROL v1.2 — Build Feb 14 2026 (WebUpgrader)');
 
 // Auth helpers
 function generateSessionId() {
@@ -325,6 +325,30 @@ fs.mkdirSync(PERSIST_DIR, { recursive: true });
 BILLS_FILE = path.join(PERSIST_DIR, 'bills.json');
 loadBills();
 const TRADES_HISTORY_PATH = path.join(PERSIST_DIR, 'trades-history.json');
+
+// --- PERSIST dashboard/data.json so it survives redeploys ---
+const PERSISTED_DATA_JSON = path.join(PERSIST_DIR, 'data.json');
+const BUNDLED_DATA_JSON = path.join(__dirname, './dashboard/data.json');
+// On startup: if persist copy exists, copy it INTO the bundled location (restore)
+// If not, seed persist from bundled defaults
+if (fs.existsSync(PERSISTED_DATA_JSON)) {
+  fs.copyFileSync(PERSISTED_DATA_JSON, BUNDLED_DATA_JSON);
+  console.log('[Server] Restored data.json from persistent volume');
+} else if (fs.existsSync(BUNDLED_DATA_JSON)) {
+  fs.copyFileSync(BUNDLED_DATA_JSON, PERSISTED_DATA_JSON);
+  console.log('[Server] Seeded persistent data.json from bundled defaults');
+}
+// Patch: override writeFileSync to also sync to persist whenever data.json is written
+const _origWriteFileSync = fs.writeFileSync;
+const _realWriteFileSync = _origWriteFileSync.bind(fs);
+fs.writeFileSync = function(filePath, ...args) {
+  _realWriteFileSync(filePath, ...args);
+  // Mirror dashboard/data.json writes to persist
+  if (typeof filePath === 'string' && filePath.endsWith('dashboard/data.json')) {
+    try { _realWriteFileSync(PERSISTED_DATA_JSON, ...args); } catch(e) {}
+  }
+};
+console.log('[Server] data.json persistence layer active');
 
 // Initialize persistent trades file if not exists
 if (!fs.existsSync(TRADES_HISTORY_PATH)) {
@@ -2714,7 +2738,7 @@ const server = http.createServer(async (req, res) => {
 
         // Validate status if present
         if (patchData.status) {
-          const validStatuses = ['queued', 'building', 'done', 'failed', 'review', 'approved', 'rejected', 'live', 'archived', 'prototype', 'production'];
+          const validStatuses = ['queued', 'building', 'done', 'failed', 'review', 'approved', 'rejected', 'live', 'archived', 'prototype', 'production', 'under-review'];
           if (!validStatuses.includes(patchData.status)) {
              res.writeHead(400, fountainCors);
              res.end(JSON.stringify({ error: 'Invalid status' }));
@@ -2762,6 +2786,458 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // ═══ PRODUCTION APPS API ═══
+  const PRODUCTION_APPS_FILE = path.join(PERSIST_DIR, 'production-apps.json');
+  
+  function loadProductionApps() {
+    try {
+      if (!fs.existsSync(PRODUCTION_APPS_FILE)) return [];
+      return JSON.parse(fs.readFileSync(PRODUCTION_APPS_FILE, 'utf8'));
+    } catch (e) { return []; }
+  }
+  
+  function saveProductionApps(apps) {
+    fs.writeFileSync(PRODUCTION_APPS_FILE, JSON.stringify(apps, null, 2));
+  }
+
+  // GET /api/production/apps
+  if (req.method === 'GET' && pathname === '/api/production/apps') {
+    res.writeHead(200, fountainCors);
+    res.end(JSON.stringify(loadProductionApps()));
+    return;
+  }
+
+  // POST /api/production/apps
+  if (req.method === 'POST' && pathname === '/api/production/apps') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { name, emoji, url } = JSON.parse(body);
+        const apps = loadProductionApps();
+        
+        const newApp = {
+          id: name.toLowerCase().replace(/[^a-z0-9]/g, '-'),
+          name,
+          emoji,
+          url,
+          status: 'online',
+          lastDeploy: new Date().toISOString().split('T')[0],
+          createdAt: new Date().toISOString(),
+          chat: []
+        };
+        
+        apps.push(newApp);
+        saveProductionApps(apps);
+        
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, app: newApp }));
+      } catch (e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // PATCH /api/production/apps/:id
+  if (req.method === 'PATCH' && pathname.startsWith('/api/production/apps/')) {
+    const appId = pathname.split('/')[4];
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const updates = JSON.parse(body);
+        const apps = loadProductionApps();
+        const index = apps.findIndex(a => a.id === appId);
+        
+        if (index === -1) {
+          res.writeHead(404, fountainCors);
+          res.end(JSON.stringify({ error: 'App not found' }));
+          return;
+        }
+        
+        apps[index] = { ...apps[index], ...updates };
+        saveProductionApps(apps);
+        
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, app: apps[index] }));
+      } catch (e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // DELETE /api/production/apps/:id
+  if (req.method === 'DELETE' && pathname.startsWith('/api/production/apps/')) {
+    const appId = pathname.split('/')[4];
+    const apps = loadProductionApps();
+    const newApps = apps.filter(a => a.id !== appId);
+    
+    if (apps.length === newApps.length) {
+      res.writeHead(404, fountainCors);
+      res.end(JSON.stringify({ error: 'App not found' }));
+      return;
+    }
+    
+    saveProductionApps(newApps);
+    res.writeHead(200, fountainCors);
+    res.end(JSON.stringify({ ok: true, deleted: appId }));
+    return;
+  }
+
+  // GET /api/production/apps/:id/chat
+  if (req.method === 'GET' && pathname.match(/\/api\/production\/apps\/[^/]+\/chat$/)) {
+    const appId = pathname.split('/')[4];
+    const apps = loadProductionApps();
+    const app = apps.find(a => a.id === appId);
+    
+    if (!app) {
+      res.writeHead(404, fountainCors);
+      res.end(JSON.stringify({ error: 'App not found' }));
+      return;
+    }
+    
+    res.writeHead(200, fountainCors);
+    res.end(JSON.stringify(app.chat || []));
+    return;
+  }
+
+  // POST /api/production/apps/:id/chat
+  if (req.method === 'POST' && pathname.match(/\/api\/production\/apps\/[^/]+\/chat$/)) {
+    const appId = pathname.split('/')[4];
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', () => {
+      try {
+        const { sender,message } = JSON.parse(body);
+        const apps = loadProductionApps();
+        const index = apps.findIndex(a => a.id === appId);
+        
+        if (index === -1) {
+          res.writeHead(404, fountainCors);
+          res.end(JSON.stringify({ error: 'App not found' }));
+          return;
+        }
+        
+        if (!apps[index].chat) apps[index].chat = [];
+        
+        const newMsg = {
+          id: Date.now().toString(36),
+          sender,
+          message,
+          timestamp: new Date().toISOString()
+        };
+        
+        apps[index].chat.push(newMsg);
+        // Keep last 100 messages
+        if (apps[index].chat.length > 100) apps[index].chat.shift();
+        
+        saveProductionApps(apps);
+        
+        res.writeHead(200, fountainCors);
+        res.end(JSON.stringify({ ok: true, message: newMsg }));
+      } catch (e) {
+        res.writeHead(400, fountainCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  // ============================================================================
+  // WEBSITE UPGRADER — /api/scan & /api/upgrade
+  // ============================================================================
+
+  const upgraderCors = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
+  if (pathname === '/api/scan' && req.method === 'OPTIONS') {
+    res.writeHead(204, upgraderCors);
+    res.end();
+    return;
+  }
+
+  if (pathname === '/api/upgrade' && req.method === 'OPTIONS') {
+    res.writeHead(204, upgraderCors);
+    res.end();
+    return;
+  }
+
+  if (pathname === '/api/scan' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const { url: targetUrl } = JSON.parse(body);
+        if (!targetUrl) {
+          res.writeHead(400, upgraderCors);
+          res.end(JSON.stringify({ error: 'Missing url parameter' }));
+          return;
+        }
+
+        console.log(`[WebUpgrader] Scanning: ${targetUrl}`);
+
+        // Fetch the website
+        const startTime = Date.now();
+        const fetchModule = targetUrl.startsWith('https') ? https : http;
+        
+        const htmlContent = await new Promise((resolve, reject) => {
+          const fetchUrl = (u, redirects = 0) => {
+            if (redirects > 5) return reject(new Error('Too many redirects'));
+            const mod = u.startsWith('https') ? https : http;
+            mod.get(u, { headers: { 'User-Agent': 'Mozilla/5.0 (compatible; DecryptLabsBot/1.0)' }, timeout: 15000 }, (resp) => {
+              if (resp.statusCode >= 300 && resp.statusCode < 400 && resp.headers.location) {
+                let loc = resp.headers.location;
+                if (loc.startsWith('/')) {
+                  const parsed = new URL(u);
+                  loc = parsed.origin + loc;
+                }
+                return fetchUrl(loc, redirects + 1);
+              }
+              if (resp.statusCode !== 200) return reject(new Error(`HTTP ${resp.statusCode}`));
+              let data = '';
+              resp.on('data', chunk => data += chunk);
+              resp.on('end', () => resolve(data));
+            }).on('error', reject).on('timeout', () => reject(new Error('Timeout fetching website')));
+          };
+          fetchUrl(targetUrl);
+        });
+
+        const fetchTime = Date.now() - startTime;
+        const htmlSize = Buffer.byteLength(htmlContent, 'utf8');
+
+        // Analyze the HTML
+        const issues = [];
+        const htmlLower = htmlContent.toLowerCase();
+
+        // --- Design checks ---
+        if (!htmlLower.includes('@media') && !htmlLower.includes('responsive') && !htmlLower.includes('bootstrap') && !htmlLower.includes('tailwind')) {
+          issues.push({ title: 'Not Mobile Responsive', description: 'No responsive design patterns detected. Layout likely breaks on mobile devices.', category: 'design', severity: 'critical' });
+        }
+        if (htmlLower.includes('comic sans') || htmlLower.includes('times new roman') || htmlLower.includes('papyrus')) {
+          issues.push({ title: 'Outdated Typography', description: 'Legacy fonts detected. Modern alternatives like Inter, System UI improve readability.', category: 'design', severity: 'warning' });
+        }
+        if (htmlLower.includes('bgcolor') || htmlLower.includes('<font') || htmlLower.includes('<center') || htmlLower.includes('<marquee')) {
+          issues.push({ title: 'Deprecated HTML Elements', description: 'Using deprecated tags (font, center, marquee, bgcolor). Should use modern CSS.', category: 'design', severity: 'warning' });
+        }
+        if (!htmlLower.includes('flexbox') && !htmlLower.includes('display: flex') && !htmlLower.includes('display:flex') && !htmlLower.includes('display: grid') && !htmlLower.includes('display:grid') && !htmlLower.includes('flex') && !htmlLower.includes('grid')) {
+          issues.push({ title: 'No Modern Layout System', description: 'No flexbox or CSS Grid detected. Page likely uses floats or tables for layout.', category: 'design', severity: 'info' });
+        }
+        if (!htmlLower.includes('border-radius') && !htmlLower.includes('box-shadow') && !htmlLower.includes('transition') && !htmlLower.includes('animation')) {
+          issues.push({ title: 'Flat/Dated Visual Style', description: 'No rounded corners, shadows, transitions, or animations detected.', category: 'design', severity: 'info' });
+        }
+
+        // --- Accessibility checks ---
+        const imgCount = (htmlLower.match(/<img/g) || []).length;
+        const altCount = (htmlLower.match(/alt\s*=/g) || []).length;
+        if (imgCount > 0 && altCount < imgCount) {
+          issues.push({ title: `Missing Alt Text (${imgCount - altCount} images)`, description: 'Images without alt attributes are inaccessible to screen readers.', category: 'accessibility', severity: 'warning' });
+        }
+        if (!htmlLower.includes('aria-') && !htmlLower.includes('role=')) {
+          issues.push({ title: 'No ARIA Attributes', description: 'No ARIA landmarks or roles found. Screen reader navigation will be poor.', category: 'accessibility', severity: 'warning' });
+        }
+        if (!htmlLower.includes('<label') && htmlLower.includes('<input')) {
+          issues.push({ title: 'Form Inputs Missing Labels', description: 'Input elements without associated labels fail accessibility standards.', category: 'accessibility', severity: 'warning' });
+        }
+        if (!htmlLower.includes('lang=')) {
+          issues.push({ title: 'Missing Language Attribute', description: 'No lang attribute on HTML tag. Assistive tech can\'t determine page language.', category: 'accessibility', severity: 'info' });
+        }
+        // Check for skip navigation
+        if (!htmlLower.includes('skip') || !htmlLower.includes('nav')) {
+          issues.push({ title: 'No Skip Navigation Link', description: 'Missing skip-to-content link for keyboard users.', category: 'accessibility', severity: 'info' });
+        }
+
+        // --- Performance checks ---
+        const scriptCount = (htmlLower.match(/<script/g) || []).length;
+        if (scriptCount > 5) {
+          issues.push({ title: `Too Many Scripts (${scriptCount})`, description: 'Multiple script tags can block page rendering. Consider bundling or defer/async.', category: 'performance', severity: 'warning' });
+        }
+        if (!htmlLower.includes('loading="lazy"') && !htmlLower.includes("loading='lazy'")) {
+          issues.push({ title: 'No Lazy Loading', description: 'Images load eagerly. Lazy loading could reduce initial page load by 40%.', category: 'performance', severity: 'info' });
+        }
+        if (!htmlLower.includes('async') && !htmlLower.includes('defer') && scriptCount > 0) {
+          issues.push({ title: 'Render-Blocking Scripts', description: 'Scripts without async/defer block page rendering.', category: 'performance', severity: 'warning' });
+        }
+        if (htmlSize > 200000) {
+          issues.push({ title: `Large HTML Payload (${(htmlSize / 1024).toFixed(0)}KB)`, description: 'Page HTML exceeds 200KB. Consider splitting or optimizing.', category: 'performance', severity: 'warning' });
+        }
+        if (!htmlLower.includes('preconnect') && !htmlLower.includes('preload') && !htmlLower.includes('prefetch')) {
+          issues.push({ title: 'No Resource Hints', description: 'No preconnect/preload/prefetch hints. Could speed up critical resource loading.', category: 'performance', severity: 'info' });
+        }
+
+        // --- SEO checks ---
+        if (!htmlLower.includes('<meta name="description"') && !htmlLower.includes("<meta name='description'")) {
+          issues.push({ title: 'Missing Meta Description', description: 'No meta description tag. Search engines show a blank or auto-generated snippet.', category: 'seo', severity: 'warning' });
+        }
+        if (!htmlLower.includes('og:') && !htmlLower.includes('twitter:')) {
+          issues.push({ title: 'Missing Open Graph / Twitter Cards', description: 'No social preview metadata. Shared links will look plain on social media.', category: 'seo', severity: 'warning' });
+        }
+        if (!htmlLower.includes('<h1')) {
+          issues.push({ title: 'Missing H1 Tag', description: 'No H1 heading found. Important for SEO structure and page hierarchy.', category: 'seo', severity: 'warning' });
+        }
+        if (!htmlLower.includes('canonical')) {
+          issues.push({ title: 'No Canonical URL', description: 'Missing canonical link. Could cause duplicate content issues in search.', category: 'seo', severity: 'info' });
+        }
+        if (!htmlLower.includes('schema.org') && !htmlLower.includes('"@type"') && !htmlLower.includes("'@type'")) {
+          issues.push({ title: 'No Structured Data', description: 'No Schema.org markup detected. Rich snippets won\'t show in search results.', category: 'seo', severity: 'info' });
+        }
+        if (!htmlLower.includes('sitemap')) {
+          issues.push({ title: 'No Sitemap Reference', description: 'No reference to XML sitemap found.', category: 'seo', severity: 'info' });
+        }
+
+        // Calculate scores
+        const calculateScore = (category) => {
+          const catIssues = issues.filter(i => i.category === category);
+          let score = 100;
+          catIssues.forEach(i => {
+            if (i.severity === 'critical') score -= 25;
+            else if (i.severity === 'warning') score -= 15;
+            else score -= 5;
+          });
+          return Math.max(0, Math.min(100, score));
+        };
+
+        const scores = {
+          design: calculateScore('design'),
+          accessibility: calculateScore('accessibility'),
+          performance: calculateScore('performance'),
+          seo: calculateScore('seo'),
+        };
+        scores.overall = Math.round((scores.design + scores.accessibility + scores.performance + scores.seo) / 4);
+        scores.grade = scores.overall >= 90 ? 'A+' : scores.overall >= 80 ? 'A' : scores.overall >= 70 ? 'B' : scores.overall >= 60 ? 'C+' : scores.overall >= 50 ? 'C' : scores.overall >= 40 ? 'C-' : scores.overall >= 30 ? 'D' : 'F';
+
+        console.log(`[WebUpgrader] Scan complete: ${targetUrl} — Grade: ${scores.grade} (${scores.overall}/100), ${issues.length} issues`);
+
+        res.writeHead(200, upgraderCors);
+        res.end(JSON.stringify({
+          url: targetUrl,
+          html: htmlContent,
+          htmlSize,
+          fetchTime,
+          scores,
+          issues,
+        }));
+
+      } catch (e) {
+        console.error(`[WebUpgrader] Scan error:`, e.message);
+        res.writeHead(500, upgraderCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
+  if (pathname === '/api/upgrade' && req.method === 'POST') {
+    let body = '';
+    req.on('data', c => body += c);
+    req.on('end', async () => {
+      try {
+        const { url: targetUrl, html: originalHtml } = JSON.parse(body);
+        if (!originalHtml) {
+          res.writeHead(400, upgraderCors);
+          res.end(JSON.stringify({ error: 'Missing html parameter' }));
+          return;
+        }
+
+        const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+        if (!ANTHROPIC_KEY) {
+          res.writeHead(500, upgraderCors);
+          res.end(JSON.stringify({ error: 'ANTHROPIC_API_KEY not configured on backend' }));
+          return;
+        }
+
+        console.log(`[WebUpgrader] Generating AI upgrade for: ${targetUrl}`);
+
+        // Truncate HTML to avoid token limits (keep first 30K chars)
+        const truncatedHtml = originalHtml.length > 30000 ? originalHtml.substring(0, 30000) + '\n<!-- truncated -->' : originalHtml;
+
+        const prompt = `You are an expert web designer and developer. I'm going to give you the HTML of a website. Your job is to create a completely redesigned, modern version of this website.
+
+Rules:
+1. Keep ALL the same content (text, images, links, etc.)
+2. Completely redesign the visual layout using modern web design principles
+3. Use a modern CSS framework approach (inline styles or embedded <style> tag)
+4. Make it fully responsive (mobile-first)
+5. Use a modern color scheme (dark theme preferred with accent colors)
+6. Use modern typography (Google Fonts - Inter or similar)
+7. Add subtle animations and transitions
+8. Ensure WCAG AA accessibility
+9. Output ONLY the complete HTML document - no explanations, no markdown code fences
+10. Make it look like a premium $10K+ website redesign
+11. Include proper meta tags, Open Graph, and viewport meta
+
+Original website URL: ${targetUrl || 'Unknown'}
+
+Original HTML:
+${truncatedHtml}
+
+Generate the complete upgraded HTML document now:`;
+
+        // Call Claude API
+        const requestBody = JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 8192,
+          messages: [{ role: 'user', content: prompt }],
+        });
+
+        const upgradedHtml = await new Promise((resolve, reject) => {
+          const apiReq = https.request({
+            hostname: 'api.anthropic.com',
+            path: '/v1/messages',
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': ANTHROPIC_KEY,
+              'anthropic-version': '2023-06-01',
+            },
+          }, (apiRes) => {
+            let data = '';
+            apiRes.on('data', chunk => data += chunk);
+            apiRes.on('end', () => {
+              try {
+                const parsed = JSON.parse(data);
+                if (parsed.error) {
+                  return reject(new Error(parsed.error.message || 'Claude API error'));
+                }
+                const text = parsed.content?.[0]?.text || '';
+                // Strip any markdown code fences if present
+                const cleaned = text.replace(/^```html?\n?/i, '').replace(/\n?```$/i, '').trim();
+                resolve(cleaned);
+              } catch (e) {
+                reject(new Error('Failed to parse Claude response'));
+              }
+            });
+          });
+          apiReq.on('error', reject);
+          apiReq.setTimeout(120000, () => {
+            apiReq.destroy();
+            reject(new Error('Claude API timeout (120s)'));
+          });
+          apiReq.write(requestBody);
+          apiReq.end();
+        });
+
+        console.log(`[WebUpgrader] Upgrade complete for: ${targetUrl} (${upgradedHtml.length} chars)`);
+
+        res.writeHead(200, upgraderCors);
+        res.end(JSON.stringify({ upgradedHtml }));
+
+      } catch (e) {
+        console.error(`[WebUpgrader] Upgrade error:`, e.message);
+        res.writeHead(500, upgraderCors);
+        res.end(JSON.stringify({ error: e.message }));
+      }
+    });
+    return;
+  }
+
   // 404
 
     res.writeHead(404, { 'Content-Type': 'application/json' });
@@ -2796,4 +3272,4 @@ server.listen(PORT, () => {
     console.log(`  • ${acc}`);
   });
 });
-// Rebuild Sun Feb  1 14:29:25 PST 2026
+// Rebuild Sat Feb 14 13:55:00 PST 2026 — WebUpgrader + ANTHROPIC_API_KEY
