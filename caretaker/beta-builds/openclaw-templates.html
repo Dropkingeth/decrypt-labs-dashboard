@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenClaw Templates — Deploy AI Agents in Minutes</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-primary: #0a0a0f;
+      --bg-secondary: #12121a;
+      --bg-card: #1a1a25;
+      --cyan: #00ffff;
+      --green: #00ff88;
+      --cyan-dim: rgba(0, 255, 255, 0.1);
+      --green-dim: rgba(0, 255, 136, 0.1);
+      --text-primary: #ffffff;
+      --text-secondary: #a0a0b0;
+      --border: #2a2a3a;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* Navigation */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 1rem 2rem;
+      background: rgba(10, 10, 15, 0.9);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .nav-links a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: color 0.3s;
+    }
+
+    .nav-links a:hover {
+      color: var(--cyan);
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 10rem 2rem 6rem;
+      text-align: center;
+      background: radial-gradient(ellipse at top, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
+                  radial-gradient(ellipse at bottom right, rgba(0, 255, 136, 0.03) 0%, transparent 50%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%2300ffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      opacity: 0.5;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      margin-bottom: 1.5rem;
+      line-height: 1.2;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 0.875rem 2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      color: var(--bg-primary);
+      border: none;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 40px rgba(0, 255, 255, 0.3);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+    }
+
+    .btn-secondary:hover {
+      background: var(--cyan-dim);
+    }
+
+    /* Filters */
+    .filters {
+      padding: 2rem;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .filter-group label {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    .filter-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.875rem;
+    }
+
+    .filter-btn:hover {
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    .filter-btn.active {
+      background: var(--cyan-dim);
+      border-color: var(--cyan);
+      color: var(--cyan);
+    }
+
+    /* Templates Grid */
+    .templates-section {
+      padding: 4rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .section-title h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title p {
+      color: var(--text-secondary);
+    }
+
+    .templates-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .template-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 1.5rem;
+      transition: all 0.3s;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .template-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .template-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--cyan);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .template-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .card-icon.trading { background: linear-gradient(135deg, #ff6b6b, #feca57); }
+    .card-icon.content { background: linear-gradient(135deg, #5f27cd, #a55eea); }
+    .card-icon.support { background: linear-gradient(135deg, #00d2d3, #54a0ff); }
+    .card-icon.research { background: linear-gradient(135deg, #1dd1a1, #10ac84); }
+    .card-icon.devops { background: linear-gradient(135deg, #ff9f43, #ee5a24); }
+    .card-icon.personal { background: linear-gradient(135deg, #5f27cd, #00d2d3); }
+
+    .card-title-area {
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .card-category {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .card-description {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1rem;
+      line-height: 1.5;
+    }
+
+    .card-meta {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.375rem;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .difficulty-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 500;
+    }
+
+    .difficulty-badge.beginner {
+      background: var(--green-dim);
+      color: var(--green);
+    }
+
+    .difficulty-badge.intermediate {
+      background: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+
+    .difficulty-badge.advanced {
+      background: rgba(255, 107, 107, 0.1);
+      color: #ff6b6b;
+    }
+
+    .card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .setup-time {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+    }
+
+    .use-template-btn {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: none;
+      background: var(--cyan-dim);
+      color: var(--cyan);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 0.875rem;
+    }
+
+    .use-template-btn:hover {
+      background: var(--cyan);
+      color: var(--bg-primary);
+    }
+
+    /* Pricing Section */
+    .pricing-section {
+      padding: 6rem 2rem;
+      background: var(--bg-secondary);
+    }
+
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    .pricing-card {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      padding: 2rem;
+      text-align: center;
+      transition: all 0.3s;
+    }
+
+    .pricing-card.featured {
+      border-color: var(--cyan);
+      position: relative;
+    }
+
+    .pricing-card.featured::before {
+      content: 'Most Popular';
+      position: absolute;
+      top: -12px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, var(--cyan), var(--green));
+      color: var(--bg-primary);
+      padding: 0.25rem 1rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .pricing-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .pricing-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-price {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .pricing-price span {
+      font-size: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .pricing-description {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .pricing-features {
+      list-style: none;
+      text-align: left;
+      margin-bottom: 2rem;
+    }
+
+    .pricing-features li {
+      padding: 0.5rem 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+
+    .pricing-features li::before {
+      content: '✓';
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(5px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+      padding: 1rem;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: var(--bg-card);
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      max-width: 700px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .modal-title h3 {
+      font-size: 1.5rem;
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .close-btn:hover {
+      background: var(--border);
+      color: var(--text-primary);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-description {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .config-preview {
+      background: var(--bg-primary);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .config-preview pre {
+      font-family: 'Monaco', 'Menlo', monospace;
+      font-size: 0.75rem;
+      color: var(--green);
+      line-height: 1.6;
+    }
+
+    .config-preview .comment {
+      color: var(--text-secondary);
+    }
+
+    .config-preview .key {
+      color: var(--cyan);
+    }
+
+    .config-preview .string {
+      color: var(--green);
+    }
+
+    .config-preview .number {
+      color: #ffc107;
+    }
+
+    .features-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border-radius: 8px;
+    }
+
+    .feature-item .icon {
+      color: var(--cyan);
+      font-size: 1.25rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      gap: 1rem;
+      justify-content: flex-end;
+    }
+
+    /* Footer */
+    footer {
+      padding: 3rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    footer p {
+      color: var(--text-secondary);
+      font-size: 0.875rem;
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .template-card {
+      animation: fadeInUp 0.5s ease forwards;
+    }
+
+    .template-card:nth-child(1) { animation-delay: 0.1s; }
+    .template-card:nth-child(2) { animation-delay: 0.15s; }
+    .template-card:nth-child(3) { animation-delay: 0.2s; }
+    .template-card:nth-child(4) { animation-delay: 0.25s; }
+    .template-card:nth-child(5) { animation-delay: 0.3s; }
+    .template-card:nth-child(6) { animation-delay: 0.35s; }
+
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      nav {
+        padding: 1rem;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 2rem;
+      }
+
+      .hero p {
+        font-size: 1rem;
+      }
+
+      .templates-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .pricing-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .modal {
+        margin: 0.5rem;
+        border-radius: 16px;
+      }
+
+      .features-list {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">OpenClaw</div>
+    <div class="nav-links">
+      <a href="#templates">Templates</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#">Docs</a>
+      <a href="#">GitHub</a>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1><span>OpenClaw Templates</span><br>Deploy AI Agents in Minutes</h1>
+      <p>Pre-configured, production-ready templates for every use case. Choose a template, configure your keys, and launch your AI agent instantly.</p>
+      <div class="hero-buttons">
+        <a href="#templates" class="btn btn-primary">
+          <span>🚀</span> Browse Templates
+        </a>
+        <a href="#" class="btn btn-secondary">
+          <span>📖</span> Documentation
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Filters -->
+  <section class="filters">
+    <div class="filter-group">
+      <label>Category:</label>
+      <button class="filter-btn active" data-filter="category" data-value="all">All</button>
+      <button class="filter-btn" data-filter="category" data-value="productivity">Productivity</button>
+      <button class="filter-btn" data-filter="category" data-value="business">Business</button>
+      <button class="filter-btn" data-filter="category" data-value="devops">DevOps</button>
+    </div>
+    <div class="filter-group">
+      <label>Difficulty:</label>
+      <button class="filter-btn active" data-filter="difficulty" data-value="all">All</button>
+      <button class="filter-btn" data-filter="difficulty" data-value="beginner">Beginner</button>
+      <button class="filter-btn" data-filter="difficulty" data-value="intermediate">Intermediate</button>
+      <button class="filter-btn" data-filter="difficulty" data-value="advanced">Advanced</button>
+    </div>
+  </section>
+
+  <!-- Templates Grid -->
+  <section class="templates-section" id="templates">
+    <div class="section-title">
+      <h2>Choose Your Template</h2>
+      <p>Click any template to view configuration details and features</p>
+    </div>
+    <div class="templates-grid" id="templates-grid">
+      <!-- Cards will be generated by JS -->
+    </div>
+  </section>
+
+  <!-- Pricing Section -->
+  <section class="pricing-section" id="pricing">
+    <div class="section-title">
+      <h2>Simple Pricing</h2>
+      <p>Start free, upgrade when you need more</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <h3 class="pricing-name">Free</h3>
+        <div class="pricing-price">$0<span>/mo</span></div>
+        <p class="pricing-description">Perfect for getting started</p>
+        <ul class="pricing-features">
+          <li>3 starter templates</li>
+          <li>Community support</li>
+          <li>Basic documentation</li>
+          <li>1 agent deployment</li>
+        </ul>
+        <button class="btn btn-secondary" style="width: 100%;">Get Started</button>
+      </div>
+      <div class="pricing-card featured">
+        <h3 class="pricing-name">Pro</h3>
+        <div class="pricing-price">$9<span>/mo</span></div>
+        <p class="pricing-description">For power users and small teams</p>
+        <ul class="pricing-features">
+          <li>All 6 templates</li>
+          <li>New templates every month</li>
+          <li>Priority email support</li>
+          <li>Unlimited deployments</li>
+          <li>Custom configurations</li>
+        </ul>
+        <button class="btn btn-primary" style="width: 100%;">Upgrade to Pro</button>
+      </div>
+      <div class="pricing-card">
+        <h3 class="pricing-name">Enterprise</h3>
+        <div class="pricing-price">Custom</div>
+        <p class="pricing-description">For large teams with specific needs</p>
+        <ul class="pricing-features">
+          <li>Everything in Pro</li>
+          <li>Custom template development</li>
+          <li>Dedicated support manager</li>
+          <li>SLA guarantee</li>
+          <li>On-premise deployment</li>
+        </ul>
+        <button class="btn btn-secondary" style="width: 100%;">Contact Sales</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <p>© 2026 OpenClaw. Built with 🤖 for AI agent developers.</p>
+  </footer>
+
+  <!-- Modal -->
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="card-icon" id="modal-icon"></div>
+          <h3 id="modal-title-text"></h3>
+        </div>
+        <button class="close-btn" id="close-modal">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-description" id="modal-description"></p>
+        <div class="config-preview">
+          <pre id="config-code"></pre>
+        </div>
+        <h4 style="margin-bottom: 1rem; color: var(--text-secondary);">Features</h4>
+        <div class="features-list" id="features-list"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="close-modal-btn">Cancel</button>
+        <button class="btn btn-primary">Use This Template</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Template Data
+    const templates = [
+      {
+        id: 'trading-bot',
+        name: 'Trading Bot Assistant',
+        icon: '📈',
+        iconClass: 'trading',
+        category: 'business',
+        description: 'Automated trading alerts, market analysis, and portfolio tracking. Configure thresholds and receive instant notifications.',
+        difficulty: 'advanced',
+        setupTime: '~15 min',
+        features: [
+          'Real-time price alerts',
+          'Technical indicators (RSI, MACD)',
+          'Portfolio tracking',
+          'Multi-exchange support',
+          'Risk management rules'
+        ],
+        config: `{
+  <span class="comment">// Trading Bot Configuration</span>
+  <span class="key">"agent"</span>: {
+    <span class="key">"name"</span>: <span class="string">"TradingBot"</span>,
+    <span class="key">"type"</span>: <span class="string">"trading"</span>
+  },
+  <span class="key">"exchanges"</span>: [<span class="string">"binance"</span>, <span class="string">"coinbase"</span>],
+  <span class="key">"alerts"</span>: {
+    <span class="key">"threshold"</span>: <span class="number">5.0</span>,
+    <span class="key">"channels"</span>: [<span class="string">"telegram"</span>, <span class="string">"email"</span>]
+  },
+  <span class="key">"indicators"</span>: [<span class="string">"RSI"</span>, <span class="string">"MACD"</span>, <span class="string">"BB"</span>]
+}`
+      },
+      {
+        id: 'content-creator',
+        name: 'Content Creator Agent',
+        icon: '✍️',
+        iconClass: 'content',
+        category: 'productivity',
+        description: 'Schedule social posts, generate content ideas, and manage your content calendar across multiple platforms.',
+        difficulty: 'beginner',
+        setupTime: '~5 min',
+        features: [
+          'Multi-platform posting',
+          'Content calendar',
+          'AI content suggestions',
+          'Hashtag research',
+          'Analytics dashboard'
+        ],
+        config: `{
+  <span class="comment">// Content Creator Configuration</span>
+  <span class="key">"agent"</span>: {
+    <span class="key">"name"</span>: <span class="string">"ContentBot"</span>,
+    <span class="key">"type"</span>: <span class="string">"content"</span>
+  },
+  <span class="key">"platforms"</span>: [<span class="string">"twitter"</span>, <span class="string">"linkedin"</span>],
+  <span class="key">"scheduling"</span>: {
+    <span class="key">"timezone"</span>: <span class="string">"America/Los_Angeles"</span>,
+    <span class="key">"autoPublish"</span>: <span class="number">true</span>
+  },
+  <span class="key">"aiFeatures"</span>: {
+    <span class="key">"suggestions"</span>: <span class="number">true</span>,
+    <span class="key">"tone"</span>: <span class="string">"professional"</span>
+  }
+}`
+      },
+      {
+        id: 'support-bot',
+        name: 'Customer Support Bot',
+        icon: '💬',
+        iconClass: 'support',
+        category: 'business',
+        description: 'Handle FAQs, route tickets, and provide 24/7 customer support with intelligent escalation rules.',
+        difficulty: 'intermediate',
+        setupTime: '~10 min',
+        features: [
+          'FAQ auto-responder',
+          'Smart ticket routing',
+          'Sentiment analysis',
+          'Escalation rules',
+          'Live chat handoff'
+        ],
+        config: `{
+  <span class="comment">// Support Bot Configuration</span>
+  <span class="key">"agent"</span>: {
+    <span class="key">"name"</span>: <span class="string">"SupportBot"</span>,
+    <span class="key">"type"</span>: <span class="string">"support"</span>
+  },
+  <span class="key">"channels"</span>: [<span class="string">"web"</span>, <span class="string">"email"</span>, <span class="string">"discord"</span>],
+  <span class="key">"faq"</span>: {
+    <span class="key">"enabled"</span>: <span class="number">true</span>,
+    <span class="key">"confidence"</span>: <span class="number">0.85</span>
+  },
+  <span class="key">"escalation"</span>: {
+    <span class="key">"afterAttempts"</span>: <span class="number">3</span>,
+    <span class="key">"notifyTeam"</span>: <span class="number">true</span>
+  }
+}`
+      },
+      {
+        id: 'research-assistant',
+        name: 'Research Assistant',
+        icon: '🔍',
+        iconClass: 'research',
+        category: 'productivity',
+        description: 'Web search, document analysis, and intelligent summarization. Perfect for deep research and information gathering.',
+        difficulty: 'beginner',
+        setupTime: '~5 min',
+        features: [
+          'Web search integration',
+          'PDF/Doc analysis',
+          'Auto-summarization',
+          'Citation generation',
+          'Note organization'
+        ],
+        config: `{
+  <span class="comment">// Research Assistant Configuration</span>
+  <span class="key">"agent"</span>: {
+    <span class="key">"name"</span>: <span class="string">"ResearchBot"</span>,
+    <span class="key">"type"</span>: <span class="string">"research"</span>
+  },
+  <span class="key">"search"</span>: {
+    <span class="key">"provider"</span>: <span class="string">"brave"</span>,
+    <span class="key">"maxResults"</span>: <span class="number">10</span>
+  },
+  <span class="key">"analysis"</span>: {
+    <span class="key">"formats"</span>: [<span class="string">"pdf"</span>, <span class="string">"docx"</span>, <span class="string">"txt"</span>],
+    <span class="key">"summaryLength"</span>: <span class="string">"medium"</span>
+  },
+  <span class="key">"output"</span>: {
+    <span class="key">"citations"</span>: <span class="number">true</span>,
+    <span class="key">"format"</span>: <span class="string">"markdown"</span>
+  }
+}`
+      },
+      {
+        id: 'devops-monitor',
+        name: 'DevOps Monitor',
+        icon: '⚙️',
+        iconClass: 'devops',
+        category: 'devops',
+        description: 'Server health monitoring, deployment alerts, and automated incident response for your infrastructure.',
+        difficulty: 'advanced',
+        setupTime: '~20 min',
+        features: [
+          'Server health checks',
+          'Deployment monitoring',
+          'Incident response',
+          'Slack/PagerDuty alerts',
+          'Custom dashboards'
+        ],
+        config: `{
+  <span class="comment">// DevOps Monitor Configuration</span>
+  <span class="key">"agent"</span>: {
+    <span class="key">"name"</span>: <span class="string">"DevOpsBot"</span>,
+    <span class="key">"type"</span>: <span class="string">"devops"</span>
+  },
+  <span class="key">"monitors"</span>: [{
+    <span class="key">"type"</span>: <span class="string">"health"</span>,
+    <span class="key">"interval"</span>: <span class="number">60</span>,
+    <span class="key">"endpoints"</span>: [<span class="string">"/health"</span>, <span class="string">"/ready"</span>]
+  }],
+  <span class="key">"alerts"</span>: {
+    <span class="key">"channels"</span>: [<span class="string">"slack"</span>, <span class="string">"pagerduty"</span>],
+    <span class="key">"severity"</span>: [<span class="string">"critical"</span>, <span class="string">"warning"</span>]
+  }
+}`
+      },
+      {
+        id: 'personal-assistant',
+        name: 'Personal Assistant',
+        icon: '🎯',
+        iconClass: 'personal',
+        category: 'productivity',
+        description: 'Calendar management, reminders, email handling, and daily task automation. Your AI-powered productivity companion.',
+        difficulty: 'beginner',
+        setupTime: '~5 min',
+        features: [
+          'Calendar integration',
+          'Smart reminders',
+          'Email management',
+          'Daily briefings',
+          'Task automation'
+        ],
+        config: `{
+  <span class="comment">// Personal Assistant Configuration</span>
+  <span class="key">"agent"</span>: {
+    <span class="key">"name"</span>: <span class="string">"PersonalBot"</span>,
+    <span class="key">"type"</span>: <span class="string">"assistant"</span>
+  },
+  <span class="key">"calendar"</span>: {
+    <span class="key">"provider"</span>: <span class="string">"google"</span>,
+    <span class="key">"reminderMinutes"</span>: <span class="number">15</span>
+  },
+  <span class="key">"email"</span>: {
+    <span class="key">"provider"</span>: <span class="string">"gmail"</span>,
+    <span class="key">"summary"</span>: <span class="string">"daily"</span>
+  },
+  <span class="key">"tasks"</span>: {
+    <span class="key">"autoPrioritize"</span>: <span class="number">true</span>,
+    <span class="key">"suggestions"</span>: <span class="number">true</span>
+  }
+}`
+      }
+    ];
+
+    // Current filters
+    let activeFilters = {
+      category: 'all',
+      difficulty: 'all'
+    };
+
+    // DOM Elements
+    const templatesGrid = document.getElementById('templates-grid');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const closeModalBtn = document.getElementById('close-modal');
+    const closeModalBtnAlt = document.getElementById('close-modal-btn');
+
+    // Render templates
+    function renderTemplates() {
+      const filtered = templates.filter(t => {
+        const categoryMatch = activeFilters.category === 'all' || t.category === activeFilters.category;
+        const difficultyMatch = activeFilters.difficulty === 'all' || t.difficulty === activeFilters.difficulty;
+        return categoryMatch && difficultyMatch;
+      });
+
+      templatesGrid.innerHTML = filtered.map(template => `
+        <div class="template-card" data-id="${template.id}" onclick="openModal('${template.id}')">
+          <div class="card-header">
+            <div class="card-icon ${template.iconClass}">${template.icon}</div>
+            <div class="card-title-area">
+              <h3 class="card-title">${template.name}</h3>
+              <span class="card-category">${template.category}</span>
+            </div>
+          </div>
+          <p class="card-description">${template.description}</p>
+          <div class="card-meta">
+            <span class="difficulty-badge ${template.difficulty}">${capitalize(template.difficulty)}</span>
+          </div>
+          <div class="card-footer">
+            <span class="setup-time">⏱️ ${template.setupTime} setup</span>
+            <button class="use-template-btn">Use Template</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Open modal
+    function openModal(id) {
+      const template = templates.find(t => t.id === id);
+      if (!template) return;
+
+      document.getElementById('modal-icon').className = `card-icon ${template.iconClass}`;
+      document.getElementById('modal-icon').textContent = template.icon;
+      document.getElementById('modal-title-text').textContent = template.name;
+      document.getElementById('modal-description').textContent = template.description;
+      document.getElementById('config-code').innerHTML = template.config;
+
+      const featuresList = document.getElementById('features-list');
+      featuresList.innerHTML = template.features.map(f => `
+        <div class="feature-item">
+          <span class="icon">✓</span>
+          <span>${f}</span>
+        </div>
+      `).join('');
+
+      modalOverlay.classList.add('active');
+    }
+
+    // Close modal
+    function closeModal() {
+      modalOverlay.classList.remove('active');
+    }
+
+    // Helper function
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    // Event listeners
+    closeModalBtn.addEventListener('click', closeModal);
+    closeModalBtnAlt.addEventListener('click', closeModal);
+    modalOverlay.addEventListener('click', (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    // Filter buttons
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const filterType = btn.dataset.filter;
+        const filterValue = btn.dataset.value;
+
+        // Update active state
+        document.querySelectorAll(`.filter-btn[data-filter="${filterType}"]`).forEach(b => {
+          b.classList.remove('active');
+        });
+        btn.classList.add('active');
+
+        // Update filter
+        activeFilters[filterType] = filterValue;
+        renderTemplates();
+      });
+    });
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Initial render
+    renderTemplates();
+  </script>
+</body>
+</html>

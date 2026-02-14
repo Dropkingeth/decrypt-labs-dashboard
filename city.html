@@ -418,8 +418,8 @@ let bots = [
   {
     id: 'tina', name: 'Code Screamer', nftId: '#13', nftNumId: 13,
     strategy: 'FVG+IFVG',
-    balance: 147245.18, pnl: -2754.82, winRate: 76.5,
-    drawdownPct: 55.3, status: 'ACTIVE', totalTrades: 5202,
+    balance: 149147.36, pnl: -852.64, winRate: 76.5,
+    drawdownPct: 20.6, status: 'ACTIVE', totalTrades: 5202,
     color: '#ff8a00', health: 'warning',
     position: { x: -10, z: -6 }, angle: 0,
     account: 'APEX-18', monthlyCost: 50.00, payouts: 0,
@@ -429,7 +429,7 @@ let bots = [
   {
     id: 'danny', name: 'Neon Stalker', nftId: '#01', nftNumId: 1,
     strategy: 'OTE Silver Bullet',
-    balance: 152419.30, pnl: 2419.30, winRate: 100,
+    balance: 152478.28, pnl: 2478.28, winRate: 100,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#00e5ff', health: 'healthy',
     position: { x: 10, z: -6 }, angle: 0,
@@ -440,7 +440,7 @@ let bots = [
   {
     id: 'annie', name: 'Rekt Reaper', nftId: '#05', nftNumId: 5,
     strategy: 'OTE Refined',
-    balance: 152383.88, pnl: 2383.88, winRate: 100,
+    balance: 152444.86, pnl: 2444.86, winRate: 100,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 1,
     color: '#a855f7', health: 'healthy',
     position: { x: -10, z: 6 }, angle: 0,
@@ -451,7 +451,7 @@ let bots = [
   {
     id: 'mike', name: 'Signal Sage', nftId: '#08', nftNumId: 8,
     strategy: 'OTE Refined Large',
-    balance: 303042.06, pnl: 3042.06, winRate: 0,
+    balance: 303102.54, pnl: 3102.54, winRate: 0,
     drawdownPct: 0, status: 'ACTIVE', totalTrades: 0,
     color: '#22ff88', health: 'healthy',
     position: { x: 10, z: 6 }, angle: 0,
@@ -1071,9 +1071,9 @@ fetch('/api/accounts')
     Object.entries(data).forEach(([key, acct]) => {
       const idx = apiMap[key];
       if (idx !== undefined && bots[idx]) {
-        bots[idx].balance = acct.balance || bots[idx].balance;
-        bots[idx].pnl = acct.pnl || bots[idx].pnl;
-        bots[idx].drawdownPct = acct.drawdown ? ((acct.drawdown / acct.drawdownMax) * 100).toFixed(1) : bots[idx].drawdownPct;
+        bots[idx].balance = acct.balance != null ? acct.balance : bots[idx].balance;
+        bots[idx].pnl = acct.pnl != null ? acct.pnl : bots[idx].pnl;
+        bots[idx].drawdownPct = acct.drawdown != null ? ((acct.drawdown / acct.drawdownMax) * 100).toFixed(1) : bots[idx].drawdownPct;
         bots[idx].status = acct.status === 'online' ? 'ACTIVE' : 'PAUSED';
       }
     });
@@ -2810,7 +2810,7 @@ async function fetchDashboardData() {
     bots.forEach(bot => {
       const apiBot = apiMap[bot.id];
       if (!apiBot) return;
-      const bal = apiBot.currentBalance || apiBot.balance;
+      const bal = apiBot.currentBalance != null ? apiBot.currentBalance : apiBot.balance;
       const startBal = bot.accountSize || 150000;
       if (bal != null) { bot.balance = parseFloat(bal); bot.pnl = bot.balance - startBal; }
       if (apiBot.performance?.winRate != null) bot.winRate = parseFloat(apiBot.performance.winRate);

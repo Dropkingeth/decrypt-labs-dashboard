@@ -13,6 +13,7 @@
 const http = require('http');
 const https = require('https');
 const fs = require('fs');
+
 const path = require('path');
 const url = require('url');
 
@@ -550,7 +551,7 @@ const server = http.createServer(async (req, res) => {
   // AUTH CHECK (protect dashboard routes)
   // -------------------------------------------------------------------------
   
-  const publicPaths = ['/health', '/webhook/', '/position', '/api/'];
+  const publicPaths = ['/health', '/webhook/', '/position', '/api/', '/beta-preview'];
   const isPublicPath = publicPaths.some(p => pathname.startsWith(p) || pathname === p.replace('/', ''));
   
   if (!isPublicPath && !isAuthenticated(req)) {
@@ -633,6 +634,21 @@ const server = http.createServer(async (req, res) => {
   }
 
   // Serve Cipher City
+  // Serve beta build previews
+  if (req.method === 'GET' && pathname.startsWith('/beta-preview/')) {
+    const buildName = pathname.replace('/beta-preview/', '').replace(/\/$/, '');
+    const buildPath = path.join(__dirname, 'beta-builds', buildName + '.html');
+    if (fs.existsSync(buildPath)) {
+      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.end(fs.readFileSync(buildPath, 'utf8'));
+      return;
+    } else {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Build not found');
+      return;
+    }
+  }
+
   if (req.method === 'GET' && pathname === '/city.html') {
     const cityPath = path.join(__dirname, 'city.html');
     if (fs.existsSync(cityPath)) {
@@ -2558,6 +2574,16 @@ const server = http.createServer(async (req, res) => {
           return;
         }
 
+        // Validate status if present
+        if (patchData.status) {
+          const validStatuses = ['queued', 'building', 'done', 'failed', 'review', 'approved', 'rejected', 'live', 'archived'];
+          if (!validStatuses.includes(patchData.status)) {
+             res.writeHead(400, fountainCors);
+             res.end(JSON.stringify({ error: 'Invalid status' }));
+             return;
+          }
+        }
+
         // Merge updates
         builds[buildIndex] = {
           ...builds[buildIndex],
@@ -2599,7 +2625,8 @@ const server = http.createServer(async (req, res) => {
   }
 
   // 404
-  res.writeHead(404, { 'Content-Type': 'application/json' });
+
+    res.writeHead(404, { 'Content-Type': 'application/json' });
   res.end(JSON.stringify({ error: 'Not found' }));
 });
 
@@ -2616,6 +2643,7 @@ console.log(`
 ║  Webhook receiver + Position monitoring + Auto-retry         ║
 ╚══════════════════════════════════════════════════════════════╝
 `);
+
 
 server.listen(PORT, () => {
   console.log(`[Server] ✅ Running on port ${PORT}`);

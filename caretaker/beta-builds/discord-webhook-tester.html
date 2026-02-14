@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Webhook Tester</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-input: #0d0d14;
+            --cyan: #00ffff;
+            --green: #00ff88;
+            --text-primary: #ffffff;
+            --text-secondary: #b9bbbe;
+            --text-muted: #72767d;
+            --discord-dark: #2f3136;
+            --discord-darker: #202225;
+            --discord-input: #40444b;
+            --border: #2a2a3a;
+            --error: #ff4757;
+            --success: #00ff88;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 30px;
+        }
+
+        header h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            background: var(--bg-tertiary);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h2 {
+            font-size: 1.2rem;
+            color: var(--cyan);
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="url"],
+        input[type="color"],
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            background: var(--bg-input);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus,
+        input[type="color"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--cyan);
+            box-shadow: 0 0 0 3px rgba(0, 255, 255, 0.1);
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        input[type="color"] {
+            padding: 5px;
+            height: 45px;
+            cursor: pointer;
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .input-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--cyan), var(--green));
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyan);
+        }
+
+        .btn-danger {
+            background: var(--error);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 8px 16px;
+            font-size: 0.85rem;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .embed-builder {
+            background: var(--bg-tertiary);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .embed-builder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .embed-builder-header h3 {
+            color: var(--green);
+            font-size: 1rem;
+        }
+
+        .color-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-row input[type="color"] {
+            width: 60px;
+            flex-shrink: 0;
+        }
+
+        .color-row input[type="text"] {
+            flex: 1;
+        }
+
+        .field-item {
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: 1px solid var(--border);
+        }
+
+        .field-item-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .field-item-header span {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--cyan);
+        }
+
+        /* Preview Panel - Discord Style */
+        .preview-container {
+            background: var(--discord-darker);
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 300px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .preview-message {
+            display: flex;
+            gap: 15px;
+            padding: 10px 0;
+        }
+
+        .preview-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--discord-dark);
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .preview-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .preview-avatar svg {
+            width: 24px;
+            height: 24px;
+            fill: var(--text-muted);
+        }
+
+        .preview-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .preview-header {
+            display: flex;
+            align-items: baseline;
+            gap: 8px;
+            margin-bottom: 5px;
+        }
+
+        .preview-username {
+            font-weight: 600;
+            color: var(--cyan);
+            font-size: 1rem;
+        }
+
+        .preview-timestamp {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .preview-text {
+            color: var(--text-secondary);
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-bottom: 10px;
+        }
+
+        .preview-embed {
+            background: var(--discord-dark);
+            border-radius: 4px;
+            margin-top: 10px;
+            max-width: 520px;
+            overflow: hidden;
+        }
+
+        .embed-color-bar {
+            width: 4px;
+            min-height: 20px;
+            float: left;
+        }
+
+        .embed-content {
+            padding: 12px 16px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .embed-main {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .embed-thumbnail {
+            width: 80px;
+            height: 80px;
+            border-radius: 4px;
+            background: var(--discord-darker);
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .embed-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .embed-title {
+            font-weight: 600;
+            color: #00b0f4;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .embed-description {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 10px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .embed-fields {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .embed-field {
+            font-size: 0.85rem;
+        }
+
+        .embed-field.inline {
+            display: inline-block;
+            width: calc(50% - 8px);
+            vertical-align: top;
+        }
+
+        .embed-field-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 2px;
+        }
+
+        .embed-field-value {
+            color: var(--text-secondary);
+        }
+
+        .embed-image {
+            max-width: 100%;
+            border-radius: 4px;
+            margin-top: 10px;
+            max-height: 300px;
+            background: var(--discord-darker);
+        }
+
+        .embed-footer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .embed-footer-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--discord-darker);
+        }
+
+        /* Status Messages */
+        .status-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status-message.success {
+            display: block;
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--green);
+            color: var(--green);
+        }
+
+        .status-message.error {
+            display: block;
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+
+        /* Saved URLs */
+        .saved-urls {
+            margin-top: 10px;
+        }
+
+        .saved-url-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: var(--bg-tertiary);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+
+        .saved-url-item .url {
+            flex: 1;
+            color: var(--text-secondary);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .saved-url-item .btn {
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+
+        /* Templates */
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .templates-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .template-btn {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .template-btn:hover {
+            border-color: var(--cyan);
+            background: var(--bg-input);
+        }
+
+        .template-btn .emoji {
+            font-size: 1.5rem;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .template-btn .name {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            .container {
+                padding: 15px;
+            }
+
+            .panel-content {
+                padding: 15px;
+            }
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state svg {
+            width: 60px;
+            height: 60px;
+            fill: var(--text-muted);
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🪝 Discord Webhook Tester</h1>
+            <p>Compose, preview, and test Discord webhook messages</p>
+        </header>
+
+        <div class="main-grid">
+            <!-- Composer Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>✏️ Message Composer</h2>
+                    <div class="btn-group">
+                        <button class="btn btn-secondary btn-small" onclick="clearAll()">Clear All</button>
+                    </div>
+                </div>
+                <div class="panel-content">
+                    <!-- Webhook URL -->
+                    <div class="form-group">
+                        <label>Webhook URL *</label>
+                        <input type="url" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." />
+                    </div>
+
+                    <!-- Saved URLs -->
+                    <div class="saved-urls" id="savedUrls"></div>
+
+                    <!-- Templates -->
+                    <div class="form-group">
+                        <label>Quick Templates</label>
+                        <div class="templates-grid">
+                            <button class="template-btn" onclick="loadTemplate('alert')">
+                                <span class="emoji">🚨</span>
+                                <span class="name">Alert</span>
+                            </button>
+                            <button class="template-btn" onclick="loadTemplate('announcement')">
+                                <span class="emoji">📢</span>
+                                <span class="name">Announcement</span>
+                            </button>
+                            <button class="template-btn" onclick="loadTemplate('status')">
+                                <span class="emoji">🤖</span>
+                                <span class="name">Bot Status</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Username Override -->
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Username Override</label>
+                            <input type="text" id="username" placeholder="Custom username" />
+                        </div>
+                        <div class="form-group">
+                            <label>Avatar URL Override</label>
+                            <input type="url" id="avatarUrl" placeholder="https://..." />
+                        </div>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="form-group">
+                        <label>Message Content</label>
+                        <textarea id="content" placeholder="Your message here..."></textarea>
+                    </div>
+
+                    <!-- Embeds -->
+                    <div id="embedsContainer"></div>
+
+                    <button class="btn btn-secondary" onclick="addEmbed()">+ Add Embed</button>
+
+                    <!-- Send Button -->
+                    <div class="form-group" style="margin-top: 25px;">
+                        <button class="btn btn-primary" onclick="sendWebhook()" id="sendBtn" style="width: 100%;">
+                            🚀 Send Webhook
+                        </button>
+                    </div>
+
+                    <!-- Status -->
+                    <div class="status-message" id="statusMessage"></div>
+                </div>
+            </div>
+
+            <!-- Preview Panel -->
+            <div class="panel">
+                <div class="panel-header">
+                    <h2>👁️ Live Preview</h2>
+                </div>
+                <div class="panel-content">
+                    <div class="preview-container" id="previewContainer">
+                        <div class="empty-state">
+                            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                            <p>Start typing to see a preview</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let embeds = [];
+        let savedUrls = JSON.parse(localStorage.getItem('discordWebhookUrls') || '[]');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSavedUrls();
+            updatePreview();
+
+            // Add event listeners for live preview
+            ['webhookUrl', 'username', 'avatarUrl', 'content'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePreview);
+            });
+        });
+
+        // Save URL to localStorage
+        function saveWebhookUrl(url) {
+            if (!url) return;
+            // Extract a friendly name from the URL
+            const urlObj = new URL(url);
+            const pathParts = urlObj.pathname.split('/');
+            const name = `Webhook ${pathParts[pathParts.length - 1].substring(0, 8)}...`;
+
+            // Remove if exists, then add to front
+            savedUrls = savedUrls.filter(u => u.url !== url);
+            savedUrls.unshift({ url, name, timestamp: Date.now() });
+
+            // Keep only last 5
+            savedUrls = savedUrls.slice(0, 5);
+
+            localStorage.setItem('discordWebhookUrls', JSON.stringify(savedUrls));
+            renderSavedUrls();
+        }
+
+        // Render saved URLs
+        function renderSavedUrls() {
+            const container = document.getElementById('savedUrls');
+            if (savedUrls.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            container.innerHTML = '<label style="margin-bottom: 8px; display: block; font-size: 0.85rem; color: var(--text-muted);">Recent Webhooks</label>';
+            savedUrls.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'saved-url-item';
+                div.innerHTML = `
+                    <span class="url" title="${item.url}">${item.name}</span>
+                    <button class="btn btn-secondary" onclick="loadUrl(${index})">Use</button>
+                    <button class="btn btn-danger btn-small" onclick="deleteUrl(${index})">×</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Load saved URL
+        function loadUrl(index) {
+            document.getElementById('webhookUrl').value = savedUrls[index].url;
+            updatePreview();
+        }
+
+        // Delete saved URL
+        function deleteUrl(index) {
+            savedUrls.splice(index, 1);
+            localStorage.setItem('discordWebhookUrls', JSON.stringify(savedUrls));
+            renderSavedUrls();
+        }
+
+        // Add Embed
+        function addEmbed(data = null) {
+            const embedIndex = embeds.length;
+            embeds.push({
+                title: data?.title || '',
+                description: data?.description || '',
+                color: data?.color || '#00ffff',
+                fields: data?.fields || [],
+                footer: data?.footer || '',
+                footerIcon: data?.footerIcon || '',
+                thumbnail: data?.thumbnail || '',
+                image: data?.image || ''
+            });
+            renderEmbeds();
+            updatePreview();
+        }
+
+        // Remove Embed
+        function removeEmbed(index) {
+            embeds.splice(index, 1);
+            renderEmbeds();
+            updatePreview();
+        }
+
+        // Add Field to Embed
+        function addField(embedIndex) {
+            embeds[embedIndex].fields.push({
+                name: '',
+                value: '',
+                inline: false
+            });
+            renderEmbeds();
+            updatePreview();
+        }
+
+        // Remove Field
+        function removeField(embedIndex, fieldIndex) {
+            embeds[embedIndex].fields.splice(fieldIndex, 1);
+            renderEmbeds();
+            updatePreview();
+        }
+
+        // Render Embed Builders
+        function renderEmbeds() {
+            const container = document.getElementById('embedsContainer');
+            container.innerHTML = '';
+
+            embeds.forEach((embed, embedIndex) => {
+                const div = document.createElement('div');
+                div.className = 'embed-builder';
+                div.innerHTML = `
+                    <div class="embed-builder-header">
+                        <h3>📦 Embed ${embedIndex + 1}</h3>
+                        <button class="btn btn-danger btn-small" onclick="removeEmbed(${embedIndex})">Remove</button>
+                    </div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" value="${escapeHtml(embed.title)}" 
+                                   onchange="updateEmbed(${embedIndex}, 'title', this.value)" 
+                                   placeholder="Embed title" />
+                        </div>
+                        <div class="form-group">
+                            <label>Color</label>
+                            <div class="color-row">
+                                <input type="color" value="${embed.color}" 
+                                       onchange="updateEmbed(${embedIndex}, 'color', this.value)" />
+                                <input type="text" value="${embed.color}" 
+                                       onchange="updateEmbed(${embedIndex}, 'color', this.value)" 
+                                       placeholder="#00ffff" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea onchange="updateEmbed(${embedIndex}, 'description', this.value)" 
+                                  placeholder="Embed description...">${escapeHtml(embed.description)}</textarea>
+                    </div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Thumbnail URL</label>
+                            <input type="url" value="${escapeHtml(embed.thumbnail)}" 
+                                   onchange="updateEmbed(${embedIndex}, 'thumbnail', this.value)" 
+                                   placeholder="https://..." />
+                        </div>
+                        <div class="form-group">
+                            <label>Image URL</label>
+                            <input type="url" value="${escapeHtml(embed.image)}" 
+                                   onchange="updateEmbed(${embedIndex}, 'image', this.value)" 
+                                   placeholder="https://..." />
+                        </div>
+                    </div>
+                    
+                    <div class="input-row">
+                        <div class="form-group">
+                            <label>Footer Text</label>
+                            <input type="text" value="${escapeHtml(embed.footer)}" 
+                                   onchange="updateEmbed(${embedIndex}, 'footer', this.value)" 
+                                   placeholder="Footer text" />
+                        </div>
+                        <div class="form-group">
+                            <label>Footer Icon URL</label>
+                            <input type="url" value="${escapeHtml(embed.footerIcon)}" 
+                                   onchange="updateEmbed(${embedIndex}, 'footerIcon', this.value)" 
+                                   placeholder="https://..." />
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Fields</label>
+                        <div id="fields-${embedIndex}">
+                            ${embed.fields.map((field, fieldIndex) => `
+                                <div class="field-item">
+                                    <div class="field-item-header">
+                                        <span>Field ${fieldIndex + 1}</span>
+                                        <button class="btn btn-danger btn-small" onclick="removeField(${embedIndex}, ${fieldIndex})">×</button>
+                                    </div>
+                                    <input type="text" value="${escapeHtml(field.name)}" 
+                                           onchange="updateField(${embedIndex}, ${fieldIndex}, 'name', this.value)" 
+                                           placeholder="Field name" style="margin-bottom: 10px;" />
+                                    <input type="text" value="${escapeHtml(field.value)}" 
+                                           onchange="updateField(${embedIndex}, ${fieldIndex}, 'value', this.value)" 
+                                           placeholder="Field value" />
+                                    <div class="checkbox-group">
+                                        <input type="checkbox" id="inline-${embedIndex}-${fieldIndex}" 
+                                               ${field.inline ? 'checked' : ''} 
+                                               onchange="updateField(${embedIndex}, ${fieldIndex}, 'inline', this.checked)" />
+                                        <label for="inline-${embedIndex}-${fieldIndex}" style="margin: 0;">Inline</label>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <button class="btn btn-secondary btn-small" onclick="addField(${embedIndex})" style="margin-top: 10px;">
+                            + Add Field
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // Update Embed Property
+        function updateEmbed(embedIndex, property, value) {
+            embeds[embedIndex][property] = value;
+            if (property === 'color') {
+                // Sync color inputs
+                const embedBuilders = document.querySelectorAll('.embed-builder');
+                const colorInputs = embedBuilders[embedIndex].querySelectorAll('.color-row input');
+                colorInputs[0].value = value;
+                colorInputs[1].value = value;
+            }
+            updatePreview();
+        }
+
+        // Update Field Property
+        function updateField(embedIndex, fieldIndex, property, value) {
+            embeds[embedIndex].fields[fieldIndex][property] = value;
+            updatePreview();
+        }
+
+        // Update Preview
+        function updatePreview() {
+            const username = document.getElementById('username').value || 'Webhook';
+            const avatarUrl = document.getElementById('avatarUrl').value;
+            const content = document.getElementById('content').value;
+
+            const container = document.getElementById('previewContainer');
+
+            if (!content && embeds.length === 0 && !username) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        <p>Start typing to see a preview</p>
+                    </div>
+                `;
+                return;
+            }
+
+            let html = `<div class="preview-message">`;
+            html += `<div class="preview-avatar">`;
+            if (avatarUrl) {
+                html += `<img src="${escapeHtml(avatarUrl)}" onerror="this.style.display='none';this.nextElementSibling.style.display='block';" />`;
+                html += `<svg viewBox="0 0 24 24" style="display:none;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>`;
+            } else {
+                html += `<svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>`;
+            }
+            html += `</div>`;
+
+            html += `<div class="preview-content">`;
+            html += `<div class="preview-header">`;
+            html += `<span class="preview-username">${escapeHtml(username)}</span>`;
+            html += `<span class="preview-timestamp">Today at ${new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</span>`;
+            html += `</div>`;
+
+            if (content) {
+                html += `<div class="preview-text">${escapeHtml(content)}</div>`;
+            }
+
+            // Render embeds
+            embeds.forEach(embed => {
+                const colorHex = embed.color || '#00ffff';
+                html += `<div class="preview-embed">`;
+                html += `<div class="embed-color-bar" style="background-color: ${colorHex};"></div>`;
+                html += `<div class="embed-content">`;
+
+                // Thumbnail
+                if (embed.thumbnail) {
+                    html += `<div class="embed-thumbnail"><img src="${escapeHtml(embed.thumbnail)}" onerror="this.style.display='none'" /></div>`;
+                }
+
+                html += `<div class="embed-main">`;
+
+                // Title
+                if (embed.title) {
+                    html += `<div class="embed-title">${escapeHtml(embed.title)}</div>`;
+                }
+
+                // Description
+                if (embed.description) {
+                    html += `<div class="embed-description">${escapeHtml(embed.description)}</div>`;
+                }
+
+                // Fields
+                if (embed.fields.length > 0) {
+                    html += `<div class="embed-fields" style="display: flex; flex-wrap: wrap; gap: 8px;">`;
+                    embed.fields.forEach(field => {
+                        if (field.name || field.value) {
+                            html += `<div class="embed-field ${field.inline ? 'inline' : ''}" style="${field.inline ? 'width: calc(50% - 8px);' : 'width: 100%;'}">`;
+                            if (field.name) {
+                                html += `<div class="embed-field-name">${escapeHtml(field.name)}</div>`;
+                            }
+                            if (field.value) {
+                                html += `<div class="embed-field-value">${escapeHtml(field.value)}</div>`;
+                            }
+                            html += `</div>`;
+                        }
+                    });
+                    html += `</div>`;
+                }
+
+                // Image
+                if (embed.image) {
+                    html += `<img class="embed-image" src="${escapeHtml(embed.image)}" onerror="this.style.display='none'" />`;
+                }
+
+                // Footer
+                if (embed.footer) {
+                    html += `<div class="embed-footer">`;
+                    if (embed.footerIcon) {
+                        html += `<img class="embed-footer-icon" src="${escapeHtml(embed.footerIcon)}" onerror="this.style.display='none'" />`;
+                    }
+                    html += `<span>${escapeHtml(embed.footer)}</span>`;
+                    html += `</div>`;
+                }
+
+                html += `</div></div></div>`;
+            });
+
+            html += `</div></div>`;
+
+            container.innerHTML = html;
+        }
+
+        // Load Template
+        function loadTemplate(type) {
+            clearAll();
+
+            switch(type) {
+                case 'alert':
+                    document.getElementById('content').value = '@everyone ⚠️ **Attention Required**';
+                    addEmbed({
+                        title: '🚨 Alert',
+                        description: 'Something needs your immediate attention!\n\nPlease check the system status.',
+                        color: '#ff4757',
+                        footer: 'System Alert',
+                        fields: [
+                            { name: 'Severity', value: 'High', inline: true },
+                            { name: 'Status', value: 'Active', inline: true }
+                        ]
+                    });
+                    break;
+
+                case 'announcement':
+                    document.getElementById('content').value = '📢 **New Announcement!**';
+                    document.getElementById('username').value = 'Announcer';
+                    addEmbed({
+                        title: 'Important Update',
+                        description: 'We have exciting news to share with everyone!\n\nStay tuned for more details.',
+                        color: '#00ffff',
+                        footer: 'Posted by Admin',
+                        fields: [
+                            { name: 'Date', value: new Date().toLocaleDateString(), inline: true },
+                            { name: 'Category', value: 'General', inline: true }
+                        ]
+                    });
+                    break;
+
+                case 'status':
+                    document.getElementById('username').value = 'Bot Status';
+                    addEmbed({
+                        title: '🤖 Bot Status Report',
+                        description: 'All systems operational.',
+                        color: '#00ff88',
+                        footer: 'Auto-generated status',
+                        fields: [
+                            { name: 'Uptime', value: '99.9%', inline: true },
+                            { name: 'Latency', value: '42ms', inline: true },
+                            { name: 'Status', value: '✅ Online', inline: true }
+                        ]
+                    });
+                    break;
+            }
+
+            renderEmbeds();
+            updatePreview();
+        }
+
+        // Clear All
+        function clearAll() {
+            document.getElementById('username').value = '';
+            document.getElementById('avatarUrl').value = '';
+            document.getElementById('content').value = '';
+            embeds = [];
+            renderEmbeds();
+            updatePreview();
+            hideStatus();
+        }
+
+        // Send Webhook
+        async function sendWebhook() {
+            const webhookUrl = document.getElementById('webhookUrl').value;
+            const username = document.getElementById('username').value;
+            const avatarUrl = document.getElementById('avatarUrl').value;
+            const content = document.getElementById('content').value;
+
+            if (!webhookUrl) {
+                showStatus('error', 'Please enter a webhook URL');
+                return;
+            }
+
+            // Validate URL
+            try {
+                new URL(webhookUrl);
+            } catch {
+                showStatus('error', 'Invalid webhook URL format');
+                return;
+            }
+
+            const sendBtn = document.getElementById('sendBtn');
+            sendBtn.disabled = true;
+            sendBtn.textContent = '⏳ Sending...';
+
+            // Build payload
+            const payload = {};
+
+            if (content) payload.content = content;
+            if (username) payload.username = username;
+            if (avatarUrl) payload.avatar_url = avatarUrl;
+
+            if (embeds.length > 0) {
+                payload.embeds = embeds.map(embed => {
+                    const embedObj = {};
+
+                    if (embed.title) embedObj.title = embed.title;
+                    if (embed.description) embedObj.description = embed.description;
+                    if (embed.color) embedObj.color = parseInt(embed.color.replace('#', ''), 16);
+
+                    if (embed.fields.length > 0) {
+                        embedObj.fields = embed.fields
+                            .filter(f => f.name || f.value)
+                            .map(f => ({
+                                name: f.name || '\u200b',
+                                value: f.value || '\u200b',
+                                inline: f.inline
+                            }));
+                    }
+
+                    if (embed.footer) {
+                        embedObj.footer = { text: embed.footer };
+                        if (embed.footerIcon) embedObj.footer.icon_url = embed.footerIcon;
+                    }
+
+                    if (embed.thumbnail) embedObj.thumbnail = { url: embed.thumbnail };
+                    if (embed.image) embedObj.image = { url: embed.image };
+
+                    return embedObj;
+                }).filter(e => Object.keys(e).length > 0);
+            }
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok || response.status === 204) {
+                    showStatus('success', '✅ Webhook sent successfully!');
+                    saveWebhookUrl(webhookUrl);
+                } else {
+                    const text = await response.text();
+                    showStatus('error', `❌ Failed: ${response.status} ${response.statusText}${text ? ' - ' + text : ''}`);
+                }
+            } catch (error) {
+                showStatus('error', `❌ Error: ${error.message}`);
+            }
+
+            sendBtn.disabled = false;
+            sendBtn.textContent = '🚀 Send Webhook';
+        }
+
+        // Show Status
+        function showStatus(type, message) {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.className = `status-message ${type}`;
+            statusEl.textContent = message;
+        }
+
+        // Hide Status
+        function hideStatus() {
+            const statusEl = document.getElementById('statusMessage');
+            statusEl.className = 'status-message';
+            statusEl.textContent = '';
+        }
+
+        // Escape HTML
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+    </script>
+</body>
+</html>

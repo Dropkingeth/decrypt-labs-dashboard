@@ -1849,6 +1849,58 @@
       100% { background-position: 200% 0; }
     }
 
+    /* Beta Tab Styles */
+    .status-badge.review { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+    .status-badge.approved { background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
+    .status-badge.rejected { background: rgba(244, 67, 54, 0.2); color: #f44336; border: 1px solid rgba(244, 67, 54, 0.3); }
+    .status-badge.live { background: rgba(0, 188, 212, 0.2); color: #00bcd4; border: 1px solid rgba(0, 188, 212, 0.3); }
+
+    .beta-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .beta-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: #ccc;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+    
+    .beta-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .beta-btn.approve:hover { background: rgba(76, 175, 80, 0.2); border-color: #4caf50; color: #4caf50; }
+    .beta-btn.reject:hover { background: rgba(244, 67, 54, 0.2); border-color: #f44336; color: #f44336; }
+    .beta-btn.golive:hover { background: rgba(0, 188, 212, 0.2); border-color: #00bcd4; color: #00bcd4; }
+    .beta-btn.rebuild:hover { background: rgba(255, 152, 0, 0.2); border-color: #ff9800; color: #ff9800; }
+
+    .stats-pill-container {
+        display: flex;
+        gap: 15px;
+    }
+    .stats-pill {
+        background: rgba(0,0,0,0.3);
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        border: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
     /* ═══════════════════ ACCESS CONTROL & WALLET SCANNER ═══════════════════ */
     .ac-stats-row {
       display: grid;
@@ -2302,6 +2354,58 @@
       border: 2px solid transparent;
     }
     .bill-color-picker .color-opt.active { border-color: #fff; box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+    /* Beta Tab Styles */
+    .status-badge.review { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid rgba(255, 193, 7, 0.3); }
+    .status-badge.approved { background: rgba(76, 175, 80, 0.2); color: #4caf50; border: 1px solid rgba(76, 175, 80, 0.3); }
+    .status-badge.rejected { background: rgba(244, 67, 54, 0.2); color: #f44336; border: 1px solid rgba(244, 67, 54, 0.3); }
+    .status-badge.live { background: rgba(0, 188, 212, 0.2); color: #00bcd4; border: 1px solid rgba(0, 188, 212, 0.3); }
+
+    .beta-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+    
+    .beta-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.05);
+      color: #ccc;
+      cursor: pointer;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+    
+    .beta-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(-1px);
+    }
+
+    .beta-btn.approve:hover { background: rgba(76, 175, 80, 0.2); border-color: #4caf50; color: #4caf50; }
+    .beta-btn.reject:hover { background: rgba(244, 67, 54, 0.2); border-color: #f44336; color: #f44336; }
+    .beta-btn.golive:hover { background: rgba(0, 188, 212, 0.2); border-color: #00bcd4; color: #00bcd4; }
+    .beta-btn.rebuild:hover { background: rgba(255, 152, 0, 0.2); border-color: #ff9800; color: #ff9800; }
+
+    .stats-pill-container {
+        display: flex;
+        gap: 15px;
+    }
+    .stats-pill {
+        background: rgba(0,0,0,0.3);
+        padding: 5px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        border: 1px solid rgba(255,255,255,0.05);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
   </style>
 </head>
 <body>
@@ -2357,6 +2461,10 @@
   <div class="nav-tab" data-tab="forge">
     <span class="icon">🔨</span>
     <span>The Forge</span>
+  </div>
+  <div class="nav-tab" data-tab="beta">
+    <span class="icon">🧪</span>
+    <span>Beta</span>
   </div>
   <div class="nav-spacer"></div>
   <div class="server-status" id="server-status">
@@ -3116,7 +3224,192 @@
           document.getElementById('holder-connect-box').style.display = 'none';
           document.getElementById('holder-view').style.display = 'block';
         }
-      </script>
+        // --- BETA LOGIC ---
+
+    async function loadBetaBuilds() {
+      const container = document.getElementById('beta-builds-grid');
+      const statsContainer = document.getElementById('beta-stats');
+      container.innerHTML = '<div class="loading">Loading Beta Lab...</div>';
+
+      try {
+        const res = await fetch('/api/fountain/builds');
+        if (!res.ok) throw new Error('Failed to load builds');
+        const allBuilds = await res.json();
+        
+        // Filter: exclude 'queued' and 'building'
+        const builds = allBuilds.filter(b => b.status !== 'queued' && b.status !== 'building' && b.status !== 'archived');
+
+        // Calculate stats
+        const reviewCount = builds.filter(b => b.status === 'review' || b.status === 'done').length;
+        const approvedCount = builds.filter(b => b.status === 'approved' || b.status === 'live').length;
+        const rejectedCount = builds.filter(b => b.status === 'rejected').length;
+        
+        statsContainer.innerHTML = `
+            <div class="stats-pill"><span style="color:#ffc107">●</span> In Review: ${reviewCount}</div>
+            <div class="stats-pill"><span style="color:#4caf50">●</span> Approved: ${approvedCount}</div>
+            <div class="stats-pill"><span style="color:#f44336">●</span> Rejected: ${rejectedCount}</div>
+        `;
+
+        container.innerHTML = '';
+        
+        if (builds.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🧪</div>
+              <h3>No builds ready for review</h3>
+              <p>Queue something in The Forge to see it here!</p>
+            </div>`;
+          return;
+        }
+
+        // Sort: review first, then by date descending
+        builds.sort((a, b) => {
+            const priority = { 'done': 0, 'review': 0, 'approved': 1, 'live': 1, 'rejected': 2 };
+            if (priority[a.status] !== priority[b.status]) return priority[a.status] - priority[b.status];
+            return new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+        });
+
+        builds.forEach(build => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          
+          let statusClass = build.status;
+          let statusLabel = build.status.charAt(0).toUpperCase() + build.status.slice(1);
+          
+          if (build.status === 'done') {
+             statusClass = 'review'; // treat 'done' as 'review' for visual consistency if backend hasn't updated yet
+             statusLabel = 'Ready for Review';
+          } else if (build.status === 'review') {
+             statusLabel = 'Ready for Review';
+          } else if (build.status === 'live') {
+             statusLabel = '🚀 Live';
+          }
+
+          const tagsHtml = (build.stack || []).map(t => `<span class="tag">${t}</span>`).join('');
+          const cost = build.cost ? `$${build.cost.toFixed(4)}` : 'Unknown';
+          const dateStr = new Date(build.timestamp).toLocaleString();
+
+          // Auto-detect preview URL from build name/description
+          const buildSlugMap = {
+            'YouTube Transcriber': 'youtube-transcriber',
+            'Crypto Portfolio Tracker': 'crypto-portfolio',
+            'Crypto Portfolio': 'crypto-portfolio',
+            'Discord Webhook Tester': 'discord-webhook-tester',
+            'Discord Webhook': 'discord-webhook-tester',
+            'Trading Journal': 'trading-journal',
+            'OpenClaw Templates': 'openclaw-templates'
+          };
+          let previewUrl = build.outputUrl || build.previewUrl || '';
+          if (!previewUrl && build.name) {
+            const slug = buildSlugMap[build.name];
+            if (slug) previewUrl = '/beta-preview/' + slug;
+          }
+          let previewBtn = '';
+          if (previewUrl) {
+              previewBtn = `<button class="beta-btn" onclick="openBetaPreview('${previewUrl}', '${(build.name || build.title || 'Build').replace(/'/g, '')}')">👁️ Preview</button>`;
+          }
+
+          // Action buttons logic based on status
+          let actionsHtml = '';
+          
+          if (build.status === 'done' || build.status === 'review') {
+             actionsHtml = `
+                <button class="beta-btn approve" onclick="updateBuildStatus('${build.id}', 'approved')">✅ Approve</button>
+                <button class="beta-btn" onclick="sendToTitan('${build.id}')" style="background:#ff980020;color:#ff9800;border:1px solid #ff980040;">🔄 Send to Titan</button>
+                <button class="beta-btn reject" onclick="updateBuildStatus('${build.id}', 'rejected')">❌ Reject</button>
+                <button class="beta-btn" onclick="updateBuildStatus('${build.id}', 'archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+             `;
+          } else if (build.status === 'approved') {
+             actionsHtml = `
+                <button class="beta-btn golive" onclick="updateBuildStatus('${build.id}', 'live')">🚀 Go Live</button>
+                <button class="beta-btn reject" onclick="updateBuildStatus('${build.id}', 'rejected')">❌ Revoke</button>
+                <button class="beta-btn" onclick="updateBuildStatus('${build.id}', 'archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+             `;
+          } else if (build.status === 'rejected') {
+             actionsHtml = `
+                <button class="beta-btn rebuild" onclick="updateBuildStatus('${build.id}', 'queued')">🔄 Rebuild</button>
+                <button class="beta-btn approve" onclick="updateBuildStatus('${build.id}', 'approved')">✅ Re-Approve</button>
+             `;
+          } else if (build.status === 'live') {
+             actionsHtml = `
+                 <button class="beta-btn" disabled style="opacity:0.5">Live & Deployed</button>
+             `;
+          }
+
+          card.innerHTML = `
+            <div class="card-header">
+              <h3 class="card-title">${build.name || 'Untitled Build'}</h3>
+              <span class="status-badge ${statusClass}">${statusLabel}</span>
+            </div>
+            <div class="card-meta">
+               <span>${dateStr}</span> • <span>Cost: ${cost}</span>
+            </div>
+            <div class="tags">${tagsHtml}</div>
+            <p>${build.description || 'No description provided.'}</p>
+            
+            <div class="beta-actions">
+               ${previewBtn}
+               ${actionsHtml}
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div class="error">Error loading Beta Lab: ${err.message}</div>`;
+      }
+    }
+
+    async function updateBuildStatus(id, newStatus) {
+        try {
+            const res = await fetch(`/api/fountain/builds/${id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status: newStatus })
+            });
+            if (!res.ok) throw new Error('Update failed');
+            loadBetaBuilds(); // Refresh UI
+            showToast(`Build marked as ${newStatus}`, 'success');
+        } catch(err) {
+            console.error(err);
+            showToast('Failed to update build status', 'error');
+        }
+    }
+
+    function openBetaPreview(url, name) {
+      let overlay = document.getElementById('beta-preview-overlay');
+      if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'beta-preview-overlay';
+        overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.9);z-index:10000;display:flex;flex-direction:column;padding:16px;';
+        overlay.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+            <h3 id="beta-preview-title" style="color:#00ffff;margin:0;font-size:16px;">Preview</h3>
+            <div style="display:flex;gap:8px;">
+              <a id="beta-preview-newtab" href="#" target="_blank" style="color:#00ff88;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid #00ff8840;border-radius:6px;">↗ Open in New Tab</a>
+              <button onclick="closeBetaPreview()" style="background:#ff525230;color:#ff5252;border:1px solid #ff525240;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;">✕ Close</button>
+            </div>
+          </div>
+          <iframe id="beta-preview-iframe" style="flex:1;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:#0a0a0f;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+        `;
+        document.body.appendChild(overlay);
+      }
+      overlay.style.display = 'flex';
+      document.getElementById('beta-preview-title').textContent = '🧪 Preview: ' + name;
+      document.getElementById('beta-preview-newtab').href = url;
+      document.getElementById('beta-preview-iframe').src = url;
+    }
+
+    function closeBetaPreview() {
+      const overlay = document.getElementById('beta-preview-overlay');
+      if (overlay) {
+        overlay.style.display = 'none';
+        document.getElementById('beta-preview-iframe').src = '';
+      }
+    }
+
+  </script>
     </div>
 
     <!-- Section: ICT Signals Feed -->
@@ -3617,6 +3910,37 @@
           <div style="font-size:40px;opacity:0.3;margin-bottom:8px;">🔨</div>
           <div>Forge is empty. Send an idea from The Fountain!</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BETA TAB -->
+  <div id="tab-beta" class="tab-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div>
+        <h2 style="margin:0;font-size:20px;">🧪 Beta Lab — Review & Approve Builds</h2>
+        <p style="color:#888;font-size:13px;margin:4px 0 0;">Completed Forge builds waiting for your review</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <span id="titan-status" style="font-size:12px;">💤 Titan Idle</span>
+        <span id="beta-stats" style="font-size:12px;color:#888;"></span>
+      </div>
+    </div>
+
+    <div id="titan-workshop" style="margin-bottom:30px;display:none;">
+      <h3 style="color:#ff9800;font-size:14px;margin-bottom:12px;">🔨 Titan\'s Workshop <span id="titan-count" style="font-size:12px;color:#666;"></span></h3>
+      <div id="titan-workshop-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:12px;"></div>
+    </div>
+
+    <h3 style="color:#00ffff;font-size:14px;margin-bottom:12px;">📋 Ready for Review</h3>
+    <div id="beta-builds-grid" class="cards-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap:20px;">
+      <div class="loading">Loading Beta Lab...</div>
+    </div>
+
+    <div style="margin-top:40px;border-top:1px solid rgba(255,255,255,0.05);padding-top:20px;">
+      <h3 style="color:#9e9e9e;font-size:14px;margin-bottom:12px;">📦 Archive</h3>
+      <div id="beta-archive-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap:12px;">
+        <div style="color:#666;font-size:13px;padding:20px;text-align:center;">No archived builds</div>
       </div>
     </div>
   </div>
@@ -5751,6 +6075,7 @@ loadLoungeMessages();
 
 // ═══════════════════ THE FOUNTAIN ═══════════════════
 const FOUNTAIN_AGENTS = {
+  titan: { name: 'Titan', emoji: '🔨', color: '#ff5252', role: 'Lead Builder — GLM-5', leader: true },
   scout: { name: 'Scout', emoji: '🔭', color: '#4fc3f7', role: 'Trend Hunter' },
   spark: { name: 'Spark', emoji: '⚡', color: '#ffb74d', role: 'Idea Generator' },
   forge: { name: 'Forge', emoji: '🔨', color: '#e57373', role: 'Builder Assessment' },
@@ -5766,9 +6091,9 @@ function renderFountainAgentsBar() {
   if (!bar) return;
   bar.style.cssText = 'display:flex;gap:12px;flex-wrap:wrap;justify-content:center;';
   bar.innerHTML = Object.entries(FOUNTAIN_AGENTS).map(([key, a]) => `
-    <div class="ft-agent-badge" style="background:${a.color}15;border:1px solid ${a.color}40;">
-      <span style="font-size:16px;">${a.emoji}</span>
-      <span style="color:${a.color};">${a.name}</span>
+    <div class="ft-agent-badge" style="background:${a.color}15;border:1px solid ${a.leader ? a.color : a.color + '40'};${a.leader ? 'box-shadow:0 0 12px ' + a.color + '30;transform:scale(1.08);' : ''}">
+      <span style="font-size:${a.leader ? '20px' : '16px'};">${a.emoji}</span>
+      <span style="color:${a.color};${a.leader ? 'font-weight:700;' : ''}">${a.name}${a.leader ? ' 👑' : ''}</span>
       <span style="color:var(--text-dim);font-weight:400;font-size:10px;">${a.role}</span>
     </div>
   `).join('');
@@ -6117,12 +6442,12 @@ function queueBuildById(id) {
   if (idea) queueBuild(idea);
 }
 
-// Load Forge data when tab clicked
+// Load Forge/Beta data when tab clicked
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
-    if (tab.getAttribute('data-tab') === 'forge') {
-      fetchForgeBuilds();
-    }
+    const t = tab.getAttribute('data-tab');
+    if (t === 'forge') fetchForgeBuilds();
+    if (t === 'beta') loadBetaBuilds();
   });
 });
 
@@ -6334,6 +6659,551 @@ function goToCurrentBillMonth() {
 
 // Initial render
 renderBillsCalendar();
+
+// --- BETA LOGIC ---
+async function loadBetaBuilds() {
+  const container = document.getElementById('beta-builds-grid');
+  const statsContainer = document.getElementById('beta-stats');
+  container.innerHTML = '<div class="loading">Loading Beta Lab...</div>';
+
+  try {
+    const res = await fetch('/api/fountain/builds');
+    if (!res.ok) throw new Error('Failed to load builds');
+    const allBuilds = await res.json();
+    
+    // Filter: exclude 'queued' and 'building'
+    const builds = allBuilds.filter(b => b.status !== 'queued' && b.status !== 'building' && b.status !== 'archived');
+
+    // Calculate stats
+    const reviewCount = builds.filter(b => b.status === 'review' || b.status === 'done').length;
+    const approvedCount = builds.filter(b => b.status === 'approved' || b.status === 'live').length;
+    const rejectedCount = builds.filter(b => b.status === 'rejected').length;
+    
+    if (statsContainer) {
+        statsContainer.innerHTML = `
+            <div class="stats-pill"><span style="color:#ffc107">●</span> In Review: ${reviewCount}</div>
+            <div class="stats-pill"><span style="color:#4caf50">●</span> Approved: ${approvedCount}</div>
+            <div class="stats-pill"><span style="color:#f44336">●</span> Rejected: ${rejectedCount}</div>
+        `;
+    }
+
+
+    // === TITAN'S WORKSHOP (queued + building) ===
+    const wShop = document.getElementById('titan-workshop');
+    const wGrid = document.getElementById('titan-workshop-grid');
+    if (wShop && wGrid) {
+      const inProgress = allBuilds.filter(b => b.status === 'queued' || b.status === 'building');
+      if (inProgress.length > 0) {
+        wShop.style.display = 'block';
+        const wCount = document.getElementById('titan-count');
+        if (wCount) wCount.textContent = '(' + inProgress.length + ' active)';
+        wGrid.innerHTML = '';
+        inProgress.forEach(b => {
+          const card = document.createElement('div');
+          card.className = 'beta-card';
+          card.style.border = b.status === 'building' ? '1px solid #ff9800' : '1px solid #666';
+          const nm = b.name || b.title || 'Untitled';
+          const dot = b.status === 'building' 
+            ? '<span style="display:inline-block;width:8px;height:8px;background:#ff9800;border-radius:50%;animation:pulse 1.5s infinite;margin-right:6px;"></span>Titan is building...'
+            : '<span style="display:inline-block;width:8px;height:8px;background:#ffc107;border-radius:50%;margin-right:6px;"></span>Queued for Titan';
+          card.innerHTML = `<div class="card-header"><h3 class="card-title">${nm}</h3><span style="font-size:11px;color:${b.status === 'building' ? '#ff9800' : '#ffc107'};display:flex;align-items:center;">${dot}</span></div>`
+            + `<p style="font-size:12px;color:#888;margin:6px 0;">${b.description || ''}</p>`
+            + (b.feedback ? `<div style="font-size:11px;color:#00ffff;margin:6px 0;padding:6px 8px;background:#00ffff08;border-radius:4px;border-left:2px solid #00ffff40;">\u{1f4dd} ${b.feedback.substring(0,200)}${b.feedback.length > 200 ? '...' : ''}</div>` : '');
+          wGrid.appendChild(card);
+        });
+      } else {
+        wShop.style.display = 'none';
+      }
+    }
+
+    // === ARCHIVE SECTION ===
+    const archDiv = document.getElementById('beta-archive-grid');
+    if (archDiv) {
+      const archived = allBuilds.filter(b => b.status === 'archived');
+      if (archived.length === 0) {
+        archDiv.innerHTML = '<div style="color:#666;font-size:13px;padding:20px;text-align:center;">No archived builds</div>';
+      } else {
+        archDiv.innerHTML = '';
+        archived.forEach(b => {
+          const card = document.createElement('div');
+          card.className = 'beta-card';
+          card.style.opacity = '0.6';
+          const nm = b.name || b.title || 'Untitled';
+          card.innerHTML = `<div class="card-header"><h3 class="card-title" style="font-size:13px;">${nm}</h3><span class="status-badge" style="background:#9e9e9e20;color:#9e9e9e;">Archived</span></div>`
+            + `<p style="font-size:12px;color:#666;margin:6px 0;">${b.description || ''}</p>`
+            + (b.feedback ? `<div style="font-size:11px;color:#ff9800;margin:4px 0;">\u{1f4dd} ${b.feedback}</div>` : '')
+            + `<div class="beta-actions" style="margin-top:8px;"><button class="beta-btn" onclick="updateBetaStatus('${b.id}', 'review')" style="background:#00ffff15;color:#00ffff;border:1px solid #00ffff30;font-size:11px;">\u267b\ufe0f Restore</button></div>`;
+          archDiv.appendChild(card);
+        });
+      }
+    }
+
+    container.innerHTML = '';
+    
+    if (builds.length === 0) {
+      container.innerHTML = `
+        <div class="empty-state" style="grid-column: 1/-1;">
+          <div class="icon">🧪</div>
+          <h3>No builds ready for review</h3>
+          <p>Queue something in The Forge to see it here!</p>
+        </div>`;
+      return;
+    }
+
+    // Sort: review/done first, then by date descending
+    builds.sort((a, b) => {
+        const priority = { 'done': 0, 'review': 0, 'approved': 1, 'live': 1, 'rejected': 2 };
+        const pA = priority[a.status] !== undefined ? priority[a.status] : 99;
+        const pB = priority[b.status] !== undefined ? priority[b.status] : 99;
+        
+        if (pA !== pB) return pA - pB;
+        return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
+    });
+
+    builds.forEach(build => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      
+      let statusClass = build.status;
+      let statusLabel = build.status.charAt(0).toUpperCase() + build.status.slice(1);
+      
+      if (build.status === 'done') {
+         statusClass = 'review'; // treat 'done' as 'review' for visual consistency if backend hasn't updated yet
+         statusLabel = 'Ready for Review';
+      } else if (build.status === 'review') {
+         statusLabel = 'Ready for Review';
+      } else if (build.status === 'live') {
+         statusLabel = '🚀 Live';
+      }
+
+      const tagsHtml = (build.stack || []).map(t => `<span class="tag">${t}</span>`).join('');
+      const cost = build.costEstimate || 'Unknown';
+      const dateStr = new Date(build.createdAt).toLocaleString();
+
+      // Auto-detect preview URL from build name
+      const slugMap2 = {
+        'YouTube Transcriber': 'youtube-transcriber',
+        'Crypto Portfolio Tracker': 'crypto-portfolio',
+        'Discord Webhook Tester': 'discord-webhook-tester',
+        'Trading Journal': 'trading-journal',
+        'OpenClaw Templates': 'openclaw-templates'
+      };
+      const bName = build.name || build.title || '';
+      let pUrl = build.previewUrl || '';
+      if (!pUrl && bName) {
+        const sl = slugMap2[bName];
+        if (sl) pUrl = '/beta-preview/' + sl;
+      }
+      let previewBtn = '';
+      if (pUrl) {
+          previewBtn = `<button class="beta-btn" onclick="openBetaPreview('${pUrl}', '${bName.replace(/'/g, "")}')" style="background:#00ffff20;color:#00ffff;border:1px solid #00ffff40;">👁️ Preview</button>`;
+      }
+
+      // Action buttons logic based on status
+      let actionsHtml = '';
+      
+      if (build.status === 'done' || build.status === 'review' || !build.status) {
+         actionsHtml = `
+            <button class="beta-btn approve" onclick="updateBetaStatus('${build.id}', 'approved')">✅ Approve</button>
+            <button class="beta-btn reject" onclick="updateBetaStatus('${build.id}', 'rejected')">❌ Reject</button>
+                <button class="beta-btn" onclick="updateBetaStatus('${build.id}', 'archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+                <button class="beta-btn" onclick="sendToTitan('${build.id}')" style="background:#ff980020;color:#ff9800;border:1px solid #ff980040;">🔄 Send to Titan</button>
+         `;
+      } else if (build.status === 'approved') {
+         actionsHtml = `
+            <button class="beta-btn golive" onclick="updateBetaStatus('${build.id}', 'live')">🚀 Go Live</button>
+            <button class="beta-btn reject" onclick="updateBetaStatus('${build.id}', 'rejected')">❌ Revoke</button>
+                <button class="beta-btn" onclick="updateBetaStatus('${build.id}', 'archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+         `;
+      } else if (build.status === 'rejected') {
+         actionsHtml = `
+            <button class="beta-btn rebuild" onclick="updateBetaStatus('${build.id}', 'queued')">🔄 Rebuild</button>
+            <button class="beta-btn approve" onclick="updateBetaStatus('${build.id}', 'approved')">✅ Re-Approve</button>
+         `;
+      } else if (build.status === 'live') {
+         actionsHtml = `
+             <button class="beta-btn" disabled style="opacity:0.5; cursor:default;">Deployed</button>
+             <button class="beta-btn reject" onclick="updateBetaStatus('${build.id}', 'rejected')">❌ Revoke</button>
+         `;
+      }
+
+      card.innerHTML = `
+        <div class="card-header">
+          <h3 class="card-title">${build.name || build.title || 'Untitled Build'}</h3>
+          <span class="status-badge ${statusClass}">${statusLabel}</span>
+        </div>
+        <div class="card-meta" style="margin-bottom:10px; font-size:0.8rem; color:#888;">
+           <span>${dateStr}</span> • <span>Cost: ${cost}</span>
+        </div>
+        <p style="margin-bottom:15px; font-size:0.9rem; color:#aaa;">${build.description || 'No description provided.'}</p>
+        
+        <div style="margin:12px 0 8px;">
+          <div style="font-size:11px;color:#00ffff;margin-bottom:4px;font-weight:600;">📝 Feedback & Improvements</div>
+          <textarea id="feedback-${build.id}" style="width:100%;min-height:60px;background:#0a0a12;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#ccc;padding:8px;font-size:12px;resize:vertical;font-family:inherit;" placeholder="Type improvements, additions, or notes here...">${build.feedback || ''}</textarea>
+          <button onclick="saveBuildFeedback('${build.id}')" style="margin-top:4px;padding:4px 12px;background:#00ff8820;color:#00ff88;border:1px solid #00ff8840;border-radius:4px;cursor:pointer;font-size:11px;">💾 Save Notes</button>
+        </div>
+        <div class="beta-actions">
+           ${previewBtn}
+           ${actionsHtml}
+        </div>
+      `;
+      container.appendChild(card);
+    });
+
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = `<div class="error">Error loading Beta Lab: ${err.message}</div>`;
+  }
+}
+
+window.updateBetaStatus = async function(id, newStatus) {
+    try {
+        const res = await fetch(`/api/fountain/builds/${id}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: newStatus })
+        });
+        if (!res.ok) throw new Error('Update failed');
+        loadBetaBuilds(); // Refresh UI
+    } catch(err) {
+        console.error(err);
+        alert('Failed to update build status');
+    }
+}
+
+window.sendToTitan = async function(id) {
+    // Save feedback first, then requeue
+    const textarea = document.getElementById('feedback-' + id);
+    const feedback = textarea ? textarea.value : '';
+    try {
+        await fetch('/api/fountain/builds/' + id, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feedback: feedback, status: 'queued' })
+        });
+        loadBetaBuilds();
+        if (typeof showToast === 'function') showToast('Sent back to Titan with feedback!', 'success');
+        else alert('Sent back to Titan with your feedback!');
+    } catch(e) { console.error(e); alert('Failed to send to Titan'); }
+}
+
+window.saveBuildFeedback = async function(id) {
+    const textarea = document.getElementById('feedback-' + id);
+    if (!textarea) return;
+    try {
+        const res = await fetch('/api/fountain/builds/' + id, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ feedback: textarea.value })
+        });
+        if (res.ok) {
+            textarea.style.borderColor = '#00ff88';
+            setTimeout(() => { textarea.style.borderColor = 'rgba(255,255,255,0.1)'; }, 1500);
+        }
+    } catch(e) { console.error(e); }
+}
+
+
+// === BETA LAB CLEAN REBUILD ===
+// ============================================
+// BETA LAB — Clean Rebuild (Feb 12, 2026)
+// Single source of truth. No duplicates.
+// ============================================
+
+const BETA_SLUG_MAP = {
+  'YouTube Transcriber': 'youtube-transcriber',
+  'Crypto Portfolio Tracker': 'crypto-portfolio',
+  'Discord Webhook Tester': 'discord-webhook-tester',
+  'Trading Journal': 'trading-journal',
+  'OpenClaw Templates': 'openclaw-templates'
+};
+
+let betaRefreshInterval = null;
+
+// === MAIN LOAD FUNCTION ===
+async function loadBetaBuilds() {
+  const container = document.getElementById('beta-builds-grid');
+  const workshopSection = document.getElementById('titan-workshop');
+  const workshopGrid = document.getElementById('titan-workshop-grid');
+  const archiveGrid = document.getElementById('beta-archive-grid');
+  const statsEl = document.getElementById('beta-stats');
+  const titanStatus = document.getElementById('titan-status');
+
+  try {
+    const res = await fetch('/api/fountain/builds');
+    if (!res.ok) throw new Error('Failed to load builds');
+    const allBuilds = await res.json();
+
+    // Categorize
+    const inProgress = allBuilds.filter(b => b.status === 'queued' || b.status === 'building');
+    const reviewable = allBuilds.filter(b => !['queued','building','archived'].includes(b.status));
+    const archived = allBuilds.filter(b => b.status === 'archived');
+
+    // Stats
+    const reviewCount = allBuilds.filter(b => b.status === 'review' || b.status === 'done').length;
+    const approvedCount = allBuilds.filter(b => b.status === 'approved' || b.status === 'live').length;
+    const rejectedCount = allBuilds.filter(b => b.status === 'rejected').length;
+    if (statsEl) {
+      statsEl.innerHTML = `
+        <span style="color:#ffc107">●</span> In Review: ${reviewCount} &nbsp;
+        <span style="color:#4caf50">●</span> Approved: ${approvedCount} &nbsp;
+        <span style="color:#f44336">●</span> Rejected: ${rejectedCount}
+      `;
+    }
+
+    // Titan status indicator
+    const isBuilding = inProgress.some(b => b.status === 'building');
+    if (titanStatus) {
+      titanStatus.innerHTML = isBuilding
+        ? '<span style="color:#ff9800;">🔨 Titan Building...</span>'
+        : inProgress.length > 0
+          ? '<span style="color:#ffc107;">⏳ Titan Queued (' + inProgress.length + ')</span>'
+          : '<span style="color:#666;">💤 Titan Idle</span>';
+    }
+
+    // === WORKSHOP (queued/building) ===
+    if (workshopSection && workshopGrid) {
+      if (inProgress.length > 0) {
+        workshopSection.style.display = 'block';
+        const countEl = document.getElementById('titan-count');
+        if (countEl) countEl.textContent = '(' + inProgress.length + ' active)';
+        workshopGrid.innerHTML = '';
+        inProgress.forEach(b => {
+          const nm = b.name || b.title || 'Untitled';
+          const isActive = b.status === 'building';
+          const dot = isActive
+            ? '<span class="pulse-dot" style="background:#ff9800;width:8px;height:8px;display:inline-block;border-radius:50%;margin-right:6px;"></span>Building...'
+            : '<span style="background:#ffc107;width:8px;height:8px;display:inline-block;border-radius:50%;margin-right:6px;"></span>Queued';
+          const card = document.createElement('div');
+          card.className = 'beta-card';
+          card.style.border = '1px solid ' + (isActive ? '#ff9800' : '#444');
+          card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+              <h3 style="font-size:14px;color:#fff;margin:0;">${esc(nm)}</h3>
+              <span style="font-size:11px;color:${isActive?'#ff9800':'#ffc107'};display:flex;align-items:center;">${dot}</span>
+            </div>
+            <p style="font-size:12px;color:#888;margin:0 0 6px;">${esc(b.description || '')}</p>
+            ${b.feedback ? `<div style="font-size:11px;color:#00ffff;padding:6px 8px;background:#00ffff08;border-radius:4px;border-left:2px solid #00ffff40;margin-top:6px;">📝 ${esc(b.feedback.substring(0,200))}${b.feedback.length>200?'...':''}</div>` : ''}
+          `;
+          workshopGrid.appendChild(card);
+        });
+      } else {
+        workshopSection.style.display = 'none';
+      }
+    }
+
+    // === REVIEW GRID ===
+    container.innerHTML = '';
+    if (reviewable.length === 0) {
+      container.innerHTML = '<div style="grid-column:1/-1;text-align:center;color:#666;padding:40px;">No builds ready for review</div>';
+    } else {
+      reviewable.forEach(b => {
+        const nm = b.name || b.title || 'Untitled';
+        const slug = BETA_SLUG_MAP[nm];
+        const previewUrl = b.previewUrl || (slug ? '/beta-preview/' + slug : '');
+        const dateStr = new Date(b.createdAt).toLocaleString();
+        const cost = b.costEstimate || '$0.00';
+
+        // Status badge
+        let badgeColor = '#ffc107', badgeText = b.status;
+        if (b.status === 'review' || b.status === 'done') { badgeColor = '#ffc107'; badgeText = 'Ready for Review'; }
+        else if (b.status === 'approved') { badgeColor = '#4caf50'; badgeText = 'Approved'; }
+        else if (b.status === 'rejected') { badgeColor = '#f44336'; badgeText = 'Rejected'; }
+        else if (b.status === 'live') { badgeColor = '#00ffff'; badgeText = '🚀 Live'; }
+
+        // Action buttons based on status
+        let actions = '';
+        if (b.status === 'review' || b.status === 'done') {
+          actions = `
+            ${previewUrl ? `<button class="beta-btn" onclick="openBetaPreview('${previewUrl}','${esc(nm)}')" style="background:#00ffff20;color:#00ffff;border:1px solid #00ffff40;">👁️ Preview</button>` : ''}
+            <button class="beta-btn" onclick="updateBuildStatus('${b.id}','approved')" style="background:#4caf5020;color:#4caf50;border:1px solid #4caf5040;">✅ Approve</button>
+            <button class="beta-btn" onclick="updateBuildStatus('${b.id}','rejected')" style="background:#f4433620;color:#f44336;border:1px solid #f4433640;">❌ Reject</button>
+            <button class="beta-btn" onclick="updateBuildStatus('${b.id}','archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+            <button class="beta-btn" onclick="sendToTitan('${b.id}')" style="background:#ff980020;color:#ff9800;border:1px solid #ff980040;">🔄 Send to Titan</button>
+          `;
+        } else if (b.status === 'approved' || b.status === 'live') {
+          actions = `
+            ${previewUrl ? `<button class="beta-btn" onclick="openBetaPreview('${previewUrl}','${esc(nm)}')" style="background:#00ffff20;color:#00ffff;border:1px solid #00ffff40;">👁️ Preview</button>` : ''}
+            <button class="beta-btn" onclick="updateBuildStatus('${b.id}','archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+          `;
+        } else if (b.status === 'rejected') {
+          actions = `
+            <button class="beta-btn" onclick="sendToTitan('${b.id}')" style="background:#ff980020;color:#ff9800;border:1px solid #ff980040;">🔄 Send to Titan</button>
+            <button class="beta-btn" onclick="updateBuildStatus('${b.id}','archived')" style="background:#9e9e9e15;color:#9e9e9e;border:1px solid #9e9e9e30;">📦 Archive</button>
+          `;
+        }
+
+        const card = document.createElement('div');
+        card.className = 'beta-card';
+        card.innerHTML = `
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <h3 style="font-size:14px;color:#fff;margin:0;">${esc(nm)}</h3>
+            <span style="font-size:10px;padding:2px 8px;border-radius:4px;background:${badgeColor}20;color:${badgeColor};border:1px solid ${badgeColor}40;">${badgeText}</span>
+          </div>
+          <div style="font-size:11px;color:#666;margin-bottom:8px;">${dateStr} • Cost: ${cost}</div>
+          <p style="font-size:12px;color:#aaa;margin-bottom:10px;">${esc(b.description || '')}</p>
+          <div style="margin-bottom:10px;">
+            <div style="font-size:11px;color:#00ffff;margin-bottom:4px;font-weight:600;">📝 Feedback & Improvements</div>
+            <textarea id="feedback-${b.id}" style="width:100%;min-height:50px;background:#0a0a12;border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#ccc;padding:6px;font-size:12px;resize:vertical;font-family:inherit;" placeholder="Type improvements, additions, or notes...">${esc(b.feedback || '')}</textarea>
+            <button onclick="saveBuildFeedback('${b.id}')" style="margin-top:4px;padding:3px 10px;background:#00ff8820;color:#00ff88;border:1px solid #00ff8840;border-radius:4px;cursor:pointer;font-size:11px;">💾 Save Notes</button>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;">${actions}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // === ARCHIVE ===
+    if (archiveGrid) {
+      if (archived.length === 0) {
+        archiveGrid.innerHTML = '<div style="color:#666;font-size:13px;padding:20px;text-align:center;">No archived builds</div>';
+      } else {
+        archiveGrid.innerHTML = '';
+        archived.forEach(b => {
+          const nm = b.name || b.title || 'Untitled';
+          const card = document.createElement('div');
+          card.className = 'beta-card';
+          card.style.opacity = '0.6';
+          card.innerHTML = `
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <h3 style="font-size:13px;color:#aaa;margin:0;">${esc(nm)}</h3>
+              <span style="font-size:10px;padding:2px 6px;border-radius:4px;background:#9e9e9e20;color:#9e9e9e;">Archived</span>
+            </div>
+            <p style="font-size:11px;color:#666;margin:4px 0;">${esc(b.description || '')}</p>
+            ${b.feedback ? `<div style="font-size:11px;color:#ff9800;margin:4px 0;">📝 ${esc(b.feedback)}</div>` : ''}
+            <button onclick="updateBuildStatus('${b.id}','review')" style="margin-top:6px;padding:3px 10px;background:#00ffff15;color:#00ffff;border:1px solid #00ffff30;border-radius:4px;cursor:pointer;font-size:11px;">♻️ Restore</button>
+          `;
+          archiveGrid.appendChild(card);
+        });
+      }
+    }
+
+  } catch (err) {
+    console.error('Beta load error:', err);
+    if (container) container.innerHTML = '<div style="color:#f44336;padding:20px;">Error loading builds: ' + err.message + '</div>';
+  }
+}
+
+// === UPDATE BUILD STATUS ===
+async function updateBuildStatus(id, newStatus) {
+  try {
+    const res = await fetch('/api/fountain/builds/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    if (!res.ok) throw new Error('Update failed');
+    loadBetaBuilds();
+    betaToast('Build ' + (newStatus === 'archived' ? 'archived' : 'marked as ' + newStatus), 'success');
+  } catch(e) {
+    console.error(e);
+    betaToast('Failed to update build', 'error');
+  }
+}
+
+// === SAVE FEEDBACK ===
+async function saveBuildFeedback(id) {
+  const textarea = document.getElementById('feedback-' + id);
+  if (!textarea) return;
+  try {
+    const res = await fetch('/api/fountain/builds/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback: textarea.value })
+    });
+    if (res.ok) {
+      textarea.style.borderColor = '#00ff88';
+      setTimeout(() => { textarea.style.borderColor = 'rgba(255,255,255,0.1)'; }, 1500);
+      betaToast('Notes saved', 'success');
+    }
+  } catch(e) { console.error(e); }
+}
+
+// === SEND TO TITAN ===
+async function sendToTitan(id) {
+  const textarea = document.getElementById('feedback-' + id);
+  const feedback = textarea ? textarea.value : '';
+  try {
+    await fetch('/api/fountain/builds/' + id, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ feedback: feedback, status: 'queued' })
+    });
+    loadBetaBuilds();
+    betaToast('Sent to Titan with feedback!', 'success');
+  } catch(e) {
+    console.error(e);
+    betaToast('Failed to send to Titan', 'error');
+  }
+}
+
+// === PREVIEW OVERLAY ===
+function openBetaPreview(url, name) {
+  let overlay = document.getElementById('beta-preview-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'beta-preview-overlay';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.92);z-index:10000;display:flex;flex-direction:column;padding:16px;';
+    overlay.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+        <h3 id="beta-preview-title" style="color:#00ffff;margin:0;font-size:16px;">Preview</h3>
+        <div style="display:flex;gap:8px;">
+          <a id="beta-preview-newtab" href="#" target="_blank" style="color:#00ff88;font-size:13px;text-decoration:none;padding:6px 12px;border:1px solid #00ff8840;border-radius:6px;">↗ New Tab</a>
+          <button onclick="closeBetaPreview()" style="background:#ff525230;color:#ff5252;border:1px solid #ff525240;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:13px;">✕ Close</button>
+        </div>
+      </div>
+      <iframe id="beta-preview-iframe" style="flex:1;border:1px solid rgba(255,255,255,0.1);border-radius:8px;background:#0a0a0f;" sandbox="allow-scripts allow-same-origin allow-forms allow-popups"></iframe>
+    `;
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'flex';
+  document.getElementById('beta-preview-title').textContent = '🧪 ' + name;
+  document.getElementById('beta-preview-newtab').href = url;
+  document.getElementById('beta-preview-iframe').src = url;
+}
+
+function closeBetaPreview() {
+  const overlay = document.getElementById('beta-preview-overlay');
+  if (overlay) {
+    overlay.style.display = 'none';
+    document.getElementById('beta-preview-iframe').src = '';
+  }
+}
+
+// === TOAST ===
+function betaToast(msg, type) {
+  if (typeof showToast === 'function') { showToast(msg, type); return; }
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:20px;right:20px;padding:10px 20px;border-radius:8px;z-index:10001;font-size:13px;color:#fff;background:' + (type==='error'?'#f44336':'#4caf50') + ';box-shadow:0 4px 12px rgba(0,0,0,0.3);';
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
+// === HELPER ===
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// === AUTO-REFRESH ===
+function startBetaRefresh() {
+  if (betaRefreshInterval) clearInterval(betaRefreshInterval);
+  betaRefreshInterval = setInterval(loadBetaBuilds, 30000);
+}
+
+function stopBetaRefresh() {
+  if (betaRefreshInterval) { clearInterval(betaRefreshInterval); betaRefreshInterval = null; }
+}
+
+// Make functions global
+window.updateBuildStatus = updateBuildStatus;
+window.saveBuildFeedback = saveBuildFeedback;
+window.sendToTitan = sendToTitan;
+window.openBetaPreview = openBetaPreview;
+window.closeBetaPreview = closeBetaPreview;
+window.loadBetaBuilds = loadBetaBuilds;
 
 </script>
 </div><!-- end #app-content -->
