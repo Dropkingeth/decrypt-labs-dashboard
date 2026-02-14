@@ -2462,6 +2462,10 @@
     <span class="icon">🔨</span>
     <span>The Forge</span>
   </div>
+  <div class="nav-tab" data-tab="prototype">
+    <span class="icon">🚀</span>
+    <span>Prototype</span>
+  </div>
   <div class="nav-tab" data-tab="beta">
     <span class="icon">🧪</span>
     <span>Beta</span>
@@ -3224,7 +3228,94 @@
           document.getElementById('holder-connect-box').style.display = 'none';
           document.getElementById('holder-view').style.display = 'block';
         }
-        // --- BETA LOGIC ---
+        // --- PROTOTYPE LOGIC ---
+    async function loadPrototypeBuilds() {
+      const container = document.getElementById('prototype-builds-grid');
+      const statsContainer = document.getElementById('prototype-stats');
+      container.innerHTML = '<div class="loading">Loading Prototype Lab...</div>';
+
+      try {
+        const res = await fetch('/api/fountain/builds');
+        if (!res.ok) throw new Error('Failed to load builds');
+        const allBuilds = await res.json();
+        
+        // Filter: only 'prototype' status
+        const builds = allBuilds.filter(b => b.status === 'prototype');
+
+        // Stats
+        statsContainer.innerHTML = `
+            <div class="stats-pill"><span style="color:#00bcd4">●</span> Active Prototypes: ${builds.length}</div>
+        `;
+
+        container.innerHTML = '';
+        
+        if (builds.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🚀</div>
+              <h3>No active prototypes</h3>
+              <p>Promote builds from The Forge to start prototyping.</p>
+            </div>`;
+          return;
+        }
+
+        // Sort by date descending
+        builds.sort((a, b) => new Date(b.timestamp || 0) - new Date(a.timestamp || 0));
+
+        builds.forEach(build => {
+          const card = document.createElement('div');
+          card.className = 'card';
+          
+          const tagsHtml = (build.stack || []).map(t => `<span class="tag">${t}</span>`).join('');
+          const dateStr = new Date(build.timestamp).toLocaleString();
+
+          // Auto-detect preview URL (reusing beta logic)
+          const buildSlugMap = {
+            'YouTube Transcriber': 'youtube-transcriber',
+            'Crypto Portfolio Tracker': 'crypto-portfolio',
+            'Crypto Portfolio': 'crypto-portfolio',
+            'Discord Webhook Tester': 'discord-webhook-tester',
+            'Discord Webhook': 'discord-webhook-tester',
+            'Trading Journal': 'trading-journal',
+            'OpenClaw Templates': 'openclaw-templates'
+          };
+          let previewUrl = build.outputUrl || build.previewUrl || '';
+          if (!previewUrl && build.name) {
+            const slug = buildSlugMap[build.name];
+            if (slug) previewUrl = '/beta-preview/' + slug;
+          }
+          let previewBtn = '';
+          if (previewUrl) {
+              previewBtn = `<button class="beta-btn" onclick="openBetaPreview('${previewUrl}', '${(build.name || build.title || 'Build').replace(/'/g, '')}')">👁️ Preview</button>`;
+          }
+
+          card.innerHTML = `
+            <div class="card-header">
+              <h3 class="card-title">${build.name || 'Untitled Build'}</h3>
+              <span class="status-badge live">Prototype</span>
+            </div>
+            <div class="card-meta">
+               <span>${dateStr}</span>
+            </div>
+            <div class="tags">${tagsHtml}</div>
+            <p>${build.description || 'No description provided.'}</p>
+            
+            <div class="beta-actions">
+               ${previewBtn}
+               <button class="beta-btn golive" onclick="updateBuildStatus('${build.id}', 'production')">🚀 Promote to Production</button>
+               <button class="beta-btn" onclick="updateBuildStatus('${build.id}', 'queued')" style="background:#ff980020;color:#ff9800;border:1px solid #ff980040;">🔄 Send Back to Forge</button>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+
+      } catch (err) {
+        console.error(err);
+        container.innerHTML = `<div class="error">Error loading Prototype Lab: ${err.message}</div>`;
+      }
+    }
+
+    // --- BETA LOGIC ---
 
     async function loadBetaBuilds() {
       const container = document.getElementById('beta-builds-grid');
@@ -3281,8 +3372,12 @@
              statusLabel = 'Ready for Review';
           } else if (build.status === 'review') {
              statusLabel = 'Ready for Review';
-          } else if (build.status === 'live') {
+          } else if (build.status === 'live' || build.status === 'production') {
              statusLabel = '🚀 Live';
+             statusClass = 'live';
+          } else if (build.status === 'prototype') {
+             statusLabel = '🚀 Prototype';
+             statusClass = 'live';
           }
 
           const tagsHtml = (build.stack || []).map(t => `<span class="tag">${t}</span>`).join('');
@@ -3330,7 +3425,7 @@
                 <button class="beta-btn rebuild" onclick="updateBuildStatus('${build.id}', 'queued')">🔄 Rebuild</button>
                 <button class="beta-btn approve" onclick="updateBuildStatus('${build.id}', 'approved')">✅ Re-Approve</button>
              `;
-          } else if (build.status === 'live') {
+          } else if (build.status === 'live' || build.status === 'production') {
              actionsHtml = `
                  <button class="beta-btn" disabled style="opacity:0.5">Live & Deployed</button>
              `;
@@ -3914,6 +4009,21 @@
     </div>
   </div>
 
+  <!-- PROTOTYPE TAB -->
+  <div id="tab-prototype" class="tab-content">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+      <div>
+        <h2 style="margin:0;font-size:20px;">🚀 Prototype Lab</h2>
+        <p style="color:#888;font-size:13px;margin:4px 0 0;">Building to completion. Ready for real users.</p>
+      </div>
+      <div id="prototype-stats" style="font-size:12px;color:#888;"></div>
+    </div>
+
+    <div id="prototype-builds-grid" class="cards-grid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap:20px;">
+      <div class="loading">Loading Prototype Lab...</div>
+    </div>
+  </div>
+
   <!-- BETA TAB -->
   <div id="tab-beta" class="tab-content">
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
@@ -4024,6 +4134,10 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
     tab.classList.add('active');
     const target = tab.getAttribute('data-tab');
     document.getElementById('tab-' + target).classList.add('active');
+    
+    if (target === 'prototype') loadPrototypeBuilds();
+    if (target === 'beta') loadBetaBuilds();
+    if (target === 'forge') fetchForgeBuilds();
   });
 });
 

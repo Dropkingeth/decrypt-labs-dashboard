@@ -2576,7 +2576,7 @@ const server = http.createServer(async (req, res) => {
 
         // Validate status if present
         if (patchData.status) {
-          const validStatuses = ['queued', 'building', 'done', 'failed', 'review', 'approved', 'rejected', 'live', 'archived'];
+          const validStatuses = ['queued', 'building', 'done', 'failed', 'review', 'approved', 'rejected', 'live', 'archived', 'prototype', 'production'];
           if (!validStatuses.includes(patchData.status)) {
              res.writeHead(400, fountainCors);
              res.end(JSON.stringify({ error: 'Invalid status' }));
